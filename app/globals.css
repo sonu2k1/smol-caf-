@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-color: #F3E7D3;
+  --text-color: #241F1C;
+  --card-bg: #EADCBF;
+  --border-color: #C9AE8B;
+  --cherry-accent: #B72E35;
+  --butter-accent: #F2C84B;
+  --walnut-text: #725039;
+  --dusty-pool: #75AFA7;
+}
+
+.dark {
+  --bg-color: #241F1C;
+  --text-color: #F3E7D3;
+  --card-bg: #2F2A27;
+  --border-color: #453E38;
+  --cherry-accent: #B72E35;
+  --butter-accent: #F2C84B;
+  --walnut-text: #C9AE8B;
+  --dusty-pool: #75AFA7;
+  --electric-violet: #754CFF;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-inter), sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Custom scrollbars for clean mobile appearance */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(114, 80, 57, 0.3);
+  border-radius: 4px;
+}
+
+/* Typography specifics */
+.font-brand-title {
+  font-family: var(--font-eb-garamond), serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.font-brand-mono {
+  font-family: var(--font-noto-mono), monospace;
+}
+
+/* Touch targets */
+button, input, select {
+  min-height: 44px;
+}
+
+/* Receipt print style */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}
