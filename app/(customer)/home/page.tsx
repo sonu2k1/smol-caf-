@@ -104,7 +104,7 @@ export default function HomePage() {
             className="group block rounded-t-[70px] rounded-b-lg overflow-hidden shadow-sm hover:scale-[1.02] active:scale-98 transition-transform"
           >
             <img
-              src="/home_card_feedme.png"
+              src="/home_card_feedme_hd.png"
               alt="FEED ME - I'm hungry"
               className="w-full h-auto object-contain rounded-t-[70px] rounded-b-lg"
             />
@@ -116,7 +116,7 @@ export default function HomePage() {
             className="group block rounded-t-[70px] rounded-b-lg overflow-hidden shadow-sm hover:scale-[1.02] active:scale-98 transition-transform"
           >
             <img
-              src="/home_card_coffee.png"
+              src="/home_card_coffee_hd.png"
               alt="COFFEE FIRST - But make it strong"
               className="w-full h-auto object-contain rounded-t-[70px] rounded-b-lg"
             />
@@ -128,7 +128,7 @@ export default function HomePage() {
             className="group block rounded-t-[70px] rounded-b-lg overflow-hidden shadow-sm hover:scale-[1.02] active:scale-98 transition-transform"
           >
             <img
-              src="/home_card_chai.png"
+              src="/home_card_chai_hd.png"
               alt="CHAI SCENE - Spiced & soothing"
               className="w-full h-auto object-contain rounded-t-[70px] rounded-b-lg"
             />
@@ -140,7 +140,7 @@ export default function HomePage() {
             className="group block rounded-t-[70px] rounded-b-lg overflow-hidden shadow-sm hover:scale-[1.02] active:scale-98 transition-transform"
           >
             <img
-              src="/home_card_light.png"
+              src="/home_card_light_hd.png"
               alt="SOMETHING LIGHT - Fresh & easy"
               className="w-full h-auto object-contain rounded-t-[70px] rounded-b-lg"
             />
