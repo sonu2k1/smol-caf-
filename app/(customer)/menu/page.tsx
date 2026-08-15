@@ -214,16 +214,15 @@ function MenuContent() {
           <div className="rounded-3xl border border-brand-biscuit/40 dark:border-[#3A2D25]/80 bg-[#FAF4EA]/40 dark:bg-[#1E1815] p-3.5 divide-y divide-brand-biscuit/20 dark:divide-[#2E241E] shadow-sm">
             {signatureItems.map((item) => {
               const itemImage =
-                item.image ||
-                (item.id === 'item-1'
+                item.id === 'item-1'
                   ? '/item-pourover.png'
                   : item.id === 'item-2'
-                  ? '/item-espresso.png'
+                  ? '/item-espresso-arch.png'
                   : item.id === 'item-3'
-                  ? '/item-flatwhite.png'
+                  ? '/item-flatwhite-arch.png'
                   : item.id === 'item-4'
-                  ? '/item-kulhadchai.png'
-                  : '/item-pourover.png');
+                  ? '/item-kulhadchai-arch.png'
+                  : item.image || '/item-pourover.png';
 
               return (
                 <Link

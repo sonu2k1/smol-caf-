@@ -73,13 +73,22 @@ export default function ItemDetailPage() {
   };
 
   // Hero Image
-  const heroImage = item.image || (
-    item.id === 'item-1' ? '/item-pourover-hero.png' :
-    item.id === 'item-2' ? '/item-espresso.png' :
-    item.id === 'item-3' ? '/item-flatwhite.png' :
-    item.id === 'item-4' ? '/item-kulhadchai.png' :
-    item.id === 'item-14' ? '/item-guavafizz.png' : '/mood-coffee-card.png'
-  );
+  const heroImage =
+    item.id === 'item-1'
+      ? '/item-pourover.png'
+      : item.id === 'item-2'
+      ? '/item-espresso-arch.png'
+      : item.id === 'item-3'
+      ? '/item-flatwhite-arch.png'
+      : item.id === 'item-4'
+      ? '/item-kulhadchai-arch.png'
+      : item.id === 'item-5'
+      ? '/item-chaas-hero.png'
+      : item.id === 'item-11'
+      ? '/item_rosebrew.jpg'
+      : item.id === 'item-14'
+      ? '/item-guavafizz.png'
+      : item.image || '/item-pourover.png';
 
   return (
     <div className="px-5 py-4 space-y-5 animate-in fade-in duration-300 relative pb-28 min-h-[85vh] bg-brand-creme dark:bg-brand-espresso transition-colors">
