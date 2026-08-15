@@ -229,15 +229,17 @@ function MenuContent() {
                 <Link
                   key={item.id}
                   href={`/item/${item.id}`}
-                  className="py-3 first:pt-1 last:pb-1 flex items-center justify-between gap-3 group transition-opacity"
+                  className="py-3 first:pt-1 last:pb-1 flex items-center justify-between gap-3.5 group transition-opacity"
                 >
-                  {/* Left Thumbnail Image */}
-                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-brand-biscuit/20 dark:bg-[#2A201B] border border-brand-biscuit/30 dark:border-[#3A2D25] flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                    <img
-                      src={itemImage}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
+                  {/* Double-Line Arched Thumbnail Frame matching reference image */}
+                  <div className="w-[68px] h-[92px] rounded-t-[34px] rounded-b-[4px] p-[2.5px] bg-[#FAF4EA] dark:bg-[#1A1411] border border-[#D8C7B0] dark:border-[#524438] flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                    <div className="w-full h-full rounded-t-[31px] rounded-b-[2px] border border-[#D8C7B0]/90 dark:border-[#524438]/90 overflow-hidden relative">
+                      <img
+                        src={itemImage}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                   </div>
 
                   {/* Middle Content */}
@@ -305,15 +307,17 @@ function MenuContent() {
                 <Link
                   key={item.id}
                   href={`/item/${item.id}`}
-                  className="py-3 first:pt-1 last:pb-1 flex items-center justify-between gap-3 group transition-opacity"
+                  className="py-3 first:pt-1 last:pb-1 flex items-center justify-between gap-3.5 group transition-opacity"
                 >
-                  {/* Left Thumbnail Image */}
-                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-brand-biscuit/20 dark:bg-[#2A201B] border border-brand-biscuit/30 dark:border-[#3A2D25] flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                    <img
-                      src={itemImage}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
+                  {/* Double-Line Arched Thumbnail Frame */}
+                  <div className="w-[68px] h-[92px] rounded-t-[34px] rounded-b-[4px] p-[2.5px] bg-[#FAF4EA] dark:bg-[#1A1411] border border-[#D8C7B0] dark:border-[#524438] flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                    <div className="w-full h-full rounded-t-[31px] rounded-b-[2px] border border-[#D8C7B0]/90 dark:border-[#524438]/90 overflow-hidden relative">
+                      <img
+                        src={itemImage}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                   </div>
 
                   {/* Middle Content */}
@@ -371,14 +375,17 @@ function MenuContent() {
                 <Link
                   key={item.id}
                   href={`/item/${item.id}`}
-                  className="py-3 first:pt-1 last:pb-1 flex items-center justify-between gap-3 group transition-opacity"
+                  className="py-3 first:pt-1 last:pb-1 flex items-center justify-between gap-3.5 group transition-opacity"
                 >
-                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-brand-biscuit/20 dark:bg-[#2A201B] border border-brand-biscuit/30 dark:border-[#3A2D25] flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                    <img
-                      src={itemImage}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
+                  {/* Double-Line Arched Thumbnail Frame */}
+                  <div className="w-[68px] h-[92px] rounded-t-[34px] rounded-b-[4px] p-[2.5px] bg-[#FAF4EA] dark:bg-[#1A1411] border border-[#D8C7B0] dark:border-[#524438] flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                    <div className="w-full h-full rounded-t-[31px] rounded-b-[2px] border border-[#D8C7B0]/90 dark:border-[#524438]/90 overflow-hidden relative">
+                      <img
+                        src={itemImage}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                   </div>
 
                   <div className="flex-1 space-y-0.5 pr-1">
