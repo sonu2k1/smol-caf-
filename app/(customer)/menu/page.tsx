@@ -115,9 +115,9 @@ function MenuContent() {
   );
 
   return (
-    <div className="px-4 py-3 space-y-4 animate-in fade-in duration-300 pb-28 min-h-[85vh] bg-brand-creme dark:bg-[#140F0D] text-brand-espresso dark:text-[#EFE7D8] transition-colors">
-      {/* Header Bar with Back Button, Centered 'Menu' Title, and Search Button */}
-      <div className="flex items-center justify-between border-b border-brand-biscuit/30 dark:border-[#3A2D25] pb-3 pt-1">
+    <div className="animate-in fade-in duration-300 pb-28 min-h-[85vh] bg-brand-creme dark:bg-[#140F0D] text-brand-espresso dark:text-[#EFE7D8] transition-colors">
+      {/* Sticky / Fixed Top Header Bar */}
+      <div className="sticky top-0 z-30 bg-brand-creme/95 dark:bg-[#140F0D]/95 backdrop-blur px-4 pt-4 pb-3 border-b border-brand-biscuit/30 dark:border-[#3A2D25] flex items-center justify-between">
         <button
           onClick={() => router.push('/home')}
           className="w-8 h-8 rounded-full flex items-center justify-center text-brand-espresso dark:text-brand-creme hover:bg-brand-biscuit/20 transition-colors"
@@ -139,10 +139,11 @@ function MenuContent() {
         </button>
       </div>
 
-      {/* Top Prompt Line */}
-      <p className="font-serif italic text-sm text-brand-walnut/80 dark:text-[#9E8E82]">
-        what are we brewing today?
-      </p>
+      <div className="px-4 py-3 space-y-4">
+        {/* Top Prompt Line */}
+        <p className="font-serif italic text-sm text-brand-walnut/80 dark:text-[#9E8E82]">
+          what are we brewing today?
+        </p>
 
       {/* Expandable Search Input */}
       {showSearch && (
@@ -404,6 +405,7 @@ function MenuContent() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

@@ -25,9 +25,9 @@ export default function CustomerProfilePage() {
   };
 
   return (
-    <div className="px-4 py-4 space-y-6 animate-in fade-in duration-300 pb-28 min-h-[85vh] bg-brand-creme dark:bg-brand-espresso transition-colors">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-brand-biscuit/30 dark:border-brand-espressoCard pb-3">
+    <div className="animate-in fade-in duration-300 pb-28 min-h-[85vh] bg-brand-creme dark:bg-brand-espresso transition-colors">
+      {/* Sticky / Fixed Top Header */}
+      <div className="sticky top-0 z-30 bg-brand-creme/95 dark:bg-brand-espresso/95 backdrop-blur px-4 pt-4 pb-3 border-b border-brand-biscuit/30 dark:border-brand-espressoCard flex items-center justify-between">
         <div>
           <span className="font-mono text-[10px] text-brand-electricViolet dark:text-purple-400 uppercase tracking-widest block">
             what&apos;s on / profile
@@ -44,6 +44,8 @@ export default function CustomerProfilePage() {
           R
         </div>
       </div>
+
+      <div className="px-4 py-4 space-y-6">
 
       {/* WHAT'S ON Banner: Live Listening Session */}
       <div className="space-y-2">
@@ -247,6 +249,7 @@ export default function CustomerProfilePage() {
             <ChevronRight className="w-4 h-4 text-red-400" />
           </Link>
         </div>
+      </div>
       </div>
     </div>
   );
