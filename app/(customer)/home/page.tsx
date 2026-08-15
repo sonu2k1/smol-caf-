@@ -148,12 +148,12 @@ export default function HomePage() {
         </div>
 
         {/* Today's Blackboard Card matching exact reference design */}
-        <div className="pt-2">
-          <div className="rounded-t-[44px] rounded-b-xl overflow-hidden shadow-md">
+        <div className="pt-1 pb-2">
+          <div className="rounded-[28px] overflow-hidden drop-shadow-md hover:scale-[1.01] transition-transform">
             <img
-              src="/home_card_blackboard.png"
+              src="/home_blackboard_hd_clean.png"
               alt="Today's Blackboard - Jaggery Sea-Salt Latte is our new crush. ♡"
-              className="w-full h-auto object-contain rounded-t-[44px] rounded-b-xl"
+              className="w-full h-auto object-contain rounded-[28px]"
             />
           </div>
         </div>
