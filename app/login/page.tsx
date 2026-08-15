@@ -61,10 +61,17 @@ export default function StaffLoginPage() {
   return (
     <div className="px-4 py-8 space-y-6 animate-in fade-in duration-200">
       {/* Brand Header */}
-      <div className="text-center space-y-2">
-        <div className="w-12 h-12 rounded-full bg-brand-cherry mx-auto flex items-center justify-center text-white shadow-md">
-          <Lock className="w-6 h-6" />
-        </div>
+      <div className="text-center space-y-2 flex flex-col items-center">
+        <img
+          src="/logo-transparent.png"
+          alt="smol café official logo (day)"
+          className="h-16 w-auto object-contain drop-shadow-md hover:scale-105 transition-transform dark:hidden"
+        />
+        <img
+          src="/logo-dark-transparent.png"
+          alt="smol café official logo (night)"
+          className="h-16 w-auto object-contain drop-shadow-[0_0_16px_rgba(117,76,255,0.7)] hover:scale-105 transition-transform hidden dark:block"
+        />
         <h2 className="font-serif text-2xl font-bold text-brand-espresso dark:text-brand-creme lowercase">
           smol café staff login
         </h2>

@@ -4,6 +4,7 @@ import './globals.css';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/context/AuthContext';
 import NavigationHeader from '@/components/NavigationHeader';
+import CustomerBottomNav from '@/components/CustomerBottomNav';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -24,8 +25,13 @@ const notoMono = Noto_Sans_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'smol café — pos & ops system',
-  description: 'warm, literary mobile web pos for smol café (rishikesh)',
+  title: 'smol café — guest ordering experience & pos',
+  description: 'late nights. good coffee. better conversations.',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/apple-icon.png',
+  },
 };
 
 export default function RootLayout({
@@ -38,9 +44,10 @@ export default function RootLayout({
       <body className="bg-brand-creme text-brand-espresso dark:bg-brand-espresso dark:text-brand-creme min-h-screen selection:bg-brand-cherry selection:text-white transition-colors duration-200">
         <ThemeProvider>
           <AuthProvider>
-            <div className="max-w-md mx-auto min-h-screen shadow-2xl relative flex flex-col bg-brand-creme dark:bg-brand-espresso border-x border-brand-biscuit/20 dark:border-brand-espresso/50">
+            <div className="max-w-md mx-auto min-h-screen shadow-2xl relative flex flex-col bg-brand-creme dark:bg-brand-espresso border-x border-brand-biscuit/20 dark:border-brand-espressoCard">
               <NavigationHeader />
-              <main className="flex-1 pb-16">{children}</main>
+              <main className="flex-1">{children}</main>
+              <CustomerBottomNav />
             </div>
           </AuthProvider>
         </ThemeProvider>

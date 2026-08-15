@@ -13,40 +13,54 @@ export const initialCategories: Category[] = [
 export const initialMenuItems: MenuItem[] = [
   {
     id: 'item-1',
-    name: 'tapovan pour over',
+    name: 'Tapovan Pour Over',
     categoryId: 'cat-1',
     price: 180,
-    description: 'single-origin South Indian estate beans, light floral notes',
+    description: 'Single-origin South Indian estate beans, light floral notes',
     available: true,
     isVeg: true,
     isSpecial: true,
+    image: '/item-pourover.png',
   },
   {
     id: 'item-2',
-    name: 'smol espresso',
+    name: 'Smol Espresso',
     categoryId: 'cat-1',
     price: 120,
-    description: 'double shot, rich dark chocolate notes & thick crema',
+    description: 'Double shot, rich dark chocolate notes & thick crema',
     available: true,
     isVeg: true,
+    image: '/item-espresso.png',
   },
   {
     id: 'item-3',
-    name: 'oat milk flat white',
+    name: 'Oat Milk Flat White',
     categoryId: 'cat-1',
     price: 210,
-    description: 'creamy microfoam oat milk over velvety espresso',
+    description: 'Creamy microfoam oat milk over velvety espresso',
     available: true,
     isVeg: true,
+    image: '/item-flatwhite.png',
   },
   {
     id: 'item-4',
-    name: 'himalayan kulhad masala chai',
+    name: 'Himalayan Kulhad Masala Chai',
     categoryId: 'cat-2',
     price: 90,
-    description: 'brewed with fresh lemongrass, ginger & green cardamom',
+    description: 'Brewed with lemongrass, ginger & green cardamom',
     available: true,
     isVeg: true,
+    image: '/item-kulhadchai.png',
+  },
+  {
+    id: 'item-14',
+    name: 'Guava Chilli Fizz',
+    categoryId: 'cat-5',
+    price: 160,
+    description: 'Pink guava, lime, chilli & a hint of mint',
+    available: true,
+    isVeg: true,
+    image: '/item-guavafizz.png',
   },
   {
     id: 'item-5',
@@ -56,6 +70,7 @@ export const initialMenuItems: MenuItem[] = [
     description: 'chilled artisanal buttermilk topped with black salt',
     available: true,
     isVeg: true,
+    image: '/item_chaas.jpg',
   },
   {
     id: 'item-6',
@@ -66,6 +81,7 @@ export const initialMenuItems: MenuItem[] = [
     available: true,
     isVeg: true,
     isSpecial: true,
+    image: '/item_avocado.jpg',
   },
   {
     id: 'item-7',
@@ -75,6 +91,7 @@ export const initialMenuItems: MenuItem[] = [
     description: 'pan-seared wild mushrooms with thyme on toasted sourdough',
     available: true,
     isVeg: true,
+    image: '/item_mushroom.jpg',
   },
   {
     id: 'item-8',
@@ -84,6 +101,7 @@ export const initialMenuItems: MenuItem[] = [
     description: 'quinoa, roasted chickpeas, kale, roasted pumpkin & tahini',
     available: true,
     isVeg: true,
+    image: '/mood-light-card.png',
   },
   {
     id: 'item-9',
@@ -93,6 +111,7 @@ export const initialMenuItems: MenuItem[] = [
     description: 'grilled cottage cheese, basil pesto & sun-dried tomatoes',
     available: true,
     isVeg: true,
+    image: '/item_panini.jpg',
   },
   {
     id: 'item-10',
@@ -103,6 +122,7 @@ export const initialMenuItems: MenuItem[] = [
     available: true,
     isVeg: true,
     isSpecial: true,
+    image: '/item_rosebrew.jpg',
   },
   {
     id: 'item-11',
@@ -112,6 +132,7 @@ export const initialMenuItems: MenuItem[] = [
     description: 'blended espresso with house caramel & sea salt flakes',
     available: true,
     isVeg: true,
+    image: '/mood-coffee-card.png',
   },
   {
     id: 'item-12',
@@ -121,6 +142,7 @@ export const initialMenuItems: MenuItem[] = [
     description: 'fudgy 70% dark chocolate slice served warm with vanilla cream',
     available: true,
     isVeg: true,
+    image: '/item_chocolatecake.jpg',
   },
   {
     id: 'item-13',
@@ -130,6 +152,7 @@ export const initialMenuItems: MenuItem[] = [
     description: 'moist citrus loaf slice with subtle herbal thyme undertones',
     available: true,
     isVeg: true,
+    image: '/item_chocolatecake.jpg',
   },
 ];
 

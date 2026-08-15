@@ -480,7 +480,12 @@ export default function CashierPage() {
       {completedOrder && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
           <div className="bg-white text-black rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl border border-gray-200">
-            <div className="text-center border-b border-dashed border-gray-300 pb-3">
+            <div className="text-center border-b border-dashed border-gray-300 pb-3 flex flex-col items-center">
+              <img
+                src="/logo.png"
+                alt="smol café official logo"
+                className="h-12 w-auto object-contain mb-1"
+              />
               <h2 className="font-serif text-2xl font-bold lowercase tracking-tight">
                 smol café
               </h2>

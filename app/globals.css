@@ -4,20 +4,23 @@
 
 :root {
   --bg-color: #F3E7D3;
-  --text-color: #241F1C;
-  --card-bg: #EADCBF;
-  --border-color: #C9AE8B;
-  --cherry-accent: #B72E35;
-  --butter-accent: #F2C84B;
-  --walnut-text: #725039;
-  --dusty-pool: #75AFA7;
+  --text-color: #1E1B14;
+  --card-bg: #F3E7D3;
+  --card-border: #E8E2D6;
+  --border-color: #8C716E;
+  --cherry-accent: #A12A26;
+  --butter-accent: #E7C772;
+  --walnut-text: #58413F;
+  --dusty-pool: #5E8C8F;
+  --electric-violet: #754CFF;
 }
 
 .dark {
-  --bg-color: #241F1C;
+  --bg-color: #121010;
   --text-color: #F3E7D3;
-  --card-bg: #2F2A27;
-  --border-color: #453E38;
+  --card-bg: #1C1817;
+  --card-border: #2F2A27;
+  --border-color: #3D3530;
   --cherry-accent: #B72E35;
   --butter-accent: #F2C84B;
   --walnut-text: #C9AE8B;
@@ -33,13 +36,13 @@ body {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-/* Custom scrollbars for clean mobile appearance */
+/* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -47,8 +50,16 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(114, 80, 57, 0.3);
+  background: rgba(114, 80, 57, 0.25);
   border-radius: 4px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Typography specifics */
@@ -60,6 +71,51 @@ body {
 
 .font-brand-mono {
   font-family: var(--font-noto-mono), monospace;
+}
+
+/* Glowing Neon & Arch Effects */
+.arch-container {
+  border-top-left-radius: 120px;
+  border-top-right-radius: 120px;
+}
+
+.sketched-border {
+  border: 1px solid var(--border-color);
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+}
+
+.sketched-border-circle {
+  border: 1px solid var(--border-color);
+  border-radius: 50% 52% 48% 51% / 49% 51% 48% 52%;
+}
+
+.glow-violet {
+  box-shadow: 0 0 25px rgba(117, 76, 255, 0.4), inset 0 0 15px rgba(117, 76, 255, 0.2);
+}
+
+.glow-cherry {
+  box-shadow: 0 0 25px rgba(183, 46, 53, 0.5), inset 0 0 15px rgba(183, 46, 53, 0.2);
+}
+
+.glow-gold {
+  box-shadow: 0 0 20px rgba(242, 200, 75, 0.35);
+}
+
+/* Pulse Keyframes for Live Order Status Brewing Animation */
+@keyframes brewPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+    filter: drop-shadow(0 0 12px rgba(214, 52, 60, 0.8));
+  }
+}
+
+.animate-brew-pulse {
+  animation: brewPulse 3s ease-in-out infinite;
 }
 
 /* Touch targets */
