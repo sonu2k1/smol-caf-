@@ -101,14 +101,16 @@ export default function ItemDetailPage() {
         </button>
       </div>
 
-      {/* Arched Hero Photo / Illustration */}
+      {/* Double-Line Arched Hero Photo Frame matching reference design */}
       <div className="w-full relative flex flex-col items-center">
-        <div className="w-full h-64 rounded-arch border border-brand-biscuit/40 dark:border-brand-espressoCard bg-[#FAF3E7] dark:bg-brand-espressoLight shadow-md overflow-hidden relative flex items-center justify-center">
-          <img
-            src={heroImage}
-            alt={item.name}
-            className="w-full h-full object-cover"
-          />
+        <div className="w-full max-w-sm h-80 rounded-t-[140px] rounded-b-2xl p-2 bg-[#FAF4EA] dark:bg-[#1C1714] border-2 border-[#D8C7B0] dark:border-[#524438] shadow-md flex items-center justify-center">
+          <div className="w-full h-full rounded-t-[130px] rounded-b-xl border border-[#D8C7B0]/90 dark:border-[#524438]/90 overflow-hidden relative">
+            <img
+              src={heroImage}
+              alt={item.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
         </div>
       </div>
 
