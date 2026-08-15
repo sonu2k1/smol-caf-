@@ -4,17 +4,16 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { customerStore } from '@/lib/customer-store';
-import { APP_CONFIG } from '@/lib/config';
-import { CreditCard, QrCode, Wallet, ShieldCheck, CheckCircle2, Coffee, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Lock, CheckCircle2, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-export default function PaymentPage() {
+export default function SettleUpPaymentPage() {
   const router = useRouter();
   const [subtotal, setSubtotal] = useState(700);
   const [taxes, setTaxes] = useState(42);
   const [grandTotal, setGrandTotal] = useState(742);
-  const [selectedMethod, setSelectedMethod] = useState<'upi' | 'card' | 'wallet'>('upi');
   const [processing, setProcessing] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [orderNo, setOrderNo] = useState('');
 
@@ -27,7 +26,8 @@ export default function PaymentPage() {
     setGrandTotal(itemsTotal + taxVal);
   }, []);
 
-  const handlePayNow = () => {
+  const handlePay = (method: string) => {
+    setSelectedMethod(method);
     setProcessing(true);
 
     setTimeout(() => {
@@ -45,12 +45,12 @@ export default function PaymentPage() {
       } catch (err) {
         // ignore if confetti fails
       }
-    }, 1500);
+    }, 1200);
   };
 
   if (isSuccess) {
     return (
-      <div className="px-5 py-10 space-y-6 text-center animate-in zoom-in-95 duration-300 min-h-[80vh] flex flex-col items-center justify-center">
+      <div className="px-5 py-10 space-y-6 text-center animate-in zoom-in-95 duration-300 min-h-[85vh] flex flex-col items-center justify-center bg-brand-creme dark:bg-brand-espresso transition-colors">
         <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border-2 border-emerald-500 text-emerald-500 flex items-center justify-center mx-auto shadow-xl">
           <CheckCircle2 className="w-10 h-10" />
         </div>
@@ -67,7 +67,7 @@ export default function PaymentPage() {
           </p>
         </div>
 
-        <div className="bg-brand-cremeMuted dark:bg-brand-espressoLight border border-brand-biscuit/50 dark:border-brand-espressoCard rounded-2xl p-4 w-full max-w-xs text-center space-y-1">
+        <div className="bg-transparent border border-brand-biscuit/50 dark:border-brand-espressoCard rounded-2xl p-4 w-full max-w-xs text-center space-y-1">
           <span className="text-[10px] font-mono uppercase text-brand-walnut dark:text-brand-biscuit">
             ORDER NUMBER
           </span>
@@ -82,7 +82,7 @@ export default function PaymentPage() {
         <div className="w-full max-w-xs space-y-2 pt-2">
           <Link
             href="/order-status"
-            className="w-full py-3.5 px-6 rounded-full bg-brand-cherry dark:bg-brand-cherryGlow text-white font-sans text-sm font-semibold shadow-neonCherry hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+            className="w-full py-3.5 px-6 rounded-full bg-brand-cherry text-white font-sans text-sm font-semibold shadow-md hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
           >
             <Sparkles className="w-4 h-4" />
             <span>Track Order Status</span>
@@ -93,170 +93,208 @@ export default function PaymentPage() {
   }
 
   return (
-    <div className="px-4 py-4 space-y-6 animate-in fade-in duration-300 relative pb-28">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-brand-biscuit/30 dark:border-brand-espressoCard pb-3">
-        <div>
-          <span className="font-mono text-[10px] text-brand-cherry dark:text-brand-butter uppercase tracking-widest block">
-            6. payment / settle up
-          </span>
-          <h2 className="font-serif text-3xl font-bold tracking-tight text-brand-espresso dark:text-brand-creme lowercase">
-            Settle Up
-          </h2>
-        </div>
+    <div className="px-5 py-4 space-y-4 animate-in fade-in duration-300 relative min-h-[90vh] bg-brand-creme dark:bg-brand-espresso transition-colors max-w-md mx-auto pb-8">
+      {/* Header Bar */}
+      <div className="relative flex items-center justify-center pb-1 pt-1">
+        <button
+          onClick={() => router.back()}
+          className="absolute left-0 w-8 h-8 rounded-full flex items-center justify-center text-brand-espresso dark:text-brand-creme hover:bg-brand-biscuit/20 transition-colors"
+          aria-label="Go back"
+        >
+          <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
+        </button>
+
+        <h2 className="font-serif text-2xl font-bold text-brand-espresso dark:text-brand-creme text-center tracking-tight">
+          Settle Up
+        </h2>
       </div>
 
-      {/* Coffee Receipt Header Graphic */}
-      <div className="bg-brand-cremeMuted dark:bg-brand-espressoLight border border-brand-biscuit/50 dark:border-brand-espressoCard rounded-2xl p-5 text-center space-y-2 shadow-sm relative overflow-hidden flex flex-col items-center">
-        <img
-          src="/logo-transparent.png"
-          alt="smol café official logo (day)"
-          className="h-14 w-auto object-contain drop-shadow-md hover:scale-105 transition-transform dark:hidden"
+      {/* Main Arch Bill Card with double-line contour */}
+      <div className="relative w-full rounded-t-[130px] rounded-b-2xl border border-[#D4C3A6] dark:border-brand-espressoCard bg-transparent p-5 space-y-3 shadow-sm overflow-hidden">
+        {/* Inner parallel decorative border line */}
+        <div
+          className="absolute pointer-events-none rounded-t-[126px] rounded-b-xl border border-[#D4C3A6]/40 dark:border-brand-espressoCard/40"
+          style={{
+            top: '3px',
+            left: '3px',
+            right: '3px',
+            bottom: '3px',
+          }}
         />
-        <img
-          src="/logo-dark-transparent.png"
-          alt="smol café official logo (night)"
-          className="h-14 w-auto object-contain drop-shadow-[0_0_12px_rgba(117,76,255,0.7)] hover:scale-105 transition-transform hidden dark:block"
+
+        {/* Exact Coffee Cup and Bill Illustration from reference */}
+        <div className="w-full flex justify-center pt-2 pb-0 relative z-10">
+          <img
+            src="/exact_coffee_bill_clean.png"
+            alt="Coffee cup and bill illustration"
+            className="w-48 h-24 object-contain mix-blend-multiply dark:mix-blend-normal pointer-events-none"
+          />
+        </div>
+
+        {/* Headings */}
+        <div className="text-center space-y-1 relative z-10">
+          <h3 className="font-serif text-[26px] font-bold text-brand-espresso dark:text-brand-creme leading-tight">
+            Good things<br />deserve good pauses.
+          </h3>
+          <p className="font-serif italic text-sm text-brand-walnut/85 dark:text-brand-biscuit pt-0.5">
+            Here&apos;s your bill.
+          </p>
+        </div>
+
+        {/* Dotted Divider */}
+        <div
+          className="my-3 relative z-10"
+          style={{
+            borderBottom: '1.5px dotted #D4C3A6',
+          }}
         />
 
-        <h3 className="font-serif text-xl italic font-semibold text-brand-espresso dark:text-brand-creme">
-          Good things deserve good pauses.
-        </h3>
-        <p className="font-serif italic text-xs text-brand-walnut dark:text-brand-biscuit">
-          Here&apos;s your bill for Table 07.
-        </p>
-      </div>
-
-      {/* Bill Itemized Breakdown */}
-      <div className="p-4 rounded-2xl bg-brand-creme dark:bg-brand-espressoLight border border-brand-biscuit/40 dark:border-brand-espressoCard space-y-2.5 shadow-sm">
-        <div className="flex items-center justify-between text-xs font-sans text-brand-espresso dark:text-brand-creme">
-          <span>Items Total</span>
-          <span className="font-mono font-semibold">{APP_CONFIG.defaultCurrency}{subtotal}</span>
+        {/* Bill Breakdown */}
+        <div className="space-y-1.5 font-mono text-sm relative z-10">
+          <div className="flex items-center justify-between text-brand-walnut dark:text-brand-biscuit">
+            <span>Items Total</span>
+            <span className="font-semibold">₹{subtotal}</span>
+          </div>
+          <div className="flex items-center justify-between text-brand-walnut dark:text-brand-biscuit">
+            <span>Taxes &amp; Charges</span>
+            <span className="font-semibold">₹{taxes}</span>
+          </div>
         </div>
 
-        <div className="flex items-center justify-between text-xs font-sans text-brand-walnut dark:text-brand-biscuit">
-          <span>Taxes & Charges (6%)</span>
-          <span className="font-mono font-semibold">{APP_CONFIG.defaultCurrency}{taxes}</span>
-        </div>
-
-        <div className="border-t border-dashed border-brand-biscuit/40 dark:border-brand-espressoCard pt-2 flex items-center justify-between text-base font-bold text-brand-espresso dark:text-brand-creme">
-          <span className="font-serif">Grand Total</span>
-          <span className="font-mono text-xl text-brand-cherry dark:text-brand-butter">
-            {APP_CONFIG.defaultCurrency}{grandTotal}
+        {/* Solid Line & Grand Total */}
+        <div className="border-t border-[#D4C3A6]/50 dark:border-brand-espressoCard pt-3 flex items-center justify-between relative z-10">
+          <span className="font-serif font-bold text-lg text-[#8B2626] dark:text-brand-butter">
+            Grand Total
+          </span>
+          <span className="font-serif text-3xl font-bold text-[#8B2626] dark:text-brand-butter">
+            ₹{grandTotal}
           </span>
         </div>
       </div>
 
-      {/* Payment Options Selection */}
-      <div className="space-y-3">
-        <span className="font-mono text-[10px] text-brand-walnut dark:text-brand-biscuit uppercase tracking-wider block">
-          select payment method
-        </span>
-
-        <div className="space-y-2">
-          {/* UPI */}
-          <button
-            onClick={() => setSelectedMethod('upi')}
-            className={`w-full p-3.5 rounded-2xl border flex items-center justify-between text-left transition-all ${
-              selectedMethod === 'upi'
-                ? 'bg-brand-cherry/10 dark:bg-brand-cherry/20 border-brand-cherry shadow-sm'
-                : 'bg-brand-creme dark:bg-brand-espressoLight border-brand-biscuit/40 dark:border-brand-espressoCard'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-500 flex items-center justify-center">
-                <QrCode className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="font-sans font-semibold text-xs text-brand-espresso dark:text-brand-creme">
-                  UPI
-                </h4>
-                <p className="text-[11px] text-brand-walnut dark:text-brand-biscuit">
-                  Pay with GPay, PhonePe, Paytm or any UPI app
-                </p>
-              </div>
+      {/* Payment Options Section (3 Vertical Cards) */}
+      <div className="space-y-2.5 pt-1">
+        {/* UPI Option */}
+        <button
+          type="button"
+          onClick={() => handlePay('UPI')}
+          disabled={processing}
+          className="w-full p-3.5 rounded-2xl border border-[#D4C3A6] dark:border-brand-espressoCard bg-transparent hover:bg-brand-biscuit/15 transition-all flex items-center justify-between gap-3 text-left group disabled:opacity-50"
+        >
+          <div className="flex items-center gap-3">
+            {/* Official UPI Icon from vectorlogo.zone */}
+            <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+              <img
+                src="/upi-icon.svg"
+                alt="UPI"
+                className="w-7 h-7 object-contain"
+              />
             </div>
-            <span className="font-mono text-xs text-brand-cherry font-bold">
-              {selectedMethod === 'upi' ? '●' : '○'}
-            </span>
-          </button>
-
-          {/* CARD */}
-          <button
-            onClick={() => setSelectedMethod('card')}
-            className={`w-full p-3.5 rounded-2xl border flex items-center justify-between text-left transition-all ${
-              selectedMethod === 'card'
-                ? 'bg-brand-cherry/10 dark:bg-brand-cherry/20 border-brand-cherry shadow-sm'
-                : 'bg-brand-creme dark:bg-brand-espressoLight border-brand-biscuit/40 dark:border-brand-espressoCard'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-500 flex items-center justify-center">
-                <CreditCard className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="font-sans font-semibold text-xs text-brand-espresso dark:text-brand-creme">
-                  Card
-                </h4>
-                <p className="text-[11px] text-brand-walnut dark:text-brand-biscuit">
-                  Visa, MasterCard, Rupay, Amex
-                </p>
-              </div>
+            <div>
+              <h4 className="font-sans font-bold text-sm text-brand-espresso dark:text-brand-creme">
+                UPI
+              </h4>
+              <p className="font-sans text-xs text-brand-walnut/70 dark:text-brand-biscuit">
+                Pay with any UPI app
+              </p>
             </div>
-            <span className="font-mono text-xs text-brand-cherry font-bold">
-              {selectedMethod === 'card' ? '●' : '○'}
-            </span>
-          </button>
+          </div>
+          <ChevronRight className="w-5 h-5 text-brand-walnut/60 group-hover:translate-x-0.5 transition-transform" />
+        </button>
 
-          {/* WALLETS */}
-          <button
-            onClick={() => setSelectedMethod('wallet')}
-            className={`w-full p-3.5 rounded-2xl border flex items-center justify-between text-left transition-all ${
-              selectedMethod === 'wallet'
-                ? 'bg-brand-cherry/10 dark:bg-brand-cherry/20 border-brand-cherry shadow-sm'
-                : 'bg-brand-creme dark:bg-brand-espressoLight border-brand-biscuit/40 dark:border-brand-espressoCard'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-500 flex items-center justify-center">
-                <Wallet className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="font-sans font-semibold text-xs text-brand-espresso dark:text-brand-creme">
-                  Wallets
-                </h4>
-                <p className="text-[11px] text-brand-walnut dark:text-brand-biscuit">
-                  PhonePe, Paytm, Amazon Pay
-                </p>
-              </div>
+        {/* Card Option */}
+        <button
+          type="button"
+          onClick={() => handlePay('Card')}
+          disabled={processing}
+          className="w-full p-3.5 rounded-2xl border border-[#D4C3A6] dark:border-brand-espressoCard bg-transparent hover:bg-brand-biscuit/15 transition-all flex items-center justify-between gap-3 text-left group disabled:opacity-50"
+        >
+          <div className="flex items-center gap-3">
+            {/* Custom Card Vector SVG */}
+            <div className="w-8 h-8 flex items-center justify-center text-brand-espresso dark:text-brand-creme flex-shrink-0">
+              <svg
+                viewBox="0 0 24 24"
+                className="w-6 h-6 text-brand-espresso dark:text-brand-creme"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="2" y="5" width="20" height="14" rx="3.5" />
+                <line x1="2" y1="9.5" x2="22" y2="9.5" />
+                <circle cx="6.5" cy="14.5" r="1.5" />
+                <circle cx="15.5" cy="14.5" r="0.75" fill="currentColor" />
+                <circle cx="18" cy="14.5" r="0.75" fill="currentColor" />
+              </svg>
             </div>
-            <span className="font-mono text-xs text-brand-cherry font-bold">
-              {selectedMethod === 'wallet' ? '●' : '○'}
-            </span>
-          </button>
-        </div>
+            <div>
+              <h4 className="font-sans font-bold text-sm text-brand-espresso dark:text-brand-creme">
+                Card
+              </h4>
+              <p className="font-sans text-xs text-brand-walnut/70 dark:text-brand-biscuit">
+                Visa, MasterCard, Rupay
+              </p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-brand-walnut/60 group-hover:translate-x-0.5 transition-transform" />
+        </button>
+
+        {/* Wallets Option */}
+        <button
+          type="button"
+          onClick={() => handlePay('Wallets')}
+          disabled={processing}
+          className="w-full p-3.5 rounded-2xl border border-[#D4C3A6] dark:border-brand-espressoCard bg-transparent hover:bg-brand-biscuit/15 transition-all flex items-center justify-between gap-3 text-left group disabled:opacity-50"
+        >
+          <div className="flex items-center gap-3">
+            {/* Custom Wallet Vector SVG */}
+            <div className="w-8 h-8 flex items-center justify-center text-brand-espresso dark:text-brand-creme flex-shrink-0">
+              <svg
+                viewBox="0 0 24 24"
+                className="w-6 h-6 text-brand-espresso dark:text-brand-creme"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M7 8V6a2.5 2.5 0 0 1 2.5-2.5h5A2.5 2.5 0 0 1 17 6v2" />
+                <rect x="3" y="8" width="18" height="13" rx="3" />
+                <path d="M15 12h4.5a1.5 1.5 0 0 1 1.5 1.5v0a1.5 1.5 0 0 1-1.5 1.5H15a1.5 1.5 0 0 1-1.5-1.5v0a1.5 1.5 0 0 1 1.5-1.5z" />
+                <circle cx="15" cy="13.5" r="0.75" fill="currentColor" />
+              </svg>
+            </div>
+            <div>
+              <h4 className="font-sans font-bold text-sm text-brand-espresso dark:text-brand-creme">
+                Wallets
+              </h4>
+              <p className="font-sans text-xs text-brand-walnut/70 dark:text-brand-biscuit">
+                PhonePe, Paytm, etc.
+              </p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-brand-walnut/60 group-hover:translate-x-0.5 transition-transform" />
+        </button>
       </div>
 
-      {/* 100% Secure Badge */}
-      <div className="flex items-center justify-center gap-1.5 text-[11px] text-brand-walnut dark:text-brand-biscuit font-mono pt-1">
-        <ShieldCheck className="w-4 h-4 text-emerald-500" />
+      {/* Security Footer Note */}
+      <div className="text-center pt-3 pb-4 flex items-center justify-center gap-1.5 text-xs text-brand-walnut/70 dark:text-brand-biscuit">
+        <Lock className="w-3.5 h-3.5" />
         <span>100% Secure Payments</span>
       </div>
 
-      {/* Sticky Bottom Action Bar */}
-      <div className="fixed bottom-14 left-0 right-0 max-w-md mx-auto p-3 bg-brand-creme/95 dark:bg-brand-espresso/95 backdrop-blur border-t border-brand-biscuit/30 dark:border-brand-espressoCard z-40">
-        <button
-          onClick={handlePayNow}
-          disabled={processing}
-          className="w-full py-3.5 px-6 rounded-full bg-brand-cherry dark:bg-brand-cherryGlow text-white font-sans text-sm font-semibold shadow-neonCherry hover:scale-[1.01] active:scale-95 transition-all text-center flex items-center justify-center gap-2"
-        >
-          {processing ? (
-            <span className="font-mono animate-pulse">Processing Payment...</span>
-          ) : (
-            <span>Pay {APP_CONFIG.defaultCurrency}{grandTotal}</span>
-          )}
-        </button>
-      </div>
+      {/* Processing Loader Overlay */}
+      {processing && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center animate-in fade-in">
+          <div className="bg-brand-creme dark:bg-brand-espresso p-6 rounded-3xl shadow-2xl border border-brand-biscuit/30 text-center space-y-3 max-w-xs mx-4">
+            <div className="w-10 h-10 border-3 border-brand-cherry border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="font-serif text-sm font-bold text-brand-espresso dark:text-brand-creme">
+              Connecting to {selectedMethod}...
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

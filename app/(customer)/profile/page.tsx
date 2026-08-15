@@ -3,12 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { customerStore } from '@/lib/customer-store';
-import { Award, Music, History, Heart, MapPin, Settings, LogOut, ChevronRight, Sparkles } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
+import { Award, Music, History, Heart, MapPin, Settings, LogOut, ChevronRight, Sparkles, Sun, Moon, Check } from 'lucide-react';
 
 export default function CustomerProfilePage() {
+  const { theme, setTheme } = useTheme();
   const [points, setPoints] = useState(487);
   const [rewardsUnlocked, setRewardsUnlocked] = useState(3);
   const [joinedEvent, setJoinedEvent] = useState(false);
+  const [showSettings, setShowSettings] = useState(true);
 
   useEffect(() => {
     const state = customerStore.getState();
@@ -22,12 +25,12 @@ export default function CustomerProfilePage() {
   };
 
   return (
-    <div className="px-4 py-4 space-y-6 animate-in fade-in duration-300">
+    <div className="px-4 py-4 space-y-6 animate-in fade-in duration-300 pb-28 min-h-[85vh] bg-brand-creme dark:bg-brand-espresso transition-colors">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-brand-biscuit/30 dark:border-brand-espressoCard pb-3">
         <div>
           <span className="font-mono text-[10px] text-brand-electricViolet dark:text-purple-400 uppercase tracking-widest block">
-            6. what&apos;s on / profile
+            what&apos;s on / profile
           </span>
           <h2 className="font-serif text-3xl font-bold tracking-tight text-brand-espresso dark:text-brand-creme lowercase">
             my smol
@@ -107,10 +110,93 @@ export default function CustomerProfilePage() {
         </div>
       </div>
 
+      {/* SETTINGS & THEME PREFERENCES */}
+      <div className="space-y-3">
+        <span className="font-mono text-[10px] text-brand-walnut dark:text-brand-biscuit uppercase tracking-wider block">
+          settings &amp; appearance
+        </span>
+
+        {/* Theme Selector (Light & Dark Mode) */}
+        <div className="p-4 rounded-3xl bg-brand-cremeMuted/50 dark:bg-brand-espressoLight border border-brand-biscuit/40 dark:border-brand-espressoCard space-y-3 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <Settings className="w-4 h-4 text-brand-cherry dark:text-brand-butter" />
+              <div>
+                <h4 className="font-serif font-bold text-sm text-brand-espresso dark:text-brand-creme">
+                  Theme Mode
+                </h4>
+                <p className="font-sans text-[11px] text-brand-walnut/70 dark:text-brand-biscuit">
+                  Choose between Light (Day) and Dark (Night) aesthetic
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Theme Option Toggle Cards */}
+          <div className="grid grid-cols-2 gap-2.5 pt-1">
+            {/* Light Mode Option */}
+            <button
+              type="button"
+              onClick={() => setTheme('day')}
+              className={`p-3 rounded-2xl border transition-all flex flex-col items-center gap-2 text-center relative ${
+                theme === 'day'
+                  ? 'border-brand-cherry bg-white dark:bg-brand-espresso text-brand-espresso shadow-md'
+                  : 'border-brand-biscuit/30 bg-transparent text-brand-walnut hover:border-brand-biscuit'
+              }`}
+            >
+              {theme === 'day' && (
+                <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-brand-cherry text-white flex items-center justify-center">
+                  <Check className="w-2.5 h-2.5" />
+                </div>
+              )}
+              <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center">
+                <Sun className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="font-serif font-bold text-xs block text-brand-espresso dark:text-brand-creme">
+                  Light Mode
+                </span>
+                <span className="font-mono text-[9px] text-brand-walnut/70 dark:text-brand-biscuit">
+                  Warm Creme
+                </span>
+              </div>
+            </button>
+
+            {/* Dark Mode Option */}
+            <button
+              type="button"
+              onClick={() => setTheme('night')}
+              className={`p-3 rounded-2xl border transition-all flex flex-col items-center gap-2 text-center relative ${
+                theme === 'night'
+                  ? 'border-brand-butter bg-brand-espresso dark:bg-brand-espressoCard text-brand-creme shadow-neonButter'
+                  : 'border-brand-biscuit/30 bg-transparent text-brand-walnut hover:border-brand-biscuit'
+              }`}
+            >
+              {theme === 'night' && (
+                <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-brand-butter text-brand-espresso flex items-center justify-center">
+                  <Check className="w-2.5 h-2.5" />
+                </div>
+              )}
+              <div className="w-8 h-8 rounded-full bg-indigo-950/80 border border-indigo-500/30 text-indigo-300 flex items-center justify-center">
+                <Moon className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="font-serif font-bold text-xs block text-brand-espresso dark:text-brand-creme">
+                  Dark Mode
+                </span>
+                <span className="font-mono text-[9px] text-brand-walnut/70 dark:text-brand-biscuit">
+                  Deep Espresso
+                </span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* PROFILE NAVIGATION LINKS */}
       <div className="space-y-2">
         <span className="font-mono text-[10px] text-brand-walnut dark:text-brand-biscuit uppercase tracking-wider block">
-          account & options
+          account &amp; options
         </span>
 
         <div className="space-y-2">
@@ -145,16 +231,6 @@ export default function CustomerProfilePage() {
               <MapPin className="w-4 h-4 text-brand-cherry dark:text-brand-butter" />
               <span className="font-sans text-xs font-medium text-brand-espresso dark:text-brand-creme">
                 saved addresses
-              </span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-brand-walnut/40 dark:text-brand-biscuit/40" />
-          </div>
-
-          <div className="p-3.5 rounded-2xl bg-brand-creme dark:bg-brand-espressoLight border border-brand-biscuit/40 dark:border-brand-espressoCard flex items-center justify-between hover:border-brand-cherry/60 transition-all group shadow-sm cursor-pointer">
-            <div className="flex items-center gap-3">
-              <Settings className="w-4 h-4 text-brand-cherry dark:text-brand-butter" />
-              <span className="font-sans text-xs font-medium text-brand-espresso dark:text-brand-creme">
-                settings & preferences
               </span>
             </div>
             <ChevronRight className="w-4 h-4 text-brand-walnut/40 dark:text-brand-biscuit/40" />

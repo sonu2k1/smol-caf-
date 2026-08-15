@@ -129,11 +129,11 @@ export default function ItemDetailPage() {
 
         {/* Tags */}
         <div className="flex items-center gap-2 pt-1">
-          <span className="border border-emerald-400/50 text-emerald-800 dark:text-emerald-300 bg-emerald-50/80 dark:bg-emerald-950/40 text-[10px] font-mono font-bold px-3 py-1 rounded-full flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block" />
+          <span className="border border-[#55C79E] text-[#0B5C43] dark:text-emerald-300 bg-transparent text-[10px] font-mono font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#0B5C43] dark:bg-emerald-400 inline-block" />
             VEGETARIAN
           </span>
-          <span className="border border-brand-biscuit/60 text-brand-walnut dark:text-brand-biscuit text-[10px] font-mono font-bold px-3 py-1 rounded-full uppercase">
+          <span className="border border-[#D4C3A6] dark:border-brand-biscuit/40 text-[#5C4533] dark:text-brand-biscuit bg-transparent text-[10px] font-mono font-bold px-3 py-1 rounded-full uppercase">
             SINGLE ORIGIN
           </span>
         </div>
@@ -141,50 +141,50 @@ export default function ItemDetailPage() {
 
       {/* Perfect Pairing Section */}
       {pairingItem && (
-        <div className="bg-[#F9F4EB] dark:bg-brand-espressoLight border border-brand-biscuit/40 dark:border-brand-espressoCard rounded-2xl p-3.5 space-y-2.5 shadow-sm mt-3">
-          <h3 className="font-serif text-sm font-bold text-brand-espresso dark:text-brand-creme">
+        <div className="border border-brand-biscuit/40 dark:border-brand-espressoCard rounded-2xl p-4 bg-transparent dark:bg-brand-espressoLight space-y-3 shadow-sm">
+          <h3 className="font-serif text-base font-semibold text-brand-espresso dark:text-brand-creme">
             Pairs beautifully with
           </h3>
 
           <div
             onClick={() => setIncludePairing(!includePairing)}
-            className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
-              includePairing
-                ? 'bg-brand-cherry/10 dark:bg-brand-cherry/20 border-brand-cherry shadow-sm'
-                : 'bg-brand-creme/60 dark:bg-brand-espresso border-brand-biscuit/30 dark:border-brand-espressoCard'
-            }`}
+            className="flex items-center justify-between gap-3 cursor-pointer pt-0.5 group"
           >
             {/* Pairing Thumbnail */}
-            <img
-              src={pairingItem.image || '/item-tripledecker-thumb.png'}
-              alt={pairingItem.name}
-              className="w-12 h-12 rounded-xl object-cover border border-brand-biscuit/30 flex-shrink-0"
-            />
+            <div className="w-14 h-14 rounded-2xl bg-[#FAF3E7] dark:bg-brand-espresso border border-brand-biscuit/30 dark:border-brand-espressoCard flex items-center justify-center overflow-hidden flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+              <img
+                src={pairingItem.image || '/item-tripledecker-thumb.png'}
+                alt={pairingItem.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
 
-            <div className="space-y-0.5 flex-1 pr-1">
-              <div className="flex items-center gap-2">
-                <h4 className="font-serif font-bold text-sm text-brand-espresso dark:text-brand-creme capitalize">
-                  Triple Decker
-                </h4>
-                <span className="font-serif text-xs font-bold text-brand-espresso dark:text-brand-creme">
-                  {APP_CONFIG.defaultCurrency}{pairingItem.price}
-                </span>
-              </div>
-              <p className="text-[11px] text-brand-walnut/80 dark:text-brand-biscuit font-sans leading-snug">
+            {/* Text Details */}
+            <div className="flex-1 space-y-0.5 pr-1">
+              <h4 className="font-serif font-bold text-sm text-brand-espresso dark:text-brand-creme capitalize">
+                Triple Decker
+              </h4>
+              <p className="font-sans text-xs text-brand-walnut/70 dark:text-brand-biscuit leading-snug">
                 Crispy, melty, wildly satisfying.
               </p>
             </div>
 
-            <button
-              type="button"
-              className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all flex-shrink-0 ${
-                includePairing
-                  ? 'bg-brand-cherry text-white border-brand-cherry'
-                  : 'bg-brand-creme dark:bg-brand-espressoCard border-brand-biscuit/60 text-brand-espresso dark:text-brand-creme hover:bg-brand-cherry hover:text-white'
-              }`}
-            >
-              {includePairing ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-            </button>
+            {/* Price & Add Button */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className="font-serif text-sm font-bold text-brand-espresso dark:text-brand-creme">
+                {APP_CONFIG.defaultCurrency}{pairingItem.price}
+              </span>
+              <button
+                type="button"
+                className={`w-8 h-8 rounded-full border border-brand-biscuit/40 flex items-center justify-center transition-all ${
+                  includePairing
+                    ? 'bg-brand-cherry text-white border-brand-cherry'
+                    : 'bg-[#FAF3E7] dark:bg-brand-espressoCard text-brand-espresso dark:text-brand-creme hover:bg-brand-cherry hover:text-white'
+                }`}
+              >
+                {includePairing ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -224,7 +224,7 @@ export default function ItemDetailPage() {
       )}
 
       {/* Sticky Bottom Action Bar */}
-      <div className="fixed bottom-14 left-0 right-0 max-w-md mx-auto p-4 bg-brand-creme/95 dark:bg-brand-espresso/95 backdrop-blur border-t border-brand-biscuit/30 dark:border-brand-espressoCard z-40">
+      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-brand-creme/95 dark:bg-brand-espresso/95 backdrop-blur border-t border-brand-biscuit/30 dark:border-brand-espressoCard z-40">
         <button
           onClick={handleAddToCart}
           className="w-full py-4 px-6 rounded-full bg-brand-cherry hover:bg-brand-cherry/90 dark:bg-brand-cherry text-white font-serif text-base font-medium shadow-md hover:scale-[1.01] active:scale-95 transition-all text-center block"
