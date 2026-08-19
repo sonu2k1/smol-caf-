@@ -30,8 +30,24 @@ export interface MenuItem {
   description: string;
   available: boolean;
   isVeg?: boolean;
+  isEgg?: boolean;
+  isVegan?: boolean;
   isSpecial?: boolean;
   image?: string;
+  subcategory?: string;
+  coreIngredients?: string;
+  sharedPrePrep?: string;
+  primaryEquipment?: string;
+  servingWare?: string;
+  targetPrice?: number;
+  ceilingPrice?: number;
+  availability?: string;
+  bestPairing?: string;
+  dietary?: string;
+  proteinFocus?: string;
+  spice?: string;
+  menuStatus?: string;
+  notes?: string | null;
 }
 
 export type OrderStatus =

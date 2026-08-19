@@ -17,11 +17,11 @@ import {
 import { APP_CONFIG } from './config';
 
 const STORAGE_KEYS = {
-  USERS: 'smol_cafe_users',
-  CATEGORIES: 'smol_cafe_categories',
-  MENU_ITEMS: 'smol_cafe_menu_items',
-  INVENTORY: 'smol_cafe_inventory',
-  ORDERS: 'smol_cafe_orders',
+  USERS: 'smol_cafe_users_v2',
+  CATEGORIES: 'smol_cafe_categories_v2',
+  MENU_ITEMS: 'smol_cafe_menu_items_v2',
+  INVENTORY: 'smol_cafe_inventory_v2',
+  ORDERS: 'smol_cafe_orders_v2',
 };
 
 // Helper for date calculation
@@ -46,7 +46,16 @@ class LocalDBService {
     if (!this.isClient) return fallback;
     try {
       const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : fallback;
+      if (!item) return fallback;
+      const parsed = JSON.parse(item);
+      // Auto-migrate if stored categories or menu items are from the previous incomplete seed
+      if (key === STORAGE_KEYS.MENU_ITEMS && Array.isArray(parsed) && parsed.length < 50) {
+        return fallback;
+      }
+      if (key === STORAGE_KEYS.CATEGORIES && Array.isArray(parsed) && parsed.length < 10) {
+        return fallback;
+      }
+      return parsed;
     } catch {
       return fallback;
     }
