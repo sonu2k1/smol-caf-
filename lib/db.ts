@@ -17,11 +17,11 @@ import {
 import { APP_CONFIG } from './config';
 
 const STORAGE_KEYS = {
-  USERS: 'smol_cafe_users_v2',
-  CATEGORIES: 'smol_cafe_categories_v2',
-  MENU_ITEMS: 'smol_cafe_menu_items_v2',
-  INVENTORY: 'smol_cafe_inventory_v2',
-  ORDERS: 'smol_cafe_orders_v2',
+  USERS: 'smol_cafe_users_v3',
+  CATEGORIES: 'smol_cafe_categories_v3',
+  MENU_ITEMS: 'smol_cafe_menu_items_v3',
+  INVENTORY: 'smol_cafe_inventory_v3',
+  ORDERS: 'smol_cafe_orders_v3',
 };
 
 // Helper for date calculation
