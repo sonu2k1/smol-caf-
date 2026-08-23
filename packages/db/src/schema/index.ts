@@ -418,3 +418,16 @@ export interface GoodsReceiptLine {
   unit_cost_paise: number;
   created_at: string;
 }
+
+export type ProcurementCategory =
+  "DAIRY" | "COFFEE_BEANS" | "BAKERY_RAW" | "SPICES_TEA" | "PACKAGING" | "MISC";
+
+export interface ProcurementBudget {
+  id: string;
+  category: ProcurementCategory | string;
+  month: string; // YYYY-MM
+  budgeted_amount_paise: number;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}

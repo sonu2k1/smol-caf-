@@ -80,7 +80,8 @@ Built for the real smol café brand (brand kit v1.0, Aug 2026): café crème / s
 | 2026-08-23 | Built Smol Café Community Events ("What's On") & Lightweight RSVPs (`/admin/events`)              | `cafe_events` & `event_rsvps` tables, capacity tracking, 1-tap interest registration, and Home What's On card             |
 | 2026-08-23 | Built Smol Café Jukebox — Request & Voting Subsystem (`/music` & `/admin/music`)                  | `music_sessions`, `song_requests`, `song_votes` tables, 15m rate-limiting, 1 vote/table dedupe, Staff DJ controller       |
 | 2026-08-23 | Built Conversation Prompt Deck Modal & Kitchen-Load-Aware "Another Round" Suggestions (`/orders`) | 15 prompt card deck, metadata pairings upsell, and automatic suppression if active kitchen tickets > 5                    |
-| 2026-08-23 | Built Basic Procurement & Goods Receipt Engine (`/admin/procurement`)                            | `vendors`, `purchase_orders`, `goods_receipts`, PO never touches stock, atomic `RECEIVE` movement on GRN only             |
+| 2026-08-23 | Built Basic Procurement & Goods Receipt Engine (`/admin/procurement`)                             | `vendors`, `purchase_orders`, `goods_receipts`, PO never touches stock, atomic `RECEIVE` movement on GRN only             |
+| 2026-08-23 | Built Procurement Budget vs Actual & Vendor Spend Analytics (`/admin/budgets`)                   | `budgets` table with month/category allocation, live actual spend from GRNs with drill-down, supplier audit & price trends|
 
 ## Next Steps
 

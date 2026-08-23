@@ -155,6 +155,13 @@ export default async function HomePage() {
             >
               Procurement 📦
             </Link>
+            <span className="text-stone-300 dark:text-stone-700">•</span>
+            <Link
+              href="/admin/budgets"
+              className="text-[#9B2C2C] hover:underline dark:text-[#F6AD55]"
+            >
+              Budgets & Spend 📊
+            </Link>
           </div>
         </div>
       </div>
