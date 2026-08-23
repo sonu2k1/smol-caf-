@@ -1,0 +1,119 @@
+"use server";
+
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import type { LoyaltyAccount, LoyaltyLedgerEntry } from "@smol-cafe/db";
+
+export interface LoyaltyAccountDetails {
+  account: LoyaltyAccount | null;
+  ledger: LoyaltyLedgerEntry[];
+}
+
+export interface LoyaltyActionResult {
+  success: boolean;
+  newBalance?: number;
+  message?: string;
+  error?: string;
+}
+
+/**
+ * Server Action: Fetches customer's loyalty balance and append-only ledger history
+ */
+export async function getLoyaltyAccountAction(): Promise<LoyaltyAccountDetails> {
+  const supabase = await createClient();
+  const { data: authUser } = await supabase.auth.getUser();
+
+  if (!authUser?.user) {
+    return { account: null, ledger: [] };
+  }
+
+  const admin = createAdminClient();
+
+  try {
+    // 1. Fetch loyalty account
+    const { data: account } = await admin
+      .from("loyalty_accounts")
+      .select("*")
+      .eq("profile_id", authUser.user.id)
+      .single();
+
+    if (!account) {
+      return { account: null, ledger: [] };
+    }
+
+    // 2. Fetch ledger history
+    const { data: ledger } = await admin
+      .from("loyalty_ledger")
+      .select("*")
+      .eq("loyalty_account_id", account.id)
+      .order("created_at", { ascending: false })
+      .limit(30);
+
+    return {
+      account: account as LoyaltyAccount,
+      ledger: (ledger as LoyaltyLedgerEntry[]) || [],
+    };
+  } catch (err) {
+    console.error("Error fetching loyalty account:", err);
+    return { account: null, ledger: [] };
+  }
+}
+
+/**
+ * Server Action: Redeems loyalty points with atomic ledger balance recomputation
+ */
+export async function redeemLoyaltyPointsAction(
+  points: number,
+  notes?: string
+): Promise<LoyaltyActionResult> {
+  const supabase = await createClient();
+  const { data: authUser } = await supabase.auth.getUser();
+
+  if (!authUser?.user) {
+    return { success: false, message: "Please sign in to redeem loyalty points." };
+  }
+
+  if (points <= 0) {
+    return { success: false, message: "Points must be greater than zero." };
+  }
+
+  const admin = createAdminClient();
+
+  try {
+    const { data: rpcRes, error } = await admin.rpc("record_loyalty_movement", {
+      p_profile_id: authUser.user.id,
+      p_type: "REDEEM",
+      p_points: points,
+      p_notes: notes || "Redeemed for order discount",
+    });
+
+    if (error) {
+      console.error("Error in record_loyalty_movement RPC:", error);
+      return { success: false, message: "Failed to process points redemption." };
+    }
+
+    const res = rpcRes as {
+      success: boolean;
+      new_balance?: number;
+      error?: string;
+      message?: string;
+    };
+
+    if (!res.success) {
+      return {
+        success: false,
+        error: res.error,
+        message: res.message || "Insufficient points balance.",
+      };
+    }
+
+    return {
+      success: true,
+      newBalance: res.new_balance,
+      message: `Redeemed ${points} points! New balance: ${res.new_balance} points.`,
+    };
+  } catch (err) {
+    console.error("Error in redeemLoyaltyPointsAction:", err);
+    return { success: false, message: "An unexpected error occurred." };
+  }
+}

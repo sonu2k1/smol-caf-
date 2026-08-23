@@ -247,3 +247,24 @@ export interface InventoryMovement {
   notes: string | null;
   created_at: string;
 }
+
+export type LoyaltyMovementType = "EARN" | "REDEEM" | "EXPIRE" | "ADJUST" | "REVERSAL";
+
+export interface LoyaltyAccount {
+  id: string;
+  profile_id: string;
+  current_balance_cached: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LoyaltyLedgerEntry {
+  id: string;
+  loyalty_account_id: string;
+  type: LoyaltyMovementType;
+  points: number;
+  related_order_id: string | null;
+  related_bill_id: string | null;
+  notes: string | null;
+  created_at: string;
+}

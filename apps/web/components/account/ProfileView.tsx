@@ -5,11 +5,13 @@ import Link from "next/link";
 import type { Profile } from "@smol-cafe/db";
 import type { CustomerHistoricalOrder } from "@/app/account/actions";
 import { claimCurrentSessionOrdersAction } from "@/app/account/actions";
+import type { LoyaltyAccountDetails } from "@/app/account/loyalty-actions";
 import { AuthModal } from "./AuthModal";
 
 interface ProfileViewProps {
   initialProfile: Profile | null;
   initialOrders: CustomerHistoricalOrder[];
+  initialLoyalty?: LoyaltyAccountDetails;
   activeSession: {
     sessionId: string;
     tableLabel: string;
@@ -20,10 +22,12 @@ interface ProfileViewProps {
 export const ProfileView: React.FC<ProfileViewProps> = ({
   initialProfile,
   initialOrders,
+  initialLoyalty,
   activeSession,
 }) => {
   const [profile, setProfile] = useState<Profile | null>(initialProfile);
   const [orders] = useState<CustomerHistoricalOrder[]>(initialOrders);
+  const [loyalty] = useState<LoyaltyAccountDetails | undefined>(initialLoyalty);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
   const [claimMessage, setClaimMessage] = useState<string | null>(null);
@@ -45,6 +49,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       setIsClaiming(false);
     }
   };
+
+  const loyaltyBalance = loyalty?.account?.current_balance_cached || 0;
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] text-[#1C1917] pb-24 dark:bg-[#141211] dark:text-[#FDFBF7]">
@@ -77,17 +83,29 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       <main className="mx-auto max-w-lg px-4 pt-6 space-y-6">
         {/* Profile Info Card or Guest Banner */}
         {profile ? (
-          <div className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm dark:border-stone-800 dark:bg-stone-900">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#9B2C2C]/10 text-lg font-black text-[#9B2C2C] dark:bg-red-950/40 dark:text-[#F6AD55]">
-                {profile.display_name ? profile.display_name.charAt(0).toUpperCase() : "☕"}
+          <div className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm dark:border-stone-800 dark:bg-stone-900 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#9B2C2C]/10 text-lg font-black text-[#9B2C2C] dark:bg-red-950/40 dark:text-[#F6AD55]">
+                  {profile.display_name ? profile.display_name.charAt(0).toUpperCase() : "☕"}
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">
+                    {profile.display_name || "Café Guest"}
+                  </h2>
+                  <p className="text-xs text-stone-500 font-mono">
+                    {profile.phone || profile.email || "Verified Member"}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">
-                  {profile.display_name || "Café Guest"}
-                </h2>
-                <p className="text-xs text-stone-500 font-mono">
-                  {profile.phone || profile.email || "Verified Member"}
+
+              {/* Loyalty Balance Badge */}
+              <div className="rounded-2xl border border-amber-200 bg-amber-50/80 px-3.5 py-2 text-right dark:border-amber-900/40 dark:bg-amber-950/30">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">
+                  Smol Points
+                </span>
+                <p className="font-mono text-base font-black text-amber-900 dark:text-amber-200">
+                  🪙 {loyaltyBalance}
                 </p>
               </div>
             </div>
@@ -101,7 +119,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               Dine as a Guest or Sign In
             </h2>
             <p className="mt-1 text-xs text-stone-500 max-w-xs mx-auto">
-              Sign in with mobile OTP to save receipts, view past orders, and claim loyalty rewards.
+              Sign in with mobile OTP to earn 1 point per ₹10 spent, save receipts, and track past
+              orders.
             </p>
             <button
               onClick={() => setIsAuthModalOpen(true)}
@@ -110,6 +129,47 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               Sign In with Mobile OTP →
             </button>
           </div>
+        )}
+
+        {/* Loyalty Activity Stream (if profile and ledger exist) */}
+        {profile && loyalty?.ledger && loyalty.ledger.length > 0 && (
+          <section className="space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 px-1">
+              Loyalty Points Activity
+            </h3>
+            <div className="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm dark:border-stone-800 dark:bg-stone-900 divide-y divide-stone-100 dark:divide-stone-800">
+              {loyalty.ledger.map((entry) => (
+                <div
+                  key={entry.id}
+                  className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between"
+                >
+                  <div>
+                    <span className="text-xs font-bold text-stone-800 dark:text-stone-200">
+                      {entry.notes || (entry.type === "EARN" ? "Points Earned" : "Points Redeemed")}
+                    </span>
+                    <p className="text-[10px] text-stone-400 font-mono">
+                      {new Date(entry.created_at).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                  <span
+                    className={`font-mono text-xs font-black ${
+                      entry.type === "EARN" || entry.type === "ADJUST"
+                        ? "text-emerald-700 dark:text-emerald-400"
+                        : "text-red-700 dark:text-red-400"
+                    }`}
+                  >
+                    {entry.type === "EARN" || entry.type === "ADJUST" ? "+" : "-"}
+                    {entry.points} pts
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
         )}
 
         {/* Active Session Claim Card (if seated) */}

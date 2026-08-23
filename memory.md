@@ -73,7 +73,8 @@ Built for the real smol café brand (brand kit v1.0, Aug 2026): café crème / s
 | 2026-08-23 | Integrated Razorpay Online Payments with 4-stage idempotency & server HMAC verification       | Pre-checkout PENDING attempt logging, client key isolation, HMAC SHA-256 constant-time signature verification & closure  |
 | 2026-08-23 | Built Razorpay Webhook Endpoint (`/api/webhooks/razorpay`) with Dedupe & Out-of-Order Safety  | `webhook_events` provider_event_id UNIQUE deduplication, net paid calculation, and AUTHORIZED -> CAPTURED state guard    |
 | 2026-08-23 | Built Inventory Tables, Recipes & `servable_qty()` with Auto-Reservation and Manual 86 Engine | `inventory_movements` ledger, atomic stock reservation in `submit_order`, release/consume on prep, and 86 precedence     |
-| 2026-08-23 | Built Optional Customer Accounts, OTP Auth & 24h Order Claiming Engine (`/profile`)            | `profiles` table, Supabase OTP auth, 24h `claim_session_orders` RPC, zero-friction anonymous guest ordering preserved  |
+| 2026-08-23 | Built Optional Customer Accounts, OTP Auth & 24h Order Claiming Engine (`/profile`)           | `profiles` table, Supabase OTP auth, 24h `claim_session_orders` RPC, zero-friction anonymous guest ordering preserved    |
+| 2026-08-23 | Built Append-Only Loyalty Ledger & Atomic Balance Recomputation Engine (`loyalty_ledger`)    | Row-locked `record_loyalty_movement` RPC, `current_balance_cached` derived from ledger, EARN on capture & refund REVERSAL |
 
 ## Next Steps
 
