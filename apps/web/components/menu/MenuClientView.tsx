@@ -80,12 +80,20 @@ const MenuContent: React.FC<MenuClientViewProps> = ({
             )}
           </div>
 
-          {tableLabel && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Live Table
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            <a
+              href="/orders"
+              className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 dark:border-stone-800 dark:bg-stone-800 dark:text-stone-300"
+            >
+              Live Orders
+            </a>
+            <a
+              href="/bill"
+              className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 dark:border-stone-800 dark:bg-stone-800 dark:text-stone-300"
+            >
+              Bill
+            </a>
+          </div>
         </div>
 
         {/* Search & Veg-only Filter */}

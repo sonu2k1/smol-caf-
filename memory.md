@@ -69,6 +69,7 @@ Built for the real smol café brand (brand kit v1.0, Aug 2026): café crème / s
 | 2026-08-23 | Built atomic Cart & Order Submission pipeline with PL/pgSQL transaction and anti-double-tap   | Phase 1 Step 1.3: submit_order RPC with price re-validation, session checks, order_no locking, and price snapshots       |
 | 2026-08-23 | Built Customer Order Status Tracking (`/orders`) with 4-second polling & 5-step progress bar  | Phase 1 Step 1.4: Submitted -> Accepted -> Preparing -> Ready -> Served status matrix with plain-language brand copy     |
 | 2026-08-23 | Built Kitchen Ticket Board (KDS at `/kitchen`) with 4 columns, 3s polling & concurrency safe  | Phase 1 Step 1.5: Tablet-optimized 44px+ buttons, live urgency timers (<5m, 5-10m, >10m), audit history, optimistic UI   |
+| 2026-08-23 | Built Running Bill (`/bill`), 'Request Bill' action, & Staff Cash Settlement POS (`/cashier`) | Phase 1 Step 1.6: record_cash_payment atomic RPC, tender/change calculator, table_session closure, and mutation locking  |
 
 ## Next Steps
 
