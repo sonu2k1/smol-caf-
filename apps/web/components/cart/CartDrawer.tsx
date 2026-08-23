@@ -127,15 +127,22 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
                 </p>
               </div>
 
-              <div className="pt-2">
+              <div className="pt-2 space-y-2">
+                <a
+                  href="/orders"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#9B2C2C] py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-[#822424] dark:bg-[#C53030]"
+                >
+                  Track Order Status Live
+                  <span aria-hidden="true">→</span>
+                </a>
                 <button
                   onClick={() => {
                     setOrderSuccess(null);
                     closeCart();
                   }}
-                  className="w-full rounded-2xl bg-stone-900 py-3.5 text-sm font-semibold text-white transition hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200"
+                  className="w-full rounded-2xl bg-stone-100 py-3 text-xs font-semibold text-stone-700 transition hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
                 >
-                  Back to Menu
+                  Stay on Menu
                 </button>
               </div>
             </div>

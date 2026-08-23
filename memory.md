@@ -66,7 +66,8 @@ Built for the real smol café brand (brand kit v1.0, Aug 2026): café crème / s
 | 2026-08-23 | Built idempotent Menu CSV seed script (`packages/db/scripts/seed-menu.ts`) with dry-run/apply | Imports 59 menu items into 13 categories with integer paise pricing, status mapping, and JSONB metadata enrichment       |
 | 2026-08-23 | Built QR entry route (`/t/[tableToken]`) & table session flow with signed session cookies     | Phase 1 Step 1.1: Server Action token resolution, single open table_session management, and invalid QR fallback screens  |
 | 2026-08-23 | Built mobile-first Menu Browsing page (`/menu`) with sticky category nav & item detail modal  | Phase 1 Step 1.2: Direct Supabase join queries (categories + items + prices + versions), dietary badges, pairing preview |
-| 2026-08-23 | Built atomic Cart & Order Submission pipeline with PL/pgSQL transaction and anti-double-tap | Phase 1 Step 1.3: submit_order RPC with price re-validation, session checks, order_no locking, and price snapshots      |
+| 2026-08-23 | Built atomic Cart & Order Submission pipeline with PL/pgSQL transaction and anti-double-tap   | Phase 1 Step 1.3: submit_order RPC with price re-validation, session checks, order_no locking, and price snapshots       |
+| 2026-08-23 | Built Customer Order Status Tracking (`/orders`) with 4-second polling & 5-step progress bar  | Phase 1 Step 1.4: Submitted -> Accepted -> Preparing -> Ready -> Served status matrix with plain-language brand copy    |
 
 ## Next Steps
 
