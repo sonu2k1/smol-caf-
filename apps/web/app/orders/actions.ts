@@ -24,6 +24,9 @@ export interface CustomerOrderDetails {
   acceptedAt: string | null;
   readyAt: string | null;
   servedAt: string | null;
+  predictedReadyAt?: string | null;
+  etaMinMinutes?: number | null;
+  etaMaxMinutes?: number | null;
   items: OrderItemSnapshot[];
 }
 
@@ -131,6 +134,9 @@ export async function fetchActiveOrdersAction(): Promise<FetchOrdersResult> {
         accepted_at: string | null;
         ready_at: string | null;
         served_at: string | null;
+        predicted_ready_at?: string | null;
+        eta_min_minutes?: number | null;
+        eta_max_minutes?: number | null;
       }>
     ).map((o) => ({
       id: o.id,
@@ -143,6 +149,9 @@ export async function fetchActiveOrdersAction(): Promise<FetchOrdersResult> {
       acceptedAt: o.accepted_at,
       readyAt: o.ready_at,
       servedAt: o.served_at,
+      predictedReadyAt: o.predicted_ready_at,
+      etaMinMinutes: o.eta_min_minutes || 8,
+      etaMaxMinutes: o.eta_max_minutes || 12,
       items: itemsByOrder.get(o.id) || [],
     }));
 

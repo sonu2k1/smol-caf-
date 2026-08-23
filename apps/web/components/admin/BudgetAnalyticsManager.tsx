@@ -28,7 +28,6 @@ export const BudgetAnalyticsManager: React.FC<BudgetAnalyticsManagerProps> = ({ 
 
   const handleMonthChange = async (newMonth: string) => {
     setSelectedMonth(newMonth);
-    setIsLoading(true);
     try {
       const res = await fetchBudgetVsActualAction(newMonth);
       if (res.success) {
@@ -36,8 +35,6 @@ export const BudgetAnalyticsManager: React.FC<BudgetAnalyticsManagerProps> = ({ 
       }
     } catch {
       setFeedback({ type: "error", text: "Failed to load month data." });
-    } finally {
-      setIsLoading(false);
     }
   };
 

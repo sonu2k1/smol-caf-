@@ -9,6 +9,7 @@ import {
 } from "@/app/kitchen/actions";
 import type { OrderStatus } from "@smol-cafe/db";
 import { KitchenTicketCard } from "./KitchenTicketCard";
+import { EtaAccuracyReview } from "./EtaAccuracyReview";
 
 interface KitchenBoardViewProps {
   initialOrders: KitchenTicket[];
@@ -20,6 +21,7 @@ export const KitchenBoardView: React.FC<KitchenBoardViewProps> = ({ initialOrder
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date());
   const [conflictMessage, setConflictMessage] = useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
+  const [showEtaAnalytics, setShowEtaAnalytics] = useState(false);
   const prevOrderCountRef = useRef(initialOrders.length);
 
   // Sound chime for incoming orders
@@ -122,7 +124,19 @@ export const KitchenBoardView: React.FC<KitchenBoardViewProps> = ({ initialOrder
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Audio Toggle */}
+            {/* Station Load & ETA Analytics Toggle */}
+            <button
+              onClick={() => setShowEtaAnalytics(!showEtaAnalytics)}
+              className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                showEtaAnalytics
+                  ? "border-[#9B2C2C] bg-[#9B2C2C]/20 text-[#F6AD55]"
+                  : "border-stone-800 bg-stone-900 text-stone-400 hover:text-stone-200"
+              }`}
+            >
+              <span>⏱️ Station Load & Accuracy</span>
+            </button>
+
+            {/* Sound Toggle */}
             <button
               onClick={() => setSoundEnabled((v) => !v)}
               className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold transition ${
@@ -166,11 +180,21 @@ export const KitchenBoardView: React.FC<KitchenBoardViewProps> = ({ initialOrder
 
         {/* Concurrency Conflict Toast */}
         {conflictMessage && (
-          <div className="mt-2 flex items-center justify-between rounded-xl border border-amber-800 bg-amber-950/70 px-4 py-2 text-xs text-amber-200">
+          <div className="mt-2 flex items-center justify-between rounded-xl border border-amber-800/60 bg-amber-950/60 px-4 py-2 text-xs text-amber-200">
             <span>⚠️ {conflictMessage}</span>
-            <button onClick={() => setConflictMessage(null)} className="font-bold underline ml-2">
-              Dismiss
+            <button
+              onClick={() => setConflictMessage(null)}
+              className="font-bold text-amber-400 hover:text-amber-200"
+            >
+              ✕
             </button>
+          </div>
+        )}
+
+        {/* Station Load & ETA Review Drawer */}
+        {showEtaAnalytics && (
+          <div className="mt-4">
+            <EtaAccuracyReview />
           </div>
         )}
       </header>

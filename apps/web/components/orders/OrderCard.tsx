@@ -111,9 +111,25 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
         </span>
       </div>
 
-      <p className="mt-1 text-xs leading-relaxed text-stone-600 dark:text-stone-400">
-        {copy.subtitle}
-      </p>
+      <div className="flex items-center justify-between mt-1">
+        <p className="text-xs leading-relaxed text-stone-600 dark:text-stone-400">
+          {copy.subtitle}
+        </p>
+
+        {/* Honest ETA Range Badge (SUBMITTED, ACCEPTED, PREPARING) */}
+        {(order.status === "SUBMITTED" ||
+          order.status === "ACCEPTED" ||
+          order.status === "PREPARING") &&
+          order.etaMinMinutes &&
+          order.etaMaxMinutes && (
+            <div className="flex-shrink-0 ml-2 flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 text-[11px] font-mono font-bold text-amber-700 dark:text-amber-300">
+              <span>⏱️</span>
+              <span>
+                {order.etaMinMinutes}–{order.etaMaxMinutes} min
+              </span>
+            </div>
+          )}
+      </div>
 
       {/* 5-Step Visual Stepper */}
       <div className="mt-4 border-t border-stone-100 dark:border-stone-800/80 pt-2">

@@ -121,8 +121,22 @@ export interface Order {
   total_snapshot: number;
   idempotency_key?: string | null;
   version: number;
+  predicted_prep_seconds?: number | null;
+  predicted_ready_at?: string | null;
+  eta_min_minutes?: number | null;
+  eta_max_minutes?: number | null;
+  actual_prep_seconds?: number | null;
+  prediction_error_seconds?: number | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface KitchenStation {
+  id: string;
+  name: string;
+  parallel_capacity: number;
+  expo_buffer_seconds: number;
+  created_at: string;
 }
 
 export interface OrderItem {
