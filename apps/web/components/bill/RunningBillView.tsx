@@ -280,6 +280,30 @@ export const RunningBillView: React.FC<RunningBillViewProps> = ({ initialBill, h
             </button>
           </div>
         )}
+
+        {/* Post-Settlement: Save Receipt Prompt */}
+        {isClosed && (
+          <div className="mt-6 rounded-3xl border border-stone-200 bg-white p-5 text-center shadow-sm dark:border-stone-800 dark:bg-stone-900 space-y-3">
+            <span className="inline-block rounded-xl bg-amber-50 p-2 text-xl dark:bg-amber-950/40">
+              🧾
+            </span>
+            <div>
+              <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
+                Want a copy of this digital receipt?
+              </h3>
+              <p className="text-xs text-stone-500 mt-0.5">
+                Link this dining session to your account to save your invoice and track past café
+                visits.
+              </p>
+            </div>
+            <Link
+              href="/profile"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-stone-900 py-3 text-xs font-bold text-white shadow-md transition hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200"
+            >
+              Save Receipt to My Account →
+            </Link>
+          </div>
+        )}
       </main>
     </div>
   );

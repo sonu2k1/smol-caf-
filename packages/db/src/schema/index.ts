@@ -107,7 +107,8 @@ export interface MenuPrice {
 export interface Order {
   id: string;
   location_id: string;
-  table_session_id: string | null;
+  table_session_id: string;
+  customer_id: string | null;
   order_no: number;
   status: OrderStatus;
   service_mode: string;
@@ -150,6 +151,7 @@ export interface OrderStatusHistory {
 export interface Bill {
   id: string;
   table_session_id: string;
+  customer_id: string | null;
   status: string;
   subtotal: number;
   tax: number;
@@ -157,6 +159,16 @@ export interface Bill {
   paid_amount: number;
   created_at: string;
   closed_at: string | null;
+}
+
+export interface Profile {
+  id: string;
+  display_name: string | null;
+  phone: string | null;
+  email: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface PaymentAttempt {

@@ -93,6 +93,13 @@ const MenuContent: React.FC<MenuClientViewProps> = ({
             >
               Bill
             </a>
+            <a
+              href="/profile"
+              className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 dark:border-stone-800 dark:bg-stone-800 dark:text-stone-300"
+              title="My Account"
+            >
+              👤
+            </a>
           </div>
         </div>
 

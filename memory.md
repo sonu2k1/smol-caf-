@@ -71,8 +71,9 @@ Built for the real smol café brand (brand kit v1.0, Aug 2026): café crème / s
 | 2026-08-23 | Built Kitchen Ticket Board (KDS at `/kitchen`) with 4 columns, 3s polling & concurrency safe  | Phase 1 Step 1.5: Tablet-optimized 44px+ buttons, live urgency timers (<5m, 5-10m, >10m), audit history, optimistic UI   |
 | 2026-08-23 | Built Running Bill (`/bill`), 'Request Bill' action, & Staff Cash Settlement POS (`/cashier`) | Phase 1 Step 1.6: record_cash_payment atomic RPC, tender/change calculator, table_session closure, and mutation locking  |
 | 2026-08-23 | Integrated Razorpay Online Payments with 4-stage idempotency & server HMAC verification       | Pre-checkout PENDING attempt logging, client key isolation, HMAC SHA-256 constant-time signature verification & closure  |
-| 2026-08-23 | Built Razorpay Webhook Endpoint (`/api/webhooks/razorpay`) with Dedupe & Out-of-Order Safety | `webhook_events` provider_event_id UNIQUE deduplication, net paid calculation, and AUTHORIZED -> CAPTURED state guard |
-| 2026-08-23 | Built Inventory Tables, Recipes & `servable_qty()` with Auto-Reservation and Manual 86 Engine | `inventory_movements` ledger, atomic stock reservation in `submit_order`, release/consume on prep, and 86 precedence |
+| 2026-08-23 | Built Razorpay Webhook Endpoint (`/api/webhooks/razorpay`) with Dedupe & Out-of-Order Safety  | `webhook_events` provider_event_id UNIQUE deduplication, net paid calculation, and AUTHORIZED -> CAPTURED state guard    |
+| 2026-08-23 | Built Inventory Tables, Recipes & `servable_qty()` with Auto-Reservation and Manual 86 Engine | `inventory_movements` ledger, atomic stock reservation in `submit_order`, release/consume on prep, and 86 precedence     |
+| 2026-08-23 | Built Optional Customer Accounts, OTP Auth & 24h Order Claiming Engine (`/profile`)            | `profiles` table, Supabase OTP auth, 24h `claim_session_orders` RPC, zero-friction anonymous guest ordering preserved  |
 
 ## Next Steps
 
