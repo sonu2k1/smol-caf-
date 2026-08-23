@@ -6,9 +6,11 @@
   "types": "./src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "test": "tsx scripts/test-release-blocking-invariants.ts",
+    "test:invariants": "tsx scripts/test-release-blocking-invariants.ts",
+    "test:webhook": "tsx scripts/test-webhook-dedupe.ts",
     "db:seed:dry": "tsx scripts/seed-menu.ts",
     "db:seed:apply": "tsx scripts/seed-menu.ts --apply",
-    "test:webhook": "tsx scripts/test-webhook-dedupe.ts",
     "db:types": "supabase gen types typescript --local > src/types.ts",
     "db:diff": "supabase db diff -f",
     "db:push": "supabase db push",
