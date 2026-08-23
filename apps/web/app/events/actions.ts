@@ -212,12 +212,19 @@ export async function fetchAllAdminEventsAction(): Promise<{
   }
 }
 
+import { requireStaffAuth } from "@/lib/auth/rbac";
+
 /**
  * Admin Server Action: Creates a new cafe event
  */
 export async function createCafeEventAction(
   input: CreateEventInput
 ): Promise<{ success: boolean; event?: CafeEvent; message?: string }> {
+  const auth = await requireStaffAuth(["admin", "super_admin"]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message || "Unauthorized." };
+  }
+
   const admin = createAdminClient();
 
   if (!input.title.trim() || !input.startsAt) {
@@ -261,6 +268,11 @@ export async function toggleCafeEventActiveAction(
   id: string,
   active: boolean
 ): Promise<{ success: boolean; event?: CafeEvent; message?: string }> {
+  const auth = await requireStaffAuth(["admin", "super_admin"]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message || "Unauthorized." };
+  }
+
   const admin = createAdminClient();
 
   try {
@@ -291,6 +303,11 @@ export async function toggleCafeEventActiveAction(
 export async function deleteCafeEventAction(
   id: string
 ): Promise<{ success: boolean; message?: string }> {
+  const auth = await requireStaffAuth(["admin", "super_admin"]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message || "Unauthorized." };
+  }
+
   const admin = createAdminClient();
 
   try {

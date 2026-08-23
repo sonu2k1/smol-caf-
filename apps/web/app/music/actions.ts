@@ -265,6 +265,8 @@ export async function fetchStaffJukeboxAction(): Promise<StaffJukeboxData> {
   }
 }
 
+import { requireStaffAuth } from "@/lib/auth/rbac";
+
 /**
  * Staff Server Action: Updates a song request status (Approve, Play, Played, Reject, Skip)
  */
@@ -272,6 +274,11 @@ export async function updateSongStatusAction(
   requestId: string,
   status: SongRequestStatus
 ): Promise<{ success: boolean; message?: string }> {
+  const auth = await requireStaffAuth(["admin", "super_admin", "cashier", "kitchen"]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message || "Unauthorized." };
+  }
+
   const supabase = createAdminClient();
 
   try {
@@ -317,6 +324,11 @@ export async function toggleMusicSessionAction(
   sessionId: string,
   isOpen: boolean
 ): Promise<{ success: boolean; message?: string }> {
+  const auth = await requireStaffAuth(["admin", "super_admin", "cashier", "kitchen"]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message || "Unauthorized." };
+  }
+
   const supabase = createAdminClient();
 
   try {

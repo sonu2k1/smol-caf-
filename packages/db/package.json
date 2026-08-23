@@ -8,6 +8,8 @@
     "typecheck": "tsc --noEmit",
     "test": "tsx scripts/test-release-blocking-invariants.ts",
     "test:invariants": "tsx scripts/test-release-blocking-invariants.ts",
+    "test:refunds": "tsx scripts/test-refund-lifecycle.ts",
+    "test:rbac": "tsx scripts/test-role-matrix-negative.ts",
     "test:webhook": "tsx scripts/test-webhook-dedupe.ts",
     "db:seed:dry": "tsx scripts/seed-menu.ts",
     "db:seed:apply": "tsx scripts/seed-menu.ts --apply",

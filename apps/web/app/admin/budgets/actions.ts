@@ -386,6 +386,8 @@ export async function fetchBudgetVsActualAction(
   }
 }
 
+import { requireStaffAuth } from "@/lib/auth/rbac";
+
 /**
  * Server Action: Upserts a monthly budget for a category
  */
@@ -395,6 +397,11 @@ export async function upsertBudgetAction(
   budgetedAmountPaise: number,
   notes?: string
 ): Promise<{ success: boolean; message?: string }> {
+  const auth = await requireStaffAuth(["admin", "super_admin"]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message || "Unauthorized." };
+  }
+
   const supabase = createAdminClient();
 
   try {

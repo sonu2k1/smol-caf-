@@ -76,12 +76,19 @@ export async function fetchAllBlackboardPostsAction(): Promise<{
   }
 }
 
+import { requireStaffAuth } from "@/lib/auth/rbac";
+
 /**
  * Admin Server Action: Creates a new blackboard announcement
  */
 export async function createBlackboardPostAction(
   input: CreateBlackboardInput
 ): Promise<BlackboardMutationResult> {
+  const auth = await requireStaffAuth(["admin", "super_admin"]);
+  if (!auth.authorized) {
+    return { success: false, error: auth.error, message: auth.message || "Unauthorized." };
+  }
+
   const supabase = createAdminClient();
 
   if (!input.title.trim() || !input.body.trim()) {
@@ -125,6 +132,11 @@ export async function toggleBlackboardActiveAction(
   id: string,
   active: boolean
 ): Promise<BlackboardMutationResult> {
+  const auth = await requireStaffAuth(["admin", "super_admin"]);
+  if (!auth.authorized) {
+    return { success: false, error: auth.error, message: auth.message || "Unauthorized." };
+  }
+
   const supabase = createAdminClient();
 
   try {
@@ -156,6 +168,11 @@ export async function toggleBlackboardActiveAction(
 export async function deleteBlackboardPostAction(
   id: string
 ): Promise<{ success: boolean; message?: string }> {
+  const auth = await requireStaffAuth(["admin", "super_admin"]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message || "Unauthorized." };
+  }
+
   const supabase = createAdminClient();
 
   try {

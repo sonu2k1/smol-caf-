@@ -50,10 +50,17 @@ export async function fetchRewardsAction(): Promise<{
   }
 }
 
+import { requireStaffAuth } from "@/lib/auth/rbac";
+
 /**
  * Server Action: Admin creates a new reward
  */
 export async function createRewardAction(input: CreateRewardInput): Promise<RewardMutationResult> {
+  const auth = await requireStaffAuth(["admin", "super_admin"]);
+  if (!auth.authorized) {
+    return { success: false, error: auth.error, message: auth.message || "Unauthorized." };
+  }
+
   const supabase = createAdminClient();
 
   if (!input.name.trim()) {
@@ -102,6 +109,11 @@ export async function toggleRewardActiveAction(
   id: string,
   active: boolean
 ): Promise<RewardMutationResult> {
+  const auth = await requireStaffAuth(["admin", "super_admin"]);
+  if (!auth.authorized) {
+    return { success: false, error: auth.error, message: auth.message || "Unauthorized." };
+  }
+
   const supabase = createAdminClient();
 
   try {

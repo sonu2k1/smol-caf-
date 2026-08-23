@@ -192,12 +192,19 @@ export async function fetchProcurementDataAction(): Promise<ProcurementData> {
   }
 }
 
+import { requireStaffAuth } from "@/lib/auth/rbac";
+
 /**
  * Server Action: Creates a Purchase Order (NEVER mutates inventory stock)
  */
 export async function createPurchaseOrderAction(
   input: CreatePOInput
 ): Promise<{ success: boolean; poNumber?: string; message?: string }> {
+  const auth = await requireStaffAuth(["admin", "super_admin", "chef"]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message || "Unauthorized." };
+  }
+
   if (!input.vendorId || input.lines.length === 0) {
     return { success: false, message: "Please select a vendor and add at least one line item." };
   }
@@ -278,6 +285,11 @@ export async function createPurchaseOrderAction(
 export async function recordGoodsReceiptAction(
   input: RecordGRNInput
 ): Promise<{ success: boolean; grnNumber?: string; message?: string }> {
+  const auth = await requireStaffAuth(["admin", "super_admin", "chef"]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message || "Unauthorized." };
+  }
+
   if (input.lines.length === 0) {
     return { success: false, message: "Please specify received quantities." };
   }
@@ -324,6 +336,11 @@ export async function updatePurchaseOrderStatusAction(
   poId: string,
   status: PurchaseOrderStatus
 ): Promise<{ success: boolean; message?: string }> {
+  const auth = await requireStaffAuth(["admin", "super_admin", "chef"]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message || "Unauthorized." };
+  }
+
   const supabase = createAdminClient();
 
   try {
@@ -351,6 +368,11 @@ export async function createVendorAction(data: {
   taxId?: string;
   notes?: string;
 }): Promise<{ success: boolean; vendor?: Vendor; message?: string }> {
+  const auth = await requireStaffAuth(["admin", "super_admin", "chef"]);
+  if (!auth.authorized) {
+    return { success: false, message: auth.message || "Unauthorized." };
+  }
+
   if (!data.name.trim()) return { success: false, message: "Vendor name is required." };
 
   const supabase = createAdminClient();
