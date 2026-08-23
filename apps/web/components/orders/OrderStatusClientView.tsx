@@ -3,7 +3,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { fetchActiveOrdersAction, type CustomerOrderDetails } from "@/app/orders/actions";
+import {
+  fetchAnotherRoundSuggestionsAction,
+  type SuggestedMenuItem,
+} from "@/app/orders/pairings-actions";
 import { OrderCard } from "./OrderCard";
+import { AnotherRoundSuggestions } from "./AnotherRoundSuggestions";
+import { ConversationDeckModal } from "./ConversationDeckModal";
 
 interface OrderStatusClientViewProps {
   initialOrders: CustomerOrderDetails[];
@@ -24,15 +30,31 @@ export const OrderStatusClientView: React.FC<OrderStatusClientViewProps> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date());
 
+  // Pairings & Conversation Deck state
+  const [suggestions, setSuggestions] = useState<SuggestedMenuItem[]>([]);
+  const [isKitchenBusy, setIsKitchenBusy] = useState(false);
+  const [hasConversationBoard, setHasConversationBoard] = useState(false);
+  const [isDeckOpen, setIsDeckOpen] = useState(false);
+
   const refreshOrders = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      const result = await fetchActiveOrdersAction();
-      if (result.success) {
-        setOrders(result.orders);
-        if (result.tableLabel) setTableLabel(result.tableLabel);
-        if (result.locationName) setLocationName(result.locationName);
+      const [orderRes, pairingsRes] = await Promise.all([
+        fetchActiveOrdersAction(),
+        fetchAnotherRoundSuggestionsAction(),
+      ]);
+
+      if (orderRes.success) {
+        setOrders(orderRes.orders);
+        if (orderRes.tableLabel) setTableLabel(orderRes.tableLabel);
+        if (orderRes.locationName) setLocationName(orderRes.locationName);
         setLastRefreshedAt(new Date());
+      }
+
+      if (pairingsRes.success) {
+        setSuggestions(pairingsRes.suggestions);
+        setIsKitchenBusy(pairingsRes.isKitchenBusy);
+        setHasConversationBoard(pairingsRes.hasConversationBoard);
       }
     } catch (err) {
       console.error("Error polling orders:", err);
@@ -162,6 +184,35 @@ export const OrderStatusClientView: React.FC<OrderStatusClientViewProps> = ({
               </span>
             </div>
 
+            {/* Conversation Deck Play Card (if ordered or table wants prompts) */}
+            <div className="rounded-3xl border border-stone-800 bg-[#1C1917] p-5 text-white shadow-lg flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/20 text-lg">
+                  🃏
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-[#F6AD55]">
+                    {hasConversationBoard
+                      ? "Conversation Board Active!"
+                      : "Table Conversation Deck"}
+                  </h4>
+                  <p className="text-[11px] text-stone-400">
+                    Fun prompt cards & icebreakers for your table
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setIsDeckOpen(true)}
+                className="rounded-2xl bg-[#9B2C2C] px-3.5 py-2 text-xs font-bold text-white shadow transition hover:bg-[#822424] active:scale-95 flex-shrink-0"
+              >
+                Play Deck →
+              </button>
+            </div>
+
+            {/* Another Round Pairing Suggestions (Load-Aware) */}
+            <AnotherRoundSuggestions suggestions={suggestions} isKitchenBusy={isKitchenBusy} />
+
             <div className="space-y-4">
               {orders.map((order) => (
                 <OrderCard key={order.id} order={order} />
@@ -170,6 +221,9 @@ export const OrderStatusClientView: React.FC<OrderStatusClientViewProps> = ({
           </div>
         )}
       </main>
+
+      {/* Conversation Prompt Deck Modal */}
+      <ConversationDeckModal isOpen={isDeckOpen} onClose={() => setIsDeckOpen(false)} />
 
       {/* Floating Bottom Quick Action */}
       <div className="fixed bottom-5 left-0 right-0 z-40 px-4">
