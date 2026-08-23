@@ -1,13 +1,24 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { generateRequestId, logger } from "@/lib/observability/logger";
+import { recordWebhookSuccess, recordWebhookFailure } from "@/lib/observability/alerts";
+import { captureAppException } from "@/lib/observability/sentry";
 
 export async function POST(req: Request) {
+  const requestId = generateRequestId();
+  const startTime = Date.now();
+
   try {
     const rawBody = await req.text();
     const signature = req.headers.get("x-razorpay-signature");
 
     if (!signature) {
+      logger.warn("Razorpay webhook rejected: Missing signature header", {
+        requestId,
+        action: "razorpayWebhook",
+      });
+      recordWebhookFailure("Missing signature header");
       return NextResponse.json({ error: "Missing x-razorpay-signature header" }, { status: 400 });
     }
 
@@ -29,10 +40,15 @@ export async function POST(req: Request) {
         const a = Buffer.from(expectedSignature, "utf-8");
         const b = Buffer.from(signature, "utf-8");
         if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
-          console.warn("ALERT: Invalid Razorpay webhook signature");
+          logger.warn("Razorpay webhook signature mismatch", {
+            requestId,
+            action: "razorpayWebhook",
+          });
+          recordWebhookFailure("Invalid signature");
           return NextResponse.json({ error: "Invalid webhook signature" }, { status: 400 });
         }
       } catch {
+        recordWebhookFailure("Signature verification failure");
         return NextResponse.json({ error: "Signature verification failed" }, { status: 400 });
       }
     }
@@ -41,6 +57,12 @@ export async function POST(req: Request) {
     const event = JSON.parse(rawBody);
     const eventId = event.id || event.event_id || `evt_${Date.now()}`;
     const eventType = event.event || "unknown";
+
+    logger.info(`Received Razorpay webhook event ${eventType} (${eventId})`, {
+      requestId,
+      action: "razorpayWebhook",
+      data: { eventId, eventType },
+    });
 
     // 3. Atomic Database Processing with Deduplication
     const supabase = createAdminClient();
@@ -51,29 +73,51 @@ export async function POST(req: Request) {
       p_payload: event,
     });
 
+    const durationMs = Date.now() - startTime;
+
     if (rpcError) {
-      console.error("Error executing process_razorpay_webhook RPC:", rpcError);
+      logger.error("Error executing process_razorpay_webhook RPC", {
+        requestId,
+        action: "razorpayWebhook",
+        durationMs,
+        data: { error: rpcError.message, eventId, eventType },
+      });
+      recordWebhookFailure(rpcError.message, eventId);
+      captureAppException(rpcError, { requestId });
       // Still return 200 to prevent Razorpay from infinite retry loops if internal issue is logged
       return NextResponse.json({ status: "error", message: "RPC error" }, { status: 200 });
     }
 
     const result = rpcResult as {
       success: boolean;
-      is_duplicate: boolean;
-      event_id: string;
-      message?: string;
+      status: string;
+      message: string;
     };
 
-    return NextResponse.json(
-      {
-        status: "ok",
-        is_duplicate: result?.is_duplicate || false,
-        message: result?.message || "Event processed",
-      },
-      { status: 200 }
-    );
+    recordWebhookSuccess();
+    logger.info(`Razorpay webhook processed: ${result.status} - ${result.message}`, {
+      requestId,
+      action: "razorpayWebhook",
+      durationMs,
+      data: { status: result.status, eventId },
+    });
+
+    return NextResponse.json({
+      received: true,
+      status: result.status,
+      message: result.message,
+    });
   } catch (error) {
-    console.error("Unexpected error in Razorpay webhook handler:", error);
-    return NextResponse.json({ error: "Internal webhook processing error" }, { status: 500 });
+    const durationMs = Date.now() - startTime;
+    logger.error("Unexpected error in Razorpay webhook handler", {
+      requestId,
+      action: "razorpayWebhook",
+      durationMs,
+      data: { error: String(error) },
+    });
+    recordWebhookFailure(String(error));
+    captureAppException(error, { requestId });
+
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

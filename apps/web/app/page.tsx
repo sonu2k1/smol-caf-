@@ -162,6 +162,13 @@ export default async function HomePage() {
             >
               Budgets & Spend 📊
             </Link>
+            <span className="text-stone-300 dark:text-stone-700">•</span>
+            <Link
+              href="/admin/observability"
+              className="text-[#9B2C2C] hover:underline dark:text-[#F6AD55]"
+            >
+              Observability 📡
+            </Link>
           </div>
         </div>
       </div>

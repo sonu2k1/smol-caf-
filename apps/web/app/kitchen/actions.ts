@@ -3,6 +3,9 @@
 import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { OrderStatus } from "@smol-cafe/db";
+import { generateRequestId, logger } from "@/lib/observability/logger";
+import { recordKdsHeartbeat, evaluateKdsSilence } from "@/lib/observability/alerts";
+import { captureAppException } from "@/lib/observability/sentry";
 
 const STAFF_SESSION_COOKIE = "smol_staff_session";
 
@@ -43,6 +46,7 @@ export interface TransitionOrderResult {
  */
 export async function fetchKitchenOrdersAction(): Promise<FetchKitchenOrdersResult> {
   const supabase = createAdminClient();
+  recordKdsHeartbeat();
 
   try {
     // 1. Fetch active orders
@@ -53,9 +57,14 @@ export async function fetchKitchenOrdersAction(): Promise<FetchKitchenOrdersResu
       .order("submitted_at", { ascending: true });
 
     if (ordersError || !orders) {
-      console.error("Error fetching kitchen orders:", ordersError);
+      logger.error("Error fetching kitchen orders", {
+        action: "fetchKitchenOrders",
+        data: { error: ordersError?.message },
+      });
       return { success: false, orders: [], message: "Failed to fetch kitchen orders." };
     }
+
+    evaluateKdsSilence(orders.length);
 
     if (orders.length === 0) {
       return { success: true, orders: [] };
@@ -161,6 +170,8 @@ export async function transitionOrderStatusAction(
   fromStatus: OrderStatus,
   toStatus: OrderStatus
 ): Promise<TransitionOrderResult> {
+  const requestId = generateRequestId();
+  const startTime = Date.now();
   const supabase = createAdminClient();
   const nowIso = new Date().toISOString();
 
@@ -173,6 +184,11 @@ export async function transitionOrderStatusAction(
       .single();
 
     if (fetchErr || !currentOrder) {
+      logger.warn("Status transition rejected: Order not found", {
+        requestId,
+        orderId,
+        action: "transitionOrderStatus",
+      });
       return {
         success: false,
         error: "ORDER_NOT_FOUND",
@@ -181,6 +197,15 @@ export async function transitionOrderStatusAction(
     }
 
     if (currentOrder.status !== fromStatus) {
+      logger.warn(
+        `Status transition conflict: Expected ${fromStatus}, found ${currentOrder.status}`,
+        {
+          requestId,
+          orderId,
+          action: "transitionOrderStatus",
+          data: { expected: fromStatus, actual: currentOrder.status },
+        }
+      );
       return {
         success: false,
         error: "STATUS_MISMATCH",
@@ -206,7 +231,12 @@ export async function transitionOrderStatusAction(
       .eq("id", orderId);
 
     if (updateErr) {
-      console.error("Failed to update order status:", updateErr);
+      logger.error("Failed to update order status", {
+        requestId,
+        orderId,
+        action: "transitionOrderStatus",
+        data: { error: updateErr.message },
+      });
       return {
         success: false,
         error: "DB_ERROR",
@@ -214,12 +244,13 @@ export async function transitionOrderStatusAction(
       };
     }
 
-    // 4. Log to order_status_history
+    // 4. Log to order_status_history with request_id correlation
     await supabase.from("order_status_history").insert({
       order_id: orderId,
       from_status: fromStatus,
       to_status: toStatus,
       actor_type: "STAFF",
+      notes: `Transitioned via KDS [${requestId}]`,
       created_at: nowIso,
     });
 
@@ -233,12 +264,30 @@ export async function transitionOrderStatusAction(
       console.warn("Inventory transition notice:", invErr);
     }
 
+    const durationMs = Date.now() - startTime;
+    logger.info(`Order ${orderId} moved from ${fromStatus} to ${toStatus}`, {
+      requestId,
+      orderId,
+      action: "transitionOrderStatus",
+      durationMs,
+      data: { fromStatus, toStatus },
+    });
+
     return {
       success: true,
       message: `Order moved to ${toStatus}`,
     };
   } catch (error) {
-    console.error("Error in transitionOrderStatusAction:", error);
+    const durationMs = Date.now() - startTime;
+    logger.error("Unexpected error in transitionOrderStatusAction", {
+      requestId,
+      orderId,
+      action: "transitionOrderStatus",
+      durationMs,
+      data: { error: String(error) },
+    });
+    captureAppException(error, { requestId, orderId });
+
     return {
       success: false,
       error: "DB_ERROR",
