@@ -358,3 +358,63 @@ export interface SongVote {
   table_session_id: string;
   created_at: string;
 }
+
+export interface Vendor {
+  id: string;
+  name: string;
+  contact_person: string | null;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  tax_id: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type PurchaseOrderStatus =
+  "DRAFT" | "APPROVED" | "SENT" | "PARTIALLY_RECEIVED" | "RECEIVED" | "CLOSED" | "CANCELLED";
+
+export interface PurchaseOrder {
+  id: string;
+  po_number: string;
+  vendor_id: string;
+  status: PurchaseOrderStatus;
+  total_amount_paise: number;
+  expected_delivery_date: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PurchaseOrderLine {
+  id: string;
+  po_id: string;
+  ingredient_id: string;
+  ordered_qty: number;
+  received_qty: number;
+  unit_cost_paise: number;
+  line_total_paise: number;
+  created_at: string;
+}
+
+export interface GoodsReceipt {
+  id: string;
+  grn_number: string;
+  po_id: string | null;
+  vendor_id: string;
+  invoice_no: string | null;
+  received_at: string;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface GoodsReceiptLine {
+  id: string;
+  grn_id: string;
+  po_line_id: string | null;
+  ingredient_id: string;
+  received_qty: number;
+  unit_cost_paise: number;
+  created_at: string;
+}

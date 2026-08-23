@@ -148,6 +148,13 @@ export default async function HomePage() {
             >
               Rewards 🎁
             </Link>
+            <span className="text-stone-300 dark:text-stone-700">•</span>
+            <Link
+              href="/admin/procurement"
+              className="text-[#9B2C2C] hover:underline dark:text-[#F6AD55]"
+            >
+              Procurement 📦
+            </Link>
           </div>
         </div>
       </div>
