@@ -61,9 +61,10 @@ Built for the real smol café brand (brand kit v1.0, Aug 2026): café crème / s
 | 2026-08-23 | Real menu (59 items, V0.8 workbook) exported to `menu-seed-master.csv` as the v1 seed source  | Menu should be data seeded into DB, never hardcoded or re-read from the spreadsheet at runtime                          |
 | 2026-08-23 | Set up clean Next.js 15 + TypeScript monorepo (`apps/web`, `packages/db`, `packages/ui`)      | Phase 0 Step 0.1 scaffolding with Tailwind CSS, ESLint, Prettier, and npm workspaces                                    |
 | 2026-08-23 | Set up Supabase SSR & Browser clients + packages/db migrations tooling                        | Phase 0 Step 0.2 Supabase connection scaffolding with typed SSR/Client/Admin clients and CLI config                     |
-| 2026-08-23 | Created Core Postgres Schema migration for 13 money-critical tables                           | Phase 0 Step 0.3: integer paise pricing, status enums, partial unique table session index, immutable snapshots           |
+| 2026-08-23 | Created Core Postgres Schema migration for 13 money-critical tables                           | Phase 0 Step 0.3: integer paise pricing, status enums, partial unique table session index, immutable snapshots          |
 | 2026-08-23 | Configured Supabase RLS policies across 13 core tables with customer session isolation & RBAC | Phase 0 Step 0.4: Deny-by-default, customer table_session_id claim scoping, staff roles (admin, cashier, kitchen, chef) |
-| 2026-08-23 | Built idempotent Menu CSV seed script (`packages/db/scripts/seed-menu.ts`) with dry-run/apply | Imports 59 menu items into 13 categories with integer paise pricing, status mapping, and JSONB metadata enrichment       |
+| 2026-08-23 | Built idempotent Menu CSV seed script (`packages/db/scripts/seed-menu.ts`) with dry-run/apply | Imports 59 menu items into 13 categories with integer paise pricing, status mapping, and JSONB metadata enrichment      |
+| 2026-08-23 | Built QR entry route (`/t/[tableToken]`) & table session flow with signed session cookies     | Phase 1 Step 1.1: Server Action token resolution, single open table_session management, and invalid QR fallback screens  |
 
 ## Next Steps
 

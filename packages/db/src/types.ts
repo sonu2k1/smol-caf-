@@ -19,120 +19,324 @@ import type {
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       locations: {
         Row: Location;
-        Insert: Omit<Location, "id" | "created_at" | "updated_at"> & {
+        Insert: {
           id?: string;
+          name: string;
+          timezone?: string;
           created_at?: string;
           updated_at?: string;
         };
-        Update: Partial<Omit<Location, "id">>;
+        Update: {
+          id?: string;
+          name?: string;
+          timezone?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       dining_tables: {
         Row: DiningTable;
-        Insert: Omit<DiningTable, "id" | "created_at" | "updated_at"> & {
+        Insert: {
           id?: string;
+          location_id: string;
+          label: string;
+          seats?: number;
+          active?: boolean;
           created_at?: string;
           updated_at?: string;
         };
-        Update: Partial<Omit<DiningTable, "id">>;
+        Update: {
+          id?: string;
+          location_id?: string;
+          label?: string;
+          seats?: number;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       table_qr_tokens: {
         Row: TableQrToken;
-        Insert: Omit<TableQrToken, "id" | "created_at"> & {
+        Insert: {
           id?: string;
+          table_id: string;
+          token_hash: string;
+          version?: number;
+          revoked_at?: string | null;
           created_at?: string;
         };
-        Update: Partial<Omit<TableQrToken, "id">>;
+        Update: {
+          id?: string;
+          table_id?: string;
+          token_hash?: string;
+          version?: number;
+          revoked_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
       };
       table_sessions: {
         Row: TableSession;
-        Insert: Omit<TableSession, "id" | "created_at" | "opened_at" | "last_activity_at"> & {
+        Insert: {
           id?: string;
+          location_id: string;
+          table_id: string;
+          status?: TableSessionStatus | string;
           opened_at?: string;
+          closed_at?: string | null;
+          guest_count?: number;
+          bill_id?: string | null;
+          session_token_version?: number;
           last_activity_at?: string;
           created_at?: string;
         };
-        Update: Partial<Omit<TableSession, "id">>;
+        Update: {
+          id?: string;
+          location_id?: string;
+          table_id?: string;
+          status?: TableSessionStatus | string;
+          opened_at?: string;
+          closed_at?: string | null;
+          guest_count?: number;
+          bill_id?: string | null;
+          session_token_version?: number;
+          last_activity_at?: string;
+          created_at?: string;
+        };
+        Relationships: [];
       };
       menu_categories: {
         Row: MenuCategory;
-        Insert: Omit<MenuCategory, "id" | "created_at" | "updated_at"> & {
+        Insert: {
           id?: string;
+          location_id: string;
+          name: string;
+          sort_order?: number;
           created_at?: string;
           updated_at?: string;
         };
-        Update: Partial<Omit<MenuCategory, "id">>;
+        Update: {
+          id?: string;
+          location_id?: string;
+          name?: string;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       menu_items: {
         Row: MenuItem;
-        Insert: Omit<MenuItem, "id" | "created_at" | "updated_at"> & {
+        Insert: {
           id?: string;
+          category_id: string;
+          name: string;
+          status?: string;
+          metadata?: Record<string, unknown>;
           created_at?: string;
           updated_at?: string;
         };
-        Update: Partial<Omit<MenuItem, "id">>;
+        Update: {
+          id?: string;
+          category_id?: string;
+          name?: string;
+          status?: string;
+          metadata?: Record<string, unknown>;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       menu_item_versions: {
         Row: MenuItemVersion;
-        Insert: Omit<MenuItemVersion, "id" | "created_at"> & {
+        Insert: {
           id?: string;
+          menu_item_id: string;
+          description?: string | null;
+          image_url?: string | null;
+          metadata?: Record<string, unknown>;
           created_at?: string;
         };
-        Update: Partial<Omit<MenuItemVersion, "id">>;
+        Update: {
+          id?: string;
+          menu_item_id?: string;
+          description?: string | null;
+          image_url?: string | null;
+          metadata?: Record<string, unknown>;
+          created_at?: string;
+        };
+        Relationships: [];
       };
       menu_prices: {
         Row: MenuPrice;
-        Insert: Omit<MenuPrice, "id" | "created_at" | "effective_from"> & {
+        Insert: {
           id?: string;
+          menu_item_id: string;
+          amount_paise: number;
+          currency?: string;
           effective_from?: string;
+          effective_to?: string | null;
           created_at?: string;
         };
-        Update: Partial<Omit<MenuPrice, "id">>;
+        Update: {
+          id?: string;
+          menu_item_id?: string;
+          amount_paise?: number;
+          currency?: string;
+          effective_from?: string;
+          effective_to?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
       };
       orders: {
         Row: Order;
-        Insert: Omit<Order, "id" | "created_at" | "updated_at"> & {
+        Insert: {
           id?: string;
+          location_id: string;
+          table_session_id?: string | null;
+          order_no: number;
+          status?: OrderStatus | string;
+          service_mode?: string;
+          submitted_at?: string | null;
+          accepted_at?: string | null;
+          ready_at?: string | null;
+          served_at?: string | null;
+          subtotal_snapshot?: number;
+          tax_snapshot?: number;
+          total_snapshot?: number;
+          version?: number;
           created_at?: string;
           updated_at?: string;
         };
-        Update: Partial<Omit<Order, "id">>;
+        Update: {
+          id?: string;
+          location_id?: string;
+          table_session_id?: string | null;
+          order_no?: number;
+          status?: OrderStatus | string;
+          service_mode?: string;
+          submitted_at?: string | null;
+          accepted_at?: string | null;
+          ready_at?: string | null;
+          served_at?: string | null;
+          subtotal_snapshot?: number;
+          tax_snapshot?: number;
+          total_snapshot?: number;
+          version?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       order_items: {
         Row: OrderItem;
-        Insert: Omit<OrderItem, "id" | "created_at"> & {
+        Insert: {
           id?: string;
+          order_id: string;
+          menu_item_id?: string | null;
+          menu_item_version_id?: string | null;
+          name_snapshot: string;
+          unit_price_snapshot: number;
+          qty?: number;
+          line_subtotal: number;
+          item_status?: string;
           created_at?: string;
         };
-        Update: Partial<Omit<OrderItem, "id">>;
+        Update: {
+          id?: string;
+          order_id?: string;
+          menu_item_id?: string | null;
+          menu_item_version_id?: string | null;
+          name_snapshot?: string;
+          unit_price_snapshot?: number;
+          qty?: number;
+          line_subtotal?: number;
+          item_status?: string;
+          created_at?: string;
+        };
+        Relationships: [];
       };
       order_status_history: {
         Row: OrderStatusHistory;
-        Insert: Omit<OrderStatusHistory, "id" | "created_at"> & {
+        Insert: {
           id?: string;
+          order_id: string;
+          from_status?: OrderStatus | string | null;
+          to_status: OrderStatus | string;
+          actor_type: string;
+          actor_id?: string | null;
           created_at?: string;
         };
-        Update: Partial<Omit<OrderStatusHistory, "id">>;
+        Update: {
+          id?: string;
+          order_id?: string;
+          from_status?: OrderStatus | string | null;
+          to_status?: OrderStatus | string;
+          actor_type?: string;
+          actor_id?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
       };
       bills: {
         Row: Bill;
-        Insert: Omit<Bill, "id" | "created_at"> & {
+        Insert: {
           id?: string;
+          table_session_id: string;
+          status?: string;
+          subtotal?: number;
+          tax?: number;
+          total?: number;
+          paid_amount?: number;
           created_at?: string;
+          closed_at?: string | null;
         };
-        Update: Partial<Omit<Bill, "id">>;
+        Update: {
+          id?: string;
+          table_session_id?: string;
+          status?: string;
+          subtotal?: number;
+          tax?: number;
+          total?: number;
+          paid_amount?: number;
+          created_at?: string;
+          closed_at?: string | null;
+        };
+        Relationships: [];
       };
       payment_attempts: {
         Row: PaymentAttempt;
-        Insert: Omit<PaymentAttempt, "id" | "created_at"> & {
+        Insert: {
           id?: string;
+          bill_id: string;
+          provider: string;
+          amount: number;
+          currency?: string;
+          status?: PaymentStatus | string;
+          idempotency_key: string;
           created_at?: string;
+          captured_at?: string | null;
         };
-        Update: Partial<Omit<PaymentAttempt, "id">>;
+        Update: {
+          id?: string;
+          bill_id?: string;
+          provider?: string;
+          amount?: number;
+          currency?: string;
+          status?: PaymentStatus | string;
+          idempotency_key?: string;
+          created_at?: string;
+          captured_at?: string | null;
+        };
+        Relationships: [];
       };
     };
     Views: {
@@ -150,4 +354,4 @@ export interface Database {
       [_ in never]: never;
     };
   };
-}
+};
