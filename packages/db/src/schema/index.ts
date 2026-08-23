@@ -327,3 +327,34 @@ export interface EventRsvp {
   guest_contact: string | null;
   registered_at: string;
 }
+
+export type SongRequestStatus =
+  "PENDING" | "APPROVED" | "QUEUED" | "PLAYING" | "PLAYED" | "REJECTED" | "SKIPPED";
+
+export interface MusicSession {
+  id: string;
+  location_id: string;
+  status: "OPEN" | "CLOSED";
+  opened_at: string;
+  closed_at: string | null;
+  created_at: string;
+}
+
+export interface SongRequest {
+  id: string;
+  session_id: string;
+  table_session_id: string;
+  track_name: string;
+  artist: string;
+  status: SongRequestStatus;
+  vote_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SongVote {
+  id: string;
+  request_id: string;
+  table_session_id: string;
+  created_at: string;
+}

@@ -96,6 +96,23 @@ export default async function HomePage() {
             <span>Cashier POS</span>
             <span className="text-stone-400">→</span>
           </Link>
+          <Link
+            href="/music"
+            className="col-span-2 flex items-center justify-between rounded-2xl border border-amber-200 bg-amber-50/60 p-4 shadow-sm transition hover:bg-amber-100/60 dark:border-amber-900/40 dark:bg-amber-950/20 dark:hover:bg-amber-950/40"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="text-lg">🎵</span>
+              <div>
+                <span className="text-xs font-bold text-amber-950 dark:text-amber-200">
+                  Smol Jukebox
+                </span>
+                <p className="text-[10px] text-amber-800/80 dark:text-amber-400 font-medium">
+                  Request songs & upvote the live queue
+                </p>
+              </div>
+            </div>
+            <span className="text-amber-800 dark:text-amber-400">→</span>
+          </Link>
         </div>
 
         {/* Admin Shortcuts */}
@@ -103,7 +120,14 @@ export default async function HomePage() {
           <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
             Admin Management
           </span>
-          <div className="flex justify-center gap-3 text-xs font-semibold">
+          <div className="flex flex-wrap justify-center gap-3 text-xs font-semibold">
+            <Link
+              href="/admin/music"
+              className="text-[#9B2C2C] hover:underline dark:text-[#F6AD55]"
+            >
+              Jukebox DJ 🎧
+            </Link>
+            <span className="text-stone-300 dark:text-stone-700">•</span>
             <Link
               href="/admin/events"
               className="text-[#9B2C2C] hover:underline dark:text-[#F6AD55]"
