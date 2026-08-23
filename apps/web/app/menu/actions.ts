@@ -2,6 +2,7 @@
 
 import { getTableSessionCookie } from "@/lib/session";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 
 export interface PlaceOrderItemInput {
   menu_item_id: string;
@@ -18,10 +19,18 @@ export interface ChangedItemDiff {
 
 export interface PlaceOrderResult {
   success: boolean;
-  error?: "NO_SESSION" | "SESSION_NOT_OPEN" | "PRICE_CHANGED" | "DB_ERROR" | "EMPTY_CART";
+  error?:
+    | "NO_SESSION"
+    | "SESSION_NOT_OPEN"
+    | "PRICE_CHANGED"
+    | "DB_ERROR"
+    | "EMPTY_CART"
+    | "INSUFFICIENT_POINTS"
+    | "AUTH_REQUIRED";
   message?: string;
   orderId?: string;
   orderNo?: number;
+  discountPaise?: number;
   totalPaise?: number;
   isDuplicate?: boolean;
   changedItems?: ChangedItemDiff[];
@@ -29,11 +38,12 @@ export interface PlaceOrderResult {
 
 /**
  * Server Action: Places an order within a single atomic PostgreSQL transaction
- * enforcing server-side price re-validation and idempotency.
+ * enforcing server-side price re-validation, inventory reservation, and reward redemption.
  */
 export async function placeOrderAction(
   items: PlaceOrderItemInput[],
-  idempotencyKey: string
+  idempotencyKey: string,
+  rewardId?: string
 ): Promise<PlaceOrderResult> {
   // 1. Verify Active Table Session from Signed Cookie
   const session = await getTableSessionCookie();
@@ -55,6 +65,9 @@ export async function placeOrderAction(
   }
 
   const supabase = createAdminClient();
+  const userClient = await createClient();
+  const { data: authUser } = await userClient.auth.getUser();
+  const profileId = authUser?.user?.id || null;
 
   try {
     // 3. Call submit_order PostgreSQL function
@@ -63,6 +76,8 @@ export async function placeOrderAction(
       p_table_session_id: session.sessionId,
       p_idempotency_key: idempotencyKey,
       p_items: items,
+      p_reward_id: rewardId || null,
+      p_profile_id: profileId,
     });
 
     if (rpcError) {
@@ -80,6 +95,7 @@ export async function placeOrderAction(
       message?: string;
       order_id?: string;
       order_no?: number;
+      discount_paise?: number;
       total_paise?: number;
       is_duplicate?: boolean;
       changed_items?: ChangedItemDiff[];
@@ -115,9 +131,13 @@ export async function placeOrderAction(
       success: true,
       orderId: result.order_id,
       orderNo: result.order_no,
+      discountPaise: result.discount_paise || 0,
       totalPaise: result.total_paise,
       isDuplicate: result.is_duplicate || false,
-      message: `Order #${result.order_no} placed successfully!`,
+      message:
+        result.discount_paise && result.discount_paise > 0
+          ? `Order #${result.order_no} placed with ₹${Math.round(result.discount_paise / 100)} reward discount!`
+          : `Order #${result.order_no} placed successfully!`,
     };
   } catch (err) {
     console.error("Unexpected error in placeOrderAction:", err);

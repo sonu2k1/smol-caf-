@@ -268,3 +268,28 @@ export interface LoyaltyLedgerEntry {
   notes: string | null;
   created_at: string;
 }
+
+export type RewardType = "FIXED_ITEM" | "FIXED_VALUE" | "PERCENTAGE";
+
+export interface Reward {
+  id: string;
+  name: string;
+  description: string | null;
+  type: RewardType;
+  discount_value: number;
+  menu_item_id: string | null;
+  points_cost: number;
+  expiry_days: number | null;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RewardRedemption {
+  id: string;
+  reward_id: string;
+  profile_id: string;
+  order_id: string | null;
+  points_spent: number;
+  redeemed_at: string;
+}
