@@ -118,6 +118,7 @@ export interface Order {
   subtotal_snapshot: number;
   tax_snapshot: number;
   total_snapshot: number;
+  idempotency_key?: string | null;
   version: number;
   created_at: string;
   updated_at: string;

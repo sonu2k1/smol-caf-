@@ -2,9 +2,12 @@
 
 import React, { useState } from "react";
 import type { CategoryWithItems, MenuItemWithDetails } from "@/lib/queries/menu";
+import { CartProvider } from "@/context/CartContext";
 import { CategoryNav } from "./CategoryNav";
 import { MenuItemCard } from "./MenuItemCard";
 import { ItemDetailModal } from "./ItemDetailModal";
+import { FloatingCartBar } from "@/components/cart/FloatingCartBar";
+import { CartDrawer } from "@/components/cart/CartDrawer";
 
 interface MenuClientViewProps {
   categories: CategoryWithItems[];
@@ -12,7 +15,7 @@ interface MenuClientViewProps {
   locationName?: string;
 }
 
-export const MenuClientView: React.FC<MenuClientViewProps> = ({
+const MenuContent: React.FC<MenuClientViewProps> = ({
   categories,
   tableLabel,
   locationName = "Smol Café",
@@ -56,7 +59,7 @@ export const MenuClientView: React.FC<MenuClientViewProps> = ({
     .filter((cat) => cat.items.length > 0);
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#1C1917] dark:bg-[#141211] dark:text-[#FDFBF7]">
+    <div className="min-h-screen bg-[#FDFBF7] text-[#1C1917] pb-24 dark:bg-[#141211] dark:text-[#FDFBF7]">
       {/* Top Header */}
       <header className="border-b border-stone-200/80 bg-white/70 px-4 py-4 backdrop-blur-md dark:border-stone-800 dark:bg-stone-900/60">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
@@ -78,12 +81,10 @@ export const MenuClientView: React.FC<MenuClientViewProps> = ({
           </div>
 
           {tableLabel && (
-            <a
-              href={`/t/table`}
-              className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 dark:border-stone-800 dark:bg-stone-800 dark:text-stone-300"
-            >
-              Table info
-            </a>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live Table
+            </span>
           )}
         </div>
 
@@ -176,6 +177,20 @@ export const MenuClientView: React.FC<MenuClientViewProps> = ({
 
       {/* Item Detail Modal */}
       <ItemDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+
+      {/* Floating Cart Bar */}
+      <FloatingCartBar />
+
+      {/* Cart Drawer */}
+      <CartDrawer tableLabel={tableLabel} />
     </div>
+  );
+};
+
+export const MenuClientView: React.FC<MenuClientViewProps> = (props) => {
+  return (
+    <CartProvider>
+      <MenuContent {...props} />
+    </CartProvider>
   );
 };

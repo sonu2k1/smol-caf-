@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import type { MenuItemWithDetails } from "@/lib/queries/menu";
+import { useCart } from "@/context/CartContext";
 
 interface ItemDetailModalProps {
   item: MenuItemWithDetails | null;
@@ -10,6 +11,7 @@ interface ItemDetailModalProps {
 
 export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({ item, onClose }) => {
   const [quantity, setQuantity] = useState(1);
+  const { addItem } = useCart();
 
   if (!item) return null;
 
@@ -18,6 +20,11 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({ item, onClose 
   const isVeg = dietary.toLowerCase().includes("veg") && !dietary.toLowerCase().includes("egg");
   const isEgg = dietary.toLowerCase().includes("egg");
   const isVegan = dietary.toLowerCase().includes("vegan");
+
+  const handleAddToCart = () => {
+    addItem(item, quantity);
+    onClose();
+  };
 
   return (
     <div
@@ -148,10 +155,10 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({ item, onClose 
           </div>
 
           <button
-            onClick={onClose}
-            className="flex-1 rounded-2xl bg-stone-900 py-3.5 text-center text-sm font-semibold text-white shadow-md transition hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200"
+            onClick={handleAddToCart}
+            className="flex-1 rounded-2xl bg-[#9B2C2C] py-3.5 text-center text-sm font-semibold text-white shadow-md transition hover:bg-[#822424] active:scale-[0.98] dark:bg-[#C53030] dark:hover:bg-[#9B2C2C]"
           >
-            Done (₹{priceRupees * quantity})
+            Add to Order • ₹{priceRupees * quantity}
           </button>
         </div>
       </div>
