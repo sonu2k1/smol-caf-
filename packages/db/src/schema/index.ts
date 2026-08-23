@@ -170,3 +170,14 @@ export interface PaymentAttempt {
   created_at: string;
   captured_at: string | null;
 }
+
+export interface WebhookEvent {
+  id: string;
+  provider: string;
+  provider_event_id: string;
+  event_type: string;
+  payload: Record<string, unknown>;
+  status: string;
+  processed_at: string;
+  created_at: string;
+}

@@ -8,6 +8,7 @@
     "typecheck": "tsc --noEmit",
     "db:seed:dry": "tsx scripts/seed-menu.ts",
     "db:seed:apply": "tsx scripts/seed-menu.ts --apply",
+    "test:webhook": "tsx scripts/test-webhook-dedupe.ts",
     "db:types": "supabase gen types typescript --local > src/types.ts",
     "db:diff": "supabase db diff -f",
     "db:push": "supabase db push",
