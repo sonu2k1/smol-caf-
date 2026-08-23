@@ -3,12 +3,14 @@
 This app is being built for **smol café** — a warm, literary, day-to-night neighbourhood café in Rishikesh. This design system adapts smol café's official brand kit (v1.0, Aug 2026) for an **internal, staff-facing POS tool**. Where brand warmth and POS speed conflict, speed and usability win — but the app should still feel unmistakably "smol" to anyone who opens it.
 
 ## 1. Design Principles (priority order)
+
 1. **Speed over aesthetics** — rush-hour tool; every extra tap costs time
 2. **High contrast, large tap targets** — cafe lighting varies, staff move fast
 3. **Minimal cognitive load** — cashier shouldn't need training beyond 5 minutes
 4. **Feels like smol** — even a functional tool should carry the brand's warmth, not feel like generic SaaS
 
 ## 2. Target Devices
+
 - Primary: Android phones (~360–412px width), portrait, one-handed use at the counter
 - Secondary: counter-mounted tablet, landscape possible
 - Mobile-first, then adapt for tablet width
@@ -23,20 +25,21 @@ This app is being built for **smol café** — a warm, literary, day-to-night ne
 
 Locked palette — do not introduce new colours without updating this doc.
 
-| Name | Hex | Role in POS app |
-|---|---|---|
-| café crème | #F3E7D3 | Primary background (day mode) |
-| espresso ink | #241F1C | Primary text; primary background (night mode) |
-| smol cherry | #B72E35 | Primary action colour (Add to cart, Checkout, active states) |
-| butter taxi | #F2C84B | Small accents only — **never small text**, decoration/background only |
-| biscuit | #C9AE8B | Secondary/muted surfaces, card borders |
-| walnut | #725039 | Secondary text/labels |
-| dusty pool | #75AFA7 | Rare accent — e.g. success/confirmation states |
-| electric violet | #754CFF | Night-mode accent only, 5–12% usage — never a daytime primary |
+| Name            | Hex     | Role in POS app                                                       |
+| --------------- | ------- | --------------------------------------------------------------------- |
+| café crème      | #F3E7D3 | Primary background (day mode)                                         |
+| espresso ink    | #241F1C | Primary text; primary background (night mode)                         |
+| smol cherry     | #B72E35 | Primary action colour (Add to cart, Checkout, active states)          |
+| butter taxi     | #F2C84B | Small accents only — **never small text**, decoration/background only |
+| biscuit         | #C9AE8B | Secondary/muted surfaces, card borders                                |
+| walnut          | #725039 | Secondary text/labels                                                 |
+| dusty pool      | #75AFA7 | Rare accent — e.g. success/confirmation states                        |
+| electric violet | #754CFF | Night-mode accent only, 5–12% usage — never a daytime primary         |
 
 **Day / Night mode:** the app should offer a **day mode** (crème background, espresso text, cherry accents, airy) and a **night mode** (espresso background, crème text, cherry still present, violet as a controlled accent). This mirrors the café's own day/night identity and is a nice functional match since cafes actually operate day-to-night — night mode also helps eyes in low light during evening shifts.
 
 **Contrast rules (carried directly from brand kit — do not break):**
+
 - Espresso ink on crème (13.34:1) — best for body copy
 - Cherry on crème (4.97:1) — headlines, buttons, normal text — PASS
 - Walnut on crème (5.88:1) — secondary copy
@@ -68,64 +71,76 @@ Per brand voice: lowercase, warm, specific, low-pressure, lightly witty — neve
 ## 7. Layout Patterns
 
 ### Order/Cashier Screen
+
 - Top: category tabs (horizontal scroll), Inter Medium
 - Middle: grid of menu item cards (2 columns on phone) — name in Inter, price in Noto Sans Mono
 - Bottom (sticky): cart summary bar — item count + running total (Mono), tap to expand
 - Cart expands as a bottom sheet, not a separate page
 
 ### Checkout Screen
+
 - Itemized list (read-only), prices in Mono
 - Discount/tax fields
 - Payment method selector: large tappable buttons (Cash / UPI / Card)
 - Big "complete order" button (cherry), fixed at bottom
 
 ### Receipt
+
 - "smol café" header in EB Garamond
 - Line items + totals in Noto Sans Mono (matches their actual print/menu system)
 - Optional quiet italic line at the bottom, e.g. a rotating short line in the brand's voice
 
 ### Customer QR Menu (public, no login)
+
 - Loads instantly on customer's own phone after scanning
 - Same brand system as physical menu: crème background, cherry category headings, mono prices, EB Garamond for section titles
 - Read-only — no cart, no "add to order" — this is browsing only, order is placed verbally at counter
 - Categories as simple sections or tabs, big legible cards, no clutter
 
 ### Kitchen Queue Screen
+
 - List/column of incoming orders, newest at top (or grouped by status)
 - Each order card: order #, items + qty, time received
 - Large, unmistakable status buttons: received → started → preparing → ready (one tap to advance, colour shifts per stage — e.g. biscuit → butter taxi → dusty pool → cherry for "ready")
 - Designed for glancing from across a kitchen counter — bigger type than cashier screens, minimal text
 
 ### Chef Inventory Screen
+
 - List of inventory items, each showing: name, quantity/unit, shelf-life status
 - Colour-coded freshness: dusty pool (fresh) → butter taxi (expiring soon) → cherry (expired) — never colour alone, pair with a short label ("2 days left", "expired")
 - Quick "mark used/wasted" and "add stock" actions per item, no deep forms for routine updates
 
 ### Super Admin Dashboard
+
 - Charts: sales trend (line), top items (bar), payment method split (donut) — keep to 1 accent colour per chart plus neutrals, don't rainbow the charts
 - User management: simple list of staff with role tag + add/deactivate actions
 - This screen can be denser/less mobile-constrained since it's typically reviewed calmly, not mid-rush
 
 ### Admin Screens (Menu/QR Management)
+
 - Standard list + form patterns for menu items, less speed-critical
 - QR code shown prominently with a "regenerate/view" option; menu edits reflect live on the customer route
 
 ## 8. Graphic Language (light touch, admin/receipt only — not the cashier flow)
+
 - Arched frame motif (door/arch shape) can appear as a section divider or card crop on admin/reports screens
 - Thin lines, small underlines, and micro motifs (four-point stars, dots) — sparse, never on the cashier's fast-tap flow
 - Avoid: coffee-bean clipart, gradients, chrome/3D effects, checkerboard beyond a tiny accent
 
 ## 9. Component Notes
+
 - Menu item card: name (Inter) + price (Mono) + qty stepper, no modal needed for quantity
 - Cart drawer: clear delete icon per line item
 - Toasts for confirmations ("order saved") in brand voice; modals only for destructive actions ("cancel order?")
 
 ## 10. Accessibility & Usability
+
 - Minimum tap target: 44x44px
 - WCAG AA contrast — follow the pairing table in section 4 exactly, especially the butter-taxi and cherry-on-dark restrictions
 - Never rely on colour alone for status (e.g. low stock — pair with icon/text, not just red)
 
 ## 11. Non-Negotiables (from brand kit, applied to app)
+
 - "smol café" always lowercase, everywhere in-app
 - Only Inter, EB Garamond, Noto Sans Mono — no other fonts
 - No new colours without updating this doc
@@ -133,6 +148,7 @@ Per brand voice: lowercase, warm, specific, low-pressure, lightly witty — neve
 - Keep the cashier flow visually calm — brand personality lives in receipts, empty states, and admin screens more than in the fast-tap cart flow
 
 ## 12. Key Screens Checklist
+
 - [ ] Staff login (PIN entry, role-aware)
 - [ ] Customer: QR menu (public, read-only)
 - [ ] Cashier: Menu/Order screen
