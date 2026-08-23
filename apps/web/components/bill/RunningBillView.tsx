@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import type { RunningBillDetails } from "@/app/bill/actions";
 import { fetchRunningBillAction, requestBillAction } from "@/app/bill/actions";
+import { RazorpayPaymentButton } from "./RazorpayPaymentButton";
 
 interface RunningBillViewProps {
   initialBill?: RunningBillDetails;
@@ -235,7 +236,7 @@ export const RunningBillView: React.FC<RunningBillViewProps> = ({ initialBill, h
           </div>
         </div>
 
-        {/* Action Button: Request Bill */}
+        {/* Action Buttons: Pay Online via Razorpay OR Request Cash Bill */}
         {!isClosed && (
           <div className="mt-6 space-y-3">
             {requestMessage && (
@@ -244,20 +245,38 @@ export const RunningBillView: React.FC<RunningBillViewProps> = ({ initialBill, h
               </p>
             )}
 
+            {/* Primary Action: Instant Online Payment via UPI / Cards */}
+            <RazorpayPaymentButton
+              tableSessionId={bill.sessionId}
+              tableLabel={bill.tableLabel}
+              totalRupees={balanceDueRupees}
+              onSuccess={refreshBill}
+            />
+
+            <div className="relative my-2 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-stone-200 dark:border-stone-800" />
+              </div>
+              <span className="relative bg-[#FDFBF7] px-3 text-[11px] font-bold uppercase tracking-wider text-stone-400 dark:bg-[#141211]">
+                or pay cash
+              </span>
+            </div>
+
+            {/* Secondary Action: Request Cash Bill */}
             <button
               onClick={handleRequestBill}
               disabled={isRequesting || billRequested || totalRupees === 0}
-              className={`flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-bold shadow-lg transition active:scale-[0.98] disabled:opacity-60 ${
+              className={`flex w-full items-center justify-center gap-2 rounded-2xl border py-3.5 text-xs font-bold transition active:scale-[0.98] disabled:opacity-60 ${
                 billRequested
-                  ? "bg-amber-600 text-white hover:bg-amber-700"
-                  : "bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200"
+                  ? "border-amber-600 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
+                  : "border-stone-300 bg-white text-stone-700 hover:bg-stone-50 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200 dark:hover:bg-stone-700"
               }`}
             >
               {isRequesting
-                ? "Requesting Bill..."
+                ? "Requesting Staff..."
                 : billRequested
-                  ? "✓ Bill Requested (Staff Alerted)"
-                  : "Request Bill / Ask for Check →"}
+                  ? "✓ Cash Bill Requested (Staff Alerted)"
+                  : "Pay Cash at Table (Request Bill) →"}
             </button>
           </div>
         )}
