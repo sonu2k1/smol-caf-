@@ -223,6 +223,16 @@ export async function transitionOrderStatusAction(
       created_at: nowIso,
     });
 
+    // 5. Trigger Inventory Lifecycle Transition (RESERVE -> CONSUME on PREPARING or RELEASE on CANCELLED)
+    try {
+      await supabase.rpc("handle_order_inventory_transition", {
+        p_order_id: orderId,
+        p_to_status: toStatus,
+      });
+    } catch (invErr) {
+      console.warn("Inventory transition notice:", invErr);
+    }
+
     return {
       success: true,
       message: `Order moved to ${toStatus}`,

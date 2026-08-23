@@ -181,3 +181,57 @@ export interface WebhookEvent {
   processed_at: string;
   created_at: string;
 }
+
+export type InventoryMovementType =
+  "RECEIVE" | "RESERVE" | "RELEASE" | "CONSUME" | "WASTE" | "ADJUST";
+
+export interface Unit {
+  id: string;
+  name: string;
+  symbol: string;
+  category: string;
+  created_at: string;
+}
+
+export interface Ingredient {
+  id: string;
+  location_id: string;
+  name: string;
+  unit_id: string | null;
+  cost_per_unit_paise: number;
+  min_threshold: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Recipe {
+  id: string;
+  menu_item_id: string;
+  version: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface RecipeComponent {
+  id: string;
+  recipe_id: string;
+  ingredient_id: string;
+  qty_per_item: number;
+  unit_id: string | null;
+  is_optional: boolean;
+  created_at: string;
+}
+
+export interface InventoryMovement {
+  id: string;
+  ingredient_id: string;
+  movement_type: InventoryMovementType;
+  quantity: number;
+  reference_type: string | null;
+  reference_id: string | null;
+  actor_type: string;
+  actor_id: string | null;
+  notes: string | null;
+  created_at: string;
+}
