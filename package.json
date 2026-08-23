@@ -13,7 +13,11 @@
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "db:types": "npm run db:types --workspace=@smol-cafe/db",
+    "db:diff": "npm run db:diff --workspace=@smol-cafe/db",
+    "db:push": "npm run db:push --workspace=@smol-cafe/db",
+    "db:status": "npm run db:status --workspace=@smol-cafe/db"
   },
   "devDependencies": {
     "eslint": "^9.20.0",
