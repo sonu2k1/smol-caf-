@@ -81,8 +81,9 @@ Built for the real smol café brand (brand kit v1.0, Aug 2026): café crème / s
 | 2026-08-23 | Built Smol Café Jukebox — Request & Voting Subsystem (`/music` & `/admin/music`)                  | `music_sessions`, `song_requests`, `song_votes` tables, 15m rate-limiting, 1 vote/table dedupe, Staff DJ controller        |
 | 2026-08-23 | Built Conversation Prompt Deck Modal & Kitchen-Load-Aware "Another Round" Suggestions (`/orders`) | 15 prompt card deck, metadata pairings upsell, and automatic suppression if active kitchen tickets > 5                     |
 | 2026-08-23 | Built Basic Procurement & Goods Receipt Engine (`/admin/procurement`)                             | `vendors`, `purchase_orders`, `goods_receipts`, PO never touches stock, atomic `RECEIVE` movement on GRN only              |
-| 2026-08-23 | Built Procurement Budget vs Actual & Vendor Spend Analytics (`/admin/budgets`)                    | `budgets` table with month/category allocation, live actual spend from GRNs with drill-down, supplier audit & price trends |
+| 2026-08-23 | Built Procurement Budget vs Actual & Vendor Spend Analytics (`/admin/budgets`)                   | `budgets` table with month/category allocation, live actual spend from GRNs with drill-down, supplier audit & price trends |
 | 2026-08-23 | Built Explainable Kitchen ETA Engine & Accuracy Logging (No ML)                                  | Station bottleneck formula + 120s expo buffer, honest ranges (e.g. 10–14 min), and prediction error audit on KDS           |
+| 2026-08-23 | Set up Reliability Basics, Off-Site Nightly DB Dumps & UI Graceful Degradation                   | PITR guide, nightly logical dump to external S3/R2 bucket, restore-drill runbook with SQL assertions, offline cart banner  |
 
 ## Next Steps
 

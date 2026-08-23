@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { placeOrderAction, type ChangedItemDiff } from "@/app/menu/actions";
+import { useNetworkHealth } from "@/hooks/useNetworkHealth";
 
 interface CartDrawerProps {
   tableLabel?: string;
@@ -11,6 +12,7 @@ interface CartDrawerProps {
 export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
   const { items, updateQty, removeItem, clearCart, isCartOpen, closeCart, subtotalPaise } =
     useCart();
+  const { isDegraded, isOnline } = useNetworkHealth();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -258,8 +260,22 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
 
         {/* Footer with Subtotal & Place Order */}
         {!orderSuccess && !priceConflicts && items.length > 0 && (
-          <div className="border-t border-stone-200/80 bg-stone-50/80 p-5 dark:border-stone-800 dark:bg-stone-900/60">
-            <div className="mb-4 flex items-baseline justify-between">
+          <div className="border-t border-stone-200/80 bg-stone-50/80 p-5 dark:border-stone-800 dark:bg-stone-900/60 space-y-3">
+            {/* Graceful Degradation Warning Banner */}
+            {isDegraded && (
+              <div className="rounded-2xl border border-amber-300 bg-amber-50 p-3.5 text-xs text-amber-900 shadow-sm dark:border-amber-800/80 dark:bg-amber-950/60 dark:text-amber-200 space-y-1">
+                <div className="flex items-center gap-1.5 font-bold">
+                  <span>⚠️</span>
+                  <span>{isOnline ? "Café System Unreachable" : "You Are Currently Offline"}</span>
+                </div>
+                <p className="text-[11px] leading-relaxed text-amber-800 dark:text-amber-300">
+                  Online order submission is paused. Please call your server to place your order
+                  directly.
+                </p>
+              </div>
+            )}
+
+            <div className="flex items-baseline justify-between">
               <span className="text-xs font-medium text-stone-500">Subtotal</span>
               <span className="text-lg font-black text-stone-900 dark:text-stone-100">
                 ₹{totalRupees}
@@ -268,13 +284,21 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
 
             <button
               onClick={handlePlaceOrder}
-              disabled={isSubmitting}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#9B2C2C] py-4 text-base font-semibold text-white shadow-lg shadow-red-900/20 transition hover:bg-[#822424] active:scale-[0.98] disabled:opacity-50 dark:bg-[#C53030] dark:hover:bg-[#9B2C2C]"
+              disabled={isSubmitting || isDegraded}
+              className={`flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-semibold transition active:scale-[0.98] ${
+                isDegraded
+                  ? "bg-stone-300 text-stone-600 cursor-not-allowed dark:bg-stone-800 dark:text-stone-400"
+                  : "bg-[#9B2C2C] text-white shadow-lg shadow-red-900/20 hover:bg-[#822424] disabled:opacity-50 dark:bg-[#C53030] dark:hover:bg-[#9B2C2C]"
+              }`}
             >
               {isSubmitting ? (
                 <>
                   <span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
                   Submitting Order...
+                </>
+              ) : isDegraded ? (
+                <>
+                  <span>⚠️ System Offline • Please Call Staff</span>
                 </>
               ) : (
                 <>
