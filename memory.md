@@ -76,7 +76,8 @@ Built for the real smol café brand (brand kit v1.0, Aug 2026): café crème / s
 | 2026-08-23 | Built Optional Customer Accounts, OTP Auth & 24h Order Claiming Engine (`/profile`)           | `profiles` table, Supabase OTP auth, 24h `claim_session_orders` RPC, zero-friction anonymous guest ordering preserved     |
 | 2026-08-23 | Built Append-Only Loyalty Ledger & Atomic Balance Recomputation Engine (`loyalty_ledger`)     | Row-locked `record_loyalty_movement` RPC, `current_balance_cached` derived from ledger, EARN on capture & refund REVERSAL |
 | 2026-08-23 | Built Rewards Catalog, Atomic Cart Redemption & Admin CRUD Dashboard (`/admin/rewards`)       | `rewards` & `reward_redemptions`, server-side discount & points debit in `submit_order`, and Admin rewards manager        |
-| 2026-08-23 | Built Admin-Editable Blackboard Daily Specials (`/admin/blackboard`) & Home Widget (`/`)       | `blackboard_posts` table with time scheduling (`starts_at`/`ends_at`), chalk-aesthetic widget, and graceful fallback     |
+| 2026-08-23 | Built Admin-Editable Blackboard Daily Specials (`/admin/blackboard`) & Home Widget (`/`)      | `blackboard_posts` table with time scheduling (`starts_at`/`ends_at`), chalk-aesthetic widget, and graceful fallback      |
+| 2026-08-23 | Built Smol Café Community Events ("What's On") & Lightweight RSVPs (`/admin/events`)           | `cafe_events` & `event_rsvps` tables, capacity tracking, 1-tap interest registration, and Home What's On card            |
 
 ## Next Steps
 

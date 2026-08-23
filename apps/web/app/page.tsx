@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { fetchActiveBlackboardPostAction } from "@/app/admin/blackboard/actions";
+import { fetchUpcomingEventsAction } from "@/app/events/actions";
 import { BlackboardCard } from "@/components/blackboard/BlackboardCard";
+import { WhatsOnCard } from "@/components/events/WhatsOnCard";
 
 export const metadata = {
   title: "smol café — Artisanal Chai, Coffee & Buns",
@@ -8,7 +10,10 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-  const activePost = await fetchActiveBlackboardPostAction();
+  const [activePost, { events }] = await Promise.all([
+    fetchActiveBlackboardPostAction(),
+    fetchUpcomingEventsAction(),
+  ]);
 
   return (
     <main className="min-h-screen bg-[#FDFBF7] text-[#1C1917] pb-24 dark:bg-[#141211] dark:text-[#FDFBF7]">
@@ -58,6 +63,9 @@ export default async function HomePage() {
         {/* Live Admin-Editable Blackboard Daily Specials */}
         <BlackboardCard post={activePost} />
 
+        {/* What's On Community Events */}
+        <WhatsOnCard initialEvents={events} />
+
         {/* Quick Navigation Cards */}
         <div className="grid grid-cols-2 gap-3 text-xs font-bold">
           <Link
@@ -97,17 +105,24 @@ export default async function HomePage() {
           </span>
           <div className="flex justify-center gap-3 text-xs font-semibold">
             <Link
+              href="/admin/events"
+              className="text-[#9B2C2C] hover:underline dark:text-[#F6AD55]"
+            >
+              Events 🎪
+            </Link>
+            <span className="text-stone-300 dark:text-stone-700">•</span>
+            <Link
               href="/admin/blackboard"
               className="text-[#9B2C2C] hover:underline dark:text-[#F6AD55]"
             >
-              Blackboard Specials 📌
+              Blackboard 📌
             </Link>
             <span className="text-stone-300 dark:text-stone-700">•</span>
             <Link
               href="/admin/rewards"
               className="text-[#9B2C2C] hover:underline dark:text-[#F6AD55]"
             >
-              Rewards Catalog 🎁
+              Rewards 🎁
             </Link>
           </div>
         </div>

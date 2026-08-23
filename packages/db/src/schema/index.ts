@@ -305,3 +305,25 @@ export interface BlackboardPost {
   created_at: string;
   updated_at: string;
 }
+
+export interface CafeEvent {
+  id: string;
+  title: string;
+  description: string;
+  starts_at: string;
+  ends_at: string | null;
+  capacity: number;
+  join_url_or_note: string | null;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EventRsvp {
+  id: string;
+  event_id: string;
+  profile_id: string | null;
+  guest_name: string | null;
+  guest_contact: string | null;
+  registered_at: string;
+}
