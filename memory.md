@@ -48,21 +48,22 @@ Built for the real smol café brand (brand kit v1.0, Aug 2026): café crème / s
 
 ## Key Decisions Log
 
-| Date       | Decision                                                                                     | Why                                                                                                                     |
-| ---------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| 2026-08-13 | Chose React/Next.js + Node.js + SQL/Mongo                                                    | Developer's preferred/familiar stack                                                                                    |
-| 2026-08-13 | Solo build, mobile web (not native app)                                                      | Faster to ship, no app store friction                                                                                   |
-| 2026-08-13 | Adopted smol café brand kit for design.md                                                    | App is for a real café with an existing brand identity                                                                  |
-| 2026-08-14 | Expanded to 6 roles (Super Admin, Admin, Cashier, Kitchen, Chef, Customer)                   | Café needs full ops coverage, not just billing                                                                          |
-| 2026-08-14 | Built Next.js App Router with TypeScript & Tailwind CSS                                      | Full production quality, typed, responsive mobile design                                                                |
-| 2026-08-14 | Built local reactive DB service with LocalStorage sync                                       | Fast, zero-setup, persistent data for all 6 roles — prototype only, see Known Gap above                                 |
-| 2026-08-23 | Finalized DB choice: Postgres via Supabase (closes the SQL/Mongo TODO)                       | Order/billing needs real multi-table transactions; Supabase also gives Auth + RLS + Realtime without a separate backend |
-| 2026-08-23 | Adopted server-side price recalculation + idempotency keys for order/checkout                | Prevent double-billing and stale-price charges — only possible with a real backend, not LocalStorage                    |
-| 2026-08-23 | Real menu (59 items, V0.8 workbook) exported to `menu-seed-master.csv` as the v1 seed source | Menu should be data seeded into DB, never hardcoded or re-read from the spreadsheet at runtime                          |
-| 2026-08-23 | Set up clean Next.js 15 + TypeScript monorepo (`apps/web`, `packages/db`, `packages/ui`)     | Phase 0 Step 0.1 scaffolding with Tailwind CSS, ESLint, Prettier, and npm workspaces                                    |
+| Date       | Decision                                                                                      | Why                                                                                                                     |
+| ---------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| 2026-08-13 | Chose React/Next.js + Node.js + SQL/Mongo                                                     | Developer's preferred/familiar stack                                                                                    |
+| 2026-08-13 | Solo build, mobile web (not native app)                                                       | Faster to ship, no app store friction                                                                                   |
+| 2026-08-13 | Adopted smol café brand kit for design.md                                                     | App is for a real café with an existing brand identity                                                                  |
+| 2026-08-14 | Expanded to 6 roles (Super Admin, Admin, Cashier, Kitchen, Chef, Customer)                    | Café needs full ops coverage, not just billing                                                                          |
+| 2026-08-14 | Built Next.js App Router with TypeScript & Tailwind CSS                                       | Full production quality, typed, responsive mobile design                                                                |
+| 2026-08-14 | Built local reactive DB service with LocalStorage sync                                        | Fast, zero-setup, persistent data for all 6 roles — prototype only, see Known Gap above                                 |
+| 2026-08-23 | Finalized DB choice: Postgres via Supabase (closes the SQL/Mongo TODO)                        | Order/billing needs real multi-table transactions; Supabase also gives Auth + RLS + Realtime without a separate backend |
+| 2026-08-23 | Adopted server-side price recalculation + idempotency keys for order/checkout                 | Prevent double-billing and stale-price charges — only possible with a real backend, not LocalStorage                    |
+| 2026-08-23 | Real menu (59 items, V0.8 workbook) exported to `menu-seed-master.csv` as the v1 seed source  | Menu should be data seeded into DB, never hardcoded or re-read from the spreadsheet at runtime                          |
+| 2026-08-23 | Set up clean Next.js 15 + TypeScript monorepo (`apps/web`, `packages/db`, `packages/ui`)      | Phase 0 Step 0.1 scaffolding with Tailwind CSS, ESLint, Prettier, and npm workspaces                                    |
 | 2026-08-23 | Set up Supabase SSR & Browser clients + packages/db migrations tooling                        | Phase 0 Step 0.2 Supabase connection scaffolding with typed SSR/Client/Admin clients and CLI config                     |
 | 2026-08-23 | Created Core Postgres Schema migration for 13 money-critical tables                           | Phase 0 Step 0.3: integer paise pricing, status enums, partial unique table session index, immutable snapshots           |
 | 2026-08-23 | Configured Supabase RLS policies across 13 core tables with customer session isolation & RBAC | Phase 0 Step 0.4: Deny-by-default, customer table_session_id claim scoping, staff roles (admin, cashier, kitchen, chef) |
+| 2026-08-23 | Built idempotent Menu CSV seed script (`packages/db/scripts/seed-menu.ts`) with dry-run/apply | Imports 59 menu items into 13 categories with integer paise pricing, status mapping, and JSONB metadata enrichment       |
 
 ## Next Steps
 

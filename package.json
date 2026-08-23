@@ -17,7 +17,9 @@
     "db:types": "npm run db:types --workspace=@smol-cafe/db",
     "db:diff": "npm run db:diff --workspace=@smol-cafe/db",
     "db:push": "npm run db:push --workspace=@smol-cafe/db",
-    "db:status": "npm run db:status --workspace=@smol-cafe/db"
+    "db:status": "npm run db:status --workspace=@smol-cafe/db",
+    "db:seed:dry": "npm run db:seed:dry --workspace=@smol-cafe/db",
+    "db:seed:apply": "npm run db:seed:apply --workspace=@smol-cafe/db"
   },
   "devDependencies": {
     "eslint": "^9.20.0",

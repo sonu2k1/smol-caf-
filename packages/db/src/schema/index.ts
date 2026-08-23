@@ -80,6 +80,7 @@ export interface MenuItem {
   category_id: string;
   name: string;
   status: string;
+  metadata?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }
@@ -89,6 +90,7 @@ export interface MenuItemVersion {
   menu_item_id: string;
   description: string | null;
   image_url: string | null;
+  metadata?: Record<string, unknown>;
   created_at: string;
 }
 
