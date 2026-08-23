@@ -293,3 +293,15 @@ export interface RewardRedemption {
   points_spent: number;
   redeemed_at: string;
 }
+
+export interface BlackboardPost {
+  id: string;
+  title: string;
+  body: string;
+  image_url: string | null;
+  active: boolean;
+  starts_at: string;
+  ends_at: string | null;
+  created_at: string;
+  updated_at: string;
+}

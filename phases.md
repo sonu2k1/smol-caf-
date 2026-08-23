@@ -2,96 +2,82 @@
 
 Solo-dev roadmap. Each phase ships something testable at the actual cafe. Roles are layered in roughly in the order they block each other (menu → orders → kitchen → inventory → analytics/admin).
 
-> **Updated to reflect completed deliverables:** Stack finalized as Next.js 15 + Supabase (Postgres Mumbai), real 59-item master menu seeded, atomic order transactions with price re-validation and stock reservation, live tablet KDS, running bill with cash/online Razorpay settlement, webhook deduplication, append-only inventory ledger, optional customer OTP accounts with 24h order claiming, append-only loyalty rewards system, and admin rewards manager.
+> **Updated to reflect decisions made since the last version:** stack finalized as Next.js + Supabase (Postgres), the real 59-item menu (V0.8 workbook) has an import path defined, and order/payment logic now follows the money-safety rules from the Production Handover doc (price snapshots, idempotency). See `smol-cafe-vibe-coding-build-guide.md` for the exact copy-paste prompts behind each step below.
 
----
+## Phase 0 — Setup
 
-## Phase 0 — Setup ✅ [COMPLETED]
+- Initialize Next.js project (App Router, TypeScript), folder structure, ESLint/Prettier
+- Set up **Supabase (Postgres, ap-south-1 Mumbai)** as the database — SQL vs Mongo decision is closed, going with Postgres for transactional correctness (orders/payments need real transactions)
+- Core schema first: locations, dining_tables, menu_categories, menu_items, menu_prices, orders, order_items, bills — money columns as integer paise, never decimal
+- Auth system + role model (super_admin, admin, cashier, kitchen, chef) via Supabase Auth + RLS — deny by default, enforce roles server-side (not just hidden buttons)
+- Deploy pipeline (Vercel for the app, Supabase hosts the DB — no separate Railway/Render needed if going full Supabase)
+- **Deliverable:** Empty, role-aware app deployed and reachable on phone browser
 
-- [x] Initialize Next.js 15 project (App Router, TypeScript, Tailwind CSS workspaces: `apps/web`, `packages/db`, `packages/ui`), folder structure, ESLint/Prettier
-- [x] Set up **Supabase (Postgres, ap-south-1 Mumbai)** as the database with transactional correctness
-- [x] Core schema first: `locations`, `dining_tables`, `table_qr_tokens`, `table_sessions`, `menu_categories`, `menu_items`, `menu_item_versions`, `menu_prices`, `orders`, `order_items`, `order_status_history`, `bills`, `payment_attempts` — money columns as integer paise, never decimal
-- [x] Auth system + role model (`super_admin`, `admin`, `cashier`, `kitchen`, `chef`) via Supabase Auth + RLS — deny by default, customer session-isolation
-- [x] **Deliverable:** Empty, role-aware app deployed and reachable on phone browser
+## Phase 1 — Menu & QR (Admin)
 
----
+- Admin: CRUD menu items, categories, daily availability/sold-out toggle
+- **Import the real menu**: the V0.8 workbook's "Master Menu" sheet (59 items) gets seeded into `menu_items`/`menu_prices` via a script — never hand-typed into the UI. Admin CRUD edits the DB from here on; the spreadsheet stays a one-time seed source.
+- Generate QR code per table linking to `/t/[tableToken]` — resolves to a table session, not just a static menu link, so later phases (cart, order tracking) can build on it without rework
+- Public customer menu view (smol café branded, read-only, no login) — grouped by category, price/description pulled from DB
+- **Deliverable:** Admin can manage the full menu; customers can scan and browse the real 59-item menu live
 
-## Phase 1 — Menu & QR (Admin & Customer) ✅ [COMPLETED]
+## Phase 2 — Order Taking & Billing (Cashier)
 
-- [x] **Import the real menu**: V0.8 master menu (59 items across 13 categories) seeded into `menu_items`/`menu_prices` with JSONB metadata (dietary, spice, pairing tags) via idempotent Node.js seed script
-- [x] Generate QR code flow linking to `/t/[tableToken]` — resolves to a table session, creates signed HMAC session cookie
-- [x] Public customer menu view (`/menu`) — grouped by category, sticky pill navigation, paise-to-₹ pricing, search, veg-only filter, and item detail modal with pairings
-- [x] Manual 86 (sold-out) overrides and status toggles
-- [x] **Deliverable:** Customers can scan table QR and browse the real 59-item menu live with 0 login friction
+- Cashier: browse menu, build cart, order type
+- Checkout: discount/tax, payment method, **server-side total recalculation inside one DB transaction** — re-validate price/availability at submit time, don't trust the client's cart total
+- Order submission carries an idempotency key so a double-tap can't create two orders/bills
+- Receipt generation (on-screen + print-friendly) for counter pay
+- **Deliverable:** Cashier can take a full order and bill a customer end-to-end, with no double-charge or duplicate-order risk
 
----
+## Phase 3 — Kitchen Queue
 
-## Phase 2 — Order Taking, Billing & Payments ✅ [COMPLETED]
+- Orders placed by cashier appear in Kitchen queue automatically
+- Kitchen: status buttons — received → started → preparing → ready
+- Start with **polling (3–5s)**, not WebSockets/Realtime — simpler to ship and debug; upgrade later only if polling feels laggy in practice (see Phase 8)
+- Cashier/Admin can see live status of any order
+- **Deliverable:** Kitchen staff can track and update every incoming order without paper chits
 
-- [x] Ephemeral client cart state (`CartContext`, `CartDrawer`)
-- [x] Checkout & **`submit_order` PL/pgSQL Atomic Transaction**: re-validates price and stock at submit time, generates sequential `order_no`, snapshots prices, and handles 409 diffs
-- [x] Client UUID idempotency key preventing double-tap duplicate orders
-- [x] Customer Running Bill (`/bill`): round-by-round breakdown and "Request Bill" staff alert
-- [x] Staff Cashier POS (`/cashier`): live table cards, cash tender input, change due calculator, and atomic `record_cash_payment` RPC session closure
-- [x] **Razorpay Online Checkout**: 4-stage idempotency, pre-checkout `PENDING` logging, client key isolation, and server-side HMAC SHA-256 signature verification
-- [x] **Razorpay Webhooks (`/api/webhooks/razorpay`)**: Raw body HMAC verification, `webhook_events` table deduplication (`provider_event_id UNIQUE`), net paid aggregation, out-of-order state guard, and automated test suite (`npm run test:webhook`)
-- [x] **Deliverable:** End-to-end order placement, cash/online settlement, and automated webhook lifecycle
+## Phase 4 — Chef Inventory & Shelf Life
 
----
+- Chef: add/edit inventory items with quantity, unit, date added, shelf-life
+- Auto-derived freshness status (fresh / expiring soon / expired), colour-coded
+- Low-stock and expiring-soon flags
+- **Deliverable:** Chef has a live view of what needs to be used soon or restocked
 
-## Phase 3 — Kitchen Display System (KDS) ✅ [COMPLETED]
+## Phase 5 — Super Admin: Analytics & User Management
 
-- [x] Orders appear in Kitchen queue automatically at `/kitchen`
-- [x] 4 live Kanban columns: `NEW`, `ACCEPTED`, `PREPARING`, `READY`
-- [x] 3-second live polling with audio chime and color-coded urgency timers (🟢 `<5m`, 🟡 `5–10m`, 🔴 `>10m`)
-- [x] Concurrency conflict protection & 48px+ tablet touch target transition buttons
-- [x] Customer live order status tracking (`/orders` & `/order-status`) with 4s polling and 5-step visual stepper (`SUBMITTED` ➔ `ACCEPTED` ➔ `PREPARING` ➔ `READY` ➔ `SERVED`)
-- [x] **Deliverable:** Kitchen staff tracks and updates tickets digitally without paper chits; customers see live order progress
+- Graphical dashboards: sales trends, top items, payment split, revenue by range
+- User management: add/remove/deactivate staff accounts, assign roles
+- **Deliverable:** Owner can see business performance and manage staff access from one place
 
----
+## Phase 6 — Order History & Reports (cross-role)
 
-## Phase 4 — Chef Inventory & Shelf Life Engine ✅ [COMPLETED]
+- Cashier: today's order history
+- Admin/Super Admin: full order history with filters (date, status, payment method)
+- Historical orders always show the price/name that was true at order time, even if the menu changed since — this falls out naturally if Phase 2 snapshots prices correctly
+- **Deliverable:** Any completed order can be looked up and reviewed, and old bills never silently change when the menu is edited
 
-- [x] Inventory Schema: `units`, `ingredients`, `recipes`, `recipe_components`, `inventory_movements` (append-only ledger: `RECEIVE`, `RESERVE`, `RELEASE`, `CONSUME`, `WASTE`, `ADJUST`)
-- [x] `servable_qty(menu_item_id)` stored function: computes component bottleneck with manual 86 precedence
-- [x] Atomic stock reservation on order submission in `submit_order`
-- [x] Kitchen stock consumption on "Start Preparing" and auto-release on cancellation
-- [x] **Deliverable:** Automated stock tracking and bottleneck-aware auto-86 calculation
+## Phase 7 — Polish & Hardening
 
----
+- Mobile UI polish per role (touch targets, one-handed cashier/kitchen use)
+- Error/loading/empty states everywhere, in-brand voice
+- Security pass: RBAC enforced server-side everywhere, RLS denies by default, secrets out of the repo, rate limits on order/payment endpoints
+- Backup check: confirm Supabase automated backups are on before real customer data starts flowing
+- Full manual QA pass across all 5 roles on real phones at the cafe
+- **Deliverable:** Production-ready v1 for daily multi-role use
 
-## Customer Accounts, Loyalty & Rewards Subsystem ✅ [COMPLETED]
+## Phase 8 — Stretch Goals (post-v1)
 
-- [x] Optional Customer Accounts: `profiles` table, phone/email Supabase OTP auth, 100% zero-friction anonymous guest dining preserved
-- [x] 24-Hour Order Claiming Engine: `claim_session_orders` RPC linking guest table sessions to user accounts
-- [x] Append-Only Loyalty Ledger: `loyalty_accounts`, `loyalty_ledger`, and row-locked `record_loyalty_movement` atomic balance-recompute transaction
-- [x] Earn points on bill capture (1 pt per ₹10) and proportional refund reversals
-- [x] Rewards Catalog: `rewards`, `reward_redemptions`, server-side atomic discount calculation and points debit in `submit_order`
-- [x] Admin Rewards Manager Dashboard (`/admin/rewards`): create, edit, and toggle rewards
-- [x] Customer Profile Dashboard (`/profile`): points balance, live table claim banner, claimed orders history, and digital receipts
+- Supabase Realtime for instant kitchen updates (replacing polling from Phase 3, if it feels laggy)
+- Online ordering via QR (not just menu-viewing) — customer places order directly, not just cashier
+- Razorpay online payment (UPI/cards) alongside counter cash
+- Batch-level shelf-life tracking (per delivery, not just per item)
+- Thermal printer/KOT integration
+- Multi-branch support
 
----
+## Suggested Working Rhythm
 
-## Phase 5 — Super Admin: Analytics & User Management ⏳ [NEXT UP]
-
-- [ ] Graphical dashboards: sales trends, top items, payment split, revenue by range
-- [ ] User management: add/remove/deactivate staff accounts, assign roles (`super_admin`, `admin`, `cashier`, `kitchen`, `chef`)
-- [ ] **Deliverable:** Owner can see business performance and manage staff access from one place
-
----
-
-## Phase 6 — Order History & Reports ⏳ [UPCOMING]
-
-- [ ] Cashier: today's order history & daily shift reconciliation
-- [ ] Admin: full order history with filters (date, status, payment method, customer)
-- [ ] Immutable receipt lookups (guaranteed by price/name snapshots)
-- [ ] **Deliverable:** Look up any past order/bill with complete audit trail
-
----
-
-## Phase 7 — Polish & Hardening ⏳ [UPCOMING]
-
-- [ ] Mobile UI polish per role (touch targets, tablet optimization)
-- [ ] End-to-end device testing on real phones/tablets at the café
-- [ ] Production security audit: rate limiting, environment variable check
-- [ ] **Deliverable:** Production-ready v1 for daily multi-role café operations
+- Build role by role, test each with the actual staff member who'd use it before moving on
+- Update `memory.md` at the end of every phase with what's done/what's next
+- Kitchen and Chef phases (3 & 4) can be reordered/parallelized if one matters more urgently at launch
+- For exact copy-paste build prompts per phase, use `smol-cafe-vibe-coding-build-guide.md` alongside this roadmap
