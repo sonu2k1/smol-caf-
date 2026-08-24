@@ -30,10 +30,14 @@ export interface PlaceOrderResult {
     | "DB_ERROR"
     | "EMPTY_CART"
     | "INSUFFICIENT_POINTS"
-    | "AUTH_REQUIRED";
+    | "AUTH_REQUIRED"
+    | "ORDER_LOCKED"
+    | "UNAUTHORIZED";
   message?: string;
   orderId?: string;
   orderNo?: number;
+  verificationCode?: string;
+  status?: string;
   discountPaise?: number;
   totalPaise?: number;
   isDuplicate?: boolean;
@@ -47,7 +51,8 @@ export interface PlaceOrderResult {
 export async function placeOrderAction(
   items: PlaceOrderItemInput[],
   idempotencyKey: string,
-  rewardId?: string
+  rewardId?: string,
+  instructions?: string
 ): Promise<PlaceOrderResult> {
   const requestId = generateRequestId();
   const startTime = Date.now();
@@ -106,6 +111,9 @@ export async function placeOrderAction(
     let { data: rpcResult, error: rpcError } = await supabase.rpc("submit_order", {
       p_location_id: session.locationId,
       p_table_session_id: session.sessionId,
+      p_customer_session_id: session.customerSessionId || `cust_${session.sessionId}`,
+      p_verification_code: session.verificationCode || "4821",
+      p_instructions: instructions || null,
       p_idempotency_key: idempotencyKey,
       p_items: items,
       p_reward_id: rewardId || null,
@@ -118,6 +126,8 @@ export async function placeOrderAction(
       message?: string;
       order_id?: string;
       order_no?: number;
+      verification_code?: string;
+      status?: string;
       discount_paise?: number;
       total_paise?: number;
       is_duplicate?: boolean;
@@ -132,6 +142,9 @@ export async function placeOrderAction(
         const retry = await supabase.rpc("submit_order", {
           p_location_id: session.locationId,
           p_table_session_id: session.sessionId,
+          p_customer_session_id: session.customerSessionId || `cust_${session.sessionId}`,
+          p_verification_code: session.verificationCode || "4821",
+          p_instructions: instructions || null,
           p_idempotency_key: idempotencyKey,
           p_items: items,
           p_reward_id: rewardId || null,
@@ -235,7 +248,77 @@ export async function placeOrderAction(
     return {
       success: false,
       error: "DB_ERROR",
-      message: "An unexpected error occurred. Please call a staff member.",
+      message: "An unexpected error occurred while placing your order.",
+    };
+  }
+}
+
+/**
+ * Server Action: Allows customer to edit their order while in PENDING_CONFIRMATION state.
+ * Validates customer session ownership and enforces that confirmed orders are permanently locked.
+ */
+export async function editPendingOrderAction(
+  orderId: string,
+  items: PlaceOrderItemInput[],
+  instructions?: string
+): Promise<PlaceOrderResult> {
+  const session = await getTableSessionCookie();
+  if (!session || !session.sessionId) {
+    return {
+      success: false,
+      error: "NO_SESSION",
+      message: "No active dining session found.",
+    };
+  }
+
+  const supabase = createAdminClient();
+
+  try {
+    const { data: rpcResult, error: rpcError } = await supabase.rpc("edit_pending_order", {
+      p_order_id: orderId,
+      p_customer_session_id: session.customerSessionId || `cust_${session.sessionId}`,
+      p_items: items,
+      p_instructions: instructions || null,
+    });
+
+    if (rpcError) {
+      return {
+        success: false,
+        error: "DB_ERROR",
+        message: "Failed to update order.",
+      };
+    }
+
+    const result = rpcResult as {
+      success: boolean;
+      error?: string;
+      message?: string;
+      order_id?: string;
+      order_no?: number;
+      total_paise?: number;
+    };
+
+    if (!result.success) {
+      return {
+        success: false,
+        error: (result.error as PlaceOrderResult["error"]) || "ORDER_LOCKED",
+        message: result.message || "Order cannot be edited.",
+      };
+    }
+
+    return {
+      success: true,
+      orderId: result.order_id,
+      orderNo: result.order_no,
+      totalPaise: result.total_paise,
+      message: result.message || "Order updated successfully!",
+    };
+  } catch (err) {
+    console.error("Error in editPendingOrderAction:", err);
+    return {
+      success: false,
+      error: "DB_ERROR",
+      message: "Unexpected error updating order.",
     };
   }
 }

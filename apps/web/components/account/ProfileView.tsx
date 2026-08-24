@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { Profile } from "@smol-cafe/db";
 import type { CustomerHistoricalOrder } from "@/app/account/actions";
 import { claimCurrentSessionOrdersAction } from "@/app/account/actions";
-import type { LoyaltyAccountDetails } from "@/app/account/loyalty-actions";
+import { redeemLoyaltyRewardAction, type LoyaltyAccountDetails } from "@/app/account/loyalty-actions";
 import { AuthModal } from "./AuthModal";
 
 import { BottomNavBar } from "@/components/navigation/BottomNavBar";
@@ -52,13 +52,33 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     }
   };
 
-  const loyaltyBalance = loyalty?.account?.current_balance_cached || 240;
+  const [currentBalance, setCurrentBalance] = useState(loyalty?.account?.current_balance_cached || 240);
+  const [redeemFeedback, setRedeemFeedback] = useState<string | null>(null);
 
   const rewardCoupons = [
-    { title: "Free Pour Over Coffee", cost: 150, icon: "☕" },
-    { title: "Free Bun Makkhan", cost: 100, icon: "🧈" },
-    { title: "Table Conversation Board", cost: 200, icon: "🧀" },
+    { id: "rew_pour_over", title: "Free Pour Over Coffee", cost: 150, icon: "☕" },
+    { id: "rew_bun_makkhan", title: "Free Bun Makkhan", cost: 100, icon: "🧈" },
+    { id: "rew_board", title: "Table Conversation Board", cost: 200, icon: "🧀" },
   ];
+
+  const handleRedeemCoupon = async (rewardId: string, title: string, cost: number) => {
+    if (currentBalance < cost) {
+      setRedeemFeedback(`Insufficient points for ${title}. You need ${cost} points.`);
+      return;
+    }
+
+    try {
+      const res = await redeemLoyaltyRewardAction(rewardId);
+      if (res.success) {
+        setCurrentBalance(res.newBalance || (currentBalance - cost));
+        setRedeemFeedback(`🎉 Successfully redeemed: ${title}! Use code at checkout.`);
+      } else {
+        setRedeemFeedback(res.message || "Failed to redeem reward.");
+      }
+    } catch {
+      setRedeemFeedback("Network error redeeming reward.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#F3E7D3] text-[#241F1C] pb-28 font-sans">
@@ -104,7 +124,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 POINTS
               </span>
               <span className="font-mono text-xl font-extrabold text-[#241F1C]">
-                🪙 {loyaltyBalance}
+                🪙 {currentBalance}
               </span>
             </div>
           </div>
@@ -113,13 +133,22 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           <div className="mt-4 pt-3 border-t border-[#C9AE8B]/30 space-y-1.5">
             <div className="flex justify-between font-mono text-[10px] text-[#725039]">
               <span>Tier Progress</span>
-              <span>240 / 500 pts for Platinum</span>
+              <span>{currentBalance} / 500 pts for Platinum</span>
             </div>
             <div className="h-2 w-full rounded-full bg-[#E8DFD3] overflow-hidden">
-              <div className="h-full w-[48%] rounded-full bg-[#B72E35]" />
+              <div
+                className="h-full rounded-full bg-[#B72E35] transition-all duration-300"
+                style={{ width: `${Math.min(100, Math.round((currentBalance / 500) * 100))}%` }}
+              />
             </div>
           </div>
         </div>
+
+        {redeemFeedback && (
+          <div className="rounded-2xl border border-[#C9AE8B] bg-[#FAF4EB] p-3 text-xs text-[#241F1C] font-serif animate-scale-in">
+            {redeemFeedback}
+          </div>
+        )}
 
         {/* Redeemable Rewards Catalog */}
         <div className="space-y-2.5">
@@ -144,8 +173,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 </p>
                 <button
                   type="button"
-                  onClick={() => alert(`Redeemed coupon for ${coupon.title}!`)}
-                  className="rounded-full bg-[#A62B34] py-1 text-[10px] font-serif font-bold text-white shadow-xs hover:bg-[#91242C]"
+                  onClick={() => handleRedeemCoupon(coupon.id, coupon.title, coupon.cost)}
+                  className="rounded-full bg-[#A62B34] py-1 text-[10px] font-serif font-bold text-white shadow-xs hover:bg-[#91242C] active:scale-95 transition"
                 >
                   {coupon.cost} pts
                 </button>
@@ -156,30 +185,38 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
         {/* Staff & Admin Quick Portals */}
         <div className="rounded-2xl border border-[#E2D7C7] bg-[#FAF5ED] p-3.5 space-y-2">
-          <span className="block font-serif text-xs font-bold text-[#8C7E72] uppercase tracking-wider px-1">
-            Staff &amp; Admin Tools
-          </span>
+          <div className="flex items-center justify-between px-1">
+            <span className="block font-serif text-xs font-bold text-[#8C7E72] uppercase tracking-wider">
+              Staff &amp; Role Portals
+            </span>
+            <Link
+              href="/smol-backdoor"
+              className="font-mono text-[10px] font-bold text-[#B72E35] hover:underline"
+            >
+              Backdoor →
+            </Link>
+          </div>
           <div className="grid grid-cols-3 gap-2">
             <Link
-              href="/kitchen"
+              href="/smol-backdoor/kitchen"
               className="rounded-xl border border-[#D8CEBF] bg-[#FCF8F2] p-2 text-center hover:bg-[#EFE7DC] transition"
             >
               <span className="block text-base">👨‍🍳</span>
               <span className="font-serif text-[11px] font-bold text-[#1C1917]">Kitchen KDS</span>
             </Link>
             <Link
-              href="/cashier"
+              href="/smol-backdoor/cashier"
               className="rounded-xl border border-[#D8CEBF] bg-[#FCF8F2] p-2 text-center hover:bg-[#EFE7DC] transition"
             >
               <span className="block text-base">💳</span>
-              <span className="font-serif text-[11px] font-bold text-[#1C1917]">Cashier</span>
+              <span className="font-serif text-[11px] font-bold text-[#1C1917]">Cashier POS</span>
             </Link>
             <Link
-              href="/admin"
+              href="/smol-backdoor/admin"
               className="rounded-xl border border-[#D8CEBF] bg-[#FCF8F2] p-2 text-center hover:bg-[#EFE7DC] transition"
             >
               <span className="block text-base">⚡</span>
-              <span className="font-serif text-[11px] font-bold text-[#1C1917]">Admin Hub</span>
+              <span className="font-serif text-[11px] font-bold text-[#1C1917]">Admin Tower</span>
             </Link>
           </div>
         </div>

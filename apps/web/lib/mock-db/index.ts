@@ -56,10 +56,26 @@ export interface MockOrder {
   id: string;
   location_id: string;
   table_session_id: string | null;
+  customer_session_id?: string | null;
+  verification_code?: string | null;
   order_no: number;
-  status: "SUBMITTED" | "ACCEPTED" | "PREPARING" | "READY" | "SERVED" | "CANCELLED" | "REJECTED";
+  status:
+    | "DRAFT"
+    | "PENDING_CONFIRMATION"
+    | "SUBMITTED"
+    | "CONFIRMED"
+    | "ACCEPTED"
+    | "PREPARING"
+    | "READY"
+    | "COMPLETED"
+    | "SERVED"
+    | "CANCELLED"
+    | "REJECTED";
   service_mode: string;
+  instructions?: string | null;
   submitted_at: string | null;
+  confirmed_at?: string | null;
+  confirmed_by?: string | null;
   accepted_at: string | null;
   ready_at: string | null;
   served_at: string | null;
@@ -596,6 +612,9 @@ export class MockSupabaseClient {
     if (fnName === "submit_order") {
       const locationId = params.p_location_id as string;
       const tableSessionId = params.p_table_session_id as string;
+      const customerSessionId = (params.p_customer_session_id as string) || `cust_${tableSessionId}`;
+      const verificationCode = (params.p_verification_code as string) || String(Math.floor(1000 + Math.random() * 9000));
+      const instructions = params.p_instructions as string | undefined;
       const idempotencyKey = params.p_idempotency_key as string;
       const items = (params.p_items || []) as Array<{
         menu_item_id: string;
@@ -613,6 +632,8 @@ export class MockSupabaseClient {
             is_duplicate: true,
             order_id: existing.id,
             order_no: existing.order_no,
+            verification_code: existing.verification_code,
+            status: existing.status,
             total_paise: existing.total_snapshot,
           },
           error: null,
@@ -671,7 +692,7 @@ export class MockSupabaseClient {
           unit_price_snapshot: currentPrice,
           qty: itemInput.qty,
           line_subtotal: lineSubtotal,
-          item_status: "SUBMITTED",
+          item_status: "PENDING_CONFIRMATION",
           created_at: now,
         });
       }
@@ -701,15 +722,20 @@ export class MockSupabaseClient {
       const taxPaise = Math.round(taxableAmount * 0.05); // 5% GST
       const totalPaise = taxableAmount + taxPaise;
 
-      // 5. Create Order
+      // 5. Create Order with PENDING_CONFIRMATION initial state
       const newOrder: MockOrder = {
         id: orderId,
         location_id: locationId || MOCK_LOCATION.id,
         table_session_id: tableSessionId || null,
+        customer_session_id: customerSessionId,
+        verification_code: verificationCode,
         order_no: orderNo,
-        status: "SUBMITTED",
+        status: "PENDING_CONFIRMATION",
         service_mode: "DINE_IN",
+        instructions: instructions || null,
         submitted_at: now,
+        confirmed_at: null,
+        confirmed_by: null,
         accepted_at: null,
         ready_at: null,
         served_at: null,
@@ -732,10 +758,10 @@ export class MockSupabaseClient {
         id: `osh_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
         order_id: orderId,
         from_status: null,
-        to_status: "SUBMITTED",
+        to_status: "PENDING_CONFIRMATION",
         actor_type: "CUSTOMER",
-        actor_id: null,
-        notes: "Order placed via digital menu",
+        actor_id: customerSessionId,
+        notes: "Order placed by customer, waiting for cashier confirmation",
         created_at: now,
       });
 
@@ -744,9 +770,250 @@ export class MockSupabaseClient {
           success: true,
           order_id: orderId,
           order_no: orderNo,
+          verification_code: verificationCode,
+          status: "PENDING_CONFIRMATION",
           discount_paise: discountPaise,
           total_paise: totalPaise,
           is_duplicate: false,
+        },
+        error: null,
+      };
+    }
+
+    if (fnName === "edit_pending_order") {
+      const orderId = params.p_order_id as string;
+      const customerSessionId = params.p_customer_session_id as string | undefined;
+      const newItems = (params.p_items || []) as Array<{
+        menu_item_id: string;
+        expected_unit_price_paise: number;
+        qty: number;
+      }>;
+      const instructions = params.p_instructions as string | undefined;
+
+      const order = mockStore.orders.find((o) => o.id === orderId);
+      if (!order) {
+        return { data: { success: false, error: "NOT_FOUND", message: "Order not found." }, error: null };
+      }
+
+      // Strict enforcement: Customer can ONLY edit while in PENDING_CONFIRMATION
+      if (order.status !== "PENDING_CONFIRMATION" && order.status !== "DRAFT") {
+        return {
+          data: {
+            success: false,
+            error: "ORDER_LOCKED",
+            message: `Order #${order.order_no} is already ${order.status.toLowerCase()} and can no longer be edited.`,
+          },
+          error: null,
+        };
+      }
+
+      // Validate ownership if customerSessionId is provided
+      if (customerSessionId && order.customer_session_id && order.customer_session_id !== customerSessionId) {
+        return {
+          data: { success: false, error: "UNAUTHORIZED", message: "You do not have permission to edit this order." },
+          error: null,
+        };
+      }
+
+      // Rebuild items and calculate updated totals
+      let subtotalPaise = 0;
+      const updatedItemRecords: MockOrderItem[] = [];
+
+      for (const itemInput of newItems) {
+        const menuItem = mockStore.menu_items.find((i) => i.id === itemInput.menu_item_id);
+        const menuPrice = mockStore.menu_prices.find((p) => p.menu_item_id === itemInput.menu_item_id);
+        const currentPrice = menuPrice?.amount_paise || itemInput.expected_unit_price_paise;
+        const lineSubtotal = currentPrice * itemInput.qty;
+        subtotalPaise += lineSubtotal;
+
+        updatedItemRecords.push({
+          id: `oi_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+          order_id: orderId,
+          menu_item_id: itemInput.menu_item_id,
+          menu_item_version_id: `ver_${itemInput.menu_item_id}`,
+          name_snapshot: menuItem?.name || "Café Item",
+          unit_price_snapshot: currentPrice,
+          qty: itemInput.qty,
+          line_subtotal: lineSubtotal,
+          item_status: "PENDING_CONFIRMATION",
+          created_at: now,
+        });
+      }
+
+      const taxPaise = Math.round(subtotalPaise * 0.05);
+      const totalPaise = subtotalPaise + taxPaise;
+
+      // Update Order
+      order.subtotal_snapshot = subtotalPaise;
+      order.tax_snapshot = taxPaise;
+      order.total_snapshot = totalPaise;
+      if (instructions !== undefined) order.instructions = instructions;
+      order.updated_at = now;
+      order.version += 1;
+
+      // Replace Order Items
+      mockStore.order_items = mockStore.order_items.filter((oi) => oi.order_id !== orderId);
+      mockStore.order_items.push(...updatedItemRecords);
+
+      mockStore.order_status_history.push({
+        id: `osh_${Date.now()}`,
+        order_id: orderId,
+        from_status: "PENDING_CONFIRMATION",
+        to_status: "PENDING_CONFIRMATION",
+        actor_type: "CUSTOMER",
+        actor_id: customerSessionId || null,
+        notes: "Customer edited items & recalculated total",
+        created_at: now,
+      });
+
+      return {
+        data: {
+          success: true,
+          order_id: orderId,
+          order_no: order.order_no,
+          total_paise: totalPaise,
+          message: `Order #${order.order_no} updated successfully!`,
+        },
+        error: null,
+      };
+    }
+
+    if (fnName === "confirm_order_by_cashier") {
+      const orderId = params.p_order_id as string;
+      const staffName = (params.p_staff_name as string) || "Cashier";
+
+      const order = mockStore.orders.find((o) => o.id === orderId);
+      if (!order) {
+        return { data: { success: false, error: "NOT_FOUND", message: "Order not found." }, error: null };
+      }
+
+      const prevStatus = order.status;
+      order.status = "CONFIRMED";
+      order.confirmed_at = now;
+      order.confirmed_by = staffName;
+      order.accepted_at = now;
+      order.updated_at = now;
+
+      // Update item statuses
+      mockStore.order_items
+        .filter((oi) => oi.order_id === orderId)
+        .forEach((oi) => {
+          oi.item_status = "CONFIRMED";
+        });
+
+      mockStore.order_status_history.push({
+        id: `osh_${Date.now()}`,
+        order_id: orderId,
+        from_status: prevStatus,
+        to_status: "CONFIRMED",
+        actor_type: "STAFF",
+        actor_id: staffName,
+        notes: `Order confirmed by ${staffName} and sent to kitchen queue`,
+        created_at: now,
+      });
+
+      return {
+        data: {
+          success: true,
+          order_id: orderId,
+          order_no: order.order_no,
+          status: "CONFIRMED",
+          message: `Order #${order.order_no} confirmed and sent to kitchen!`,
+        },
+        error: null,
+      };
+    }
+
+    if (fnName === "reject_order_by_cashier") {
+      const orderId = params.p_order_id as string;
+      const reason = (params.p_reason as string) || "Cancelled by staff";
+      const staffName = (params.p_staff_name as string) || "Cashier";
+
+      const order = mockStore.orders.find((o) => o.id === orderId);
+      if (!order) {
+        return { data: { success: false, error: "NOT_FOUND", message: "Order not found." }, error: null };
+      }
+
+      order.status = "REJECTED";
+      order.updated_at = now;
+
+      mockStore.order_status_history.push({
+        id: `osh_${Date.now()}`,
+        order_id: orderId,
+        from_status: order.status,
+        to_status: "REJECTED",
+        actor_type: "STAFF",
+        actor_id: staffName,
+        notes: `Order rejected: ${reason}`,
+        created_at: now,
+      });
+
+      return {
+        data: {
+          success: true,
+          order_id: orderId,
+          order_no: order.order_no,
+          status: "REJECTED",
+          message: `Order #${order.order_no} rejected.`,
+        },
+        error: null,
+      };
+    }
+
+    if (fnName === "redeem_loyalty_reward") {
+      const profileId = params.p_profile_id as string;
+      const rewardId = params.p_reward_id as string;
+
+      const reward = mockStore.rewards.find((r) => r.id === rewardId);
+      if (!reward) {
+        return { data: { success: false, error: "REWARD_NOT_FOUND", message: "Reward not found." }, error: null };
+      }
+
+      let profile = mockStore.profiles.find((p) => p.id === profileId);
+      if (!profile) {
+        profile = {
+          id: profileId || "usr_guest_demo",
+          phone: "+919876543210",
+          full_name: "Sonu Singh",
+          current_balance_cached: 240,
+          created_at: now,
+        };
+        mockStore.profiles.push(profile);
+      }
+
+      const cost = reward.points_required || 100;
+
+      if (profile.current_balance_cached < cost) {
+        return {
+          data: {
+            success: false,
+            error: "INSUFFICIENT_POINTS",
+            message: `Insufficient points. You need ${cost} points (Current balance: ${profile.current_balance_cached}).`,
+          },
+          error: null,
+        };
+      }
+
+      // Deduct points atomically
+      profile.current_balance_cached -= cost;
+
+      mockStore.loyalty_ledger.push({
+        id: `ll_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        profile_id: profile.id,
+        points_change: -cost,
+        reason: `REWARD_REDEMPTION: ${reward.title}`,
+        reference_order_id: null,
+        created_at: now,
+      });
+
+      return {
+        data: {
+          success: true,
+          reward_id: reward.id,
+          title: reward.title,
+          discount_paise: reward.discount_paise,
+          new_balance: profile.current_balance_cached,
+          message: `Redeemed ${reward.title}! Points balance: ${profile.current_balance_cached}`,
         },
         error: null,
       };

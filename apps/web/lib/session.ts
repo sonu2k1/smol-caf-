@@ -10,6 +10,8 @@ export interface TableSessionData {
   locationId: string;
   locationName: string;
   openedAt: string;
+  customerSessionId?: string;
+  verificationCode?: string;
 }
 
 const SESSION_SECRET = process.env.SESSION_SECRET || "smol-cafe-secret-session-key-2026";
@@ -52,7 +54,13 @@ export function decodeSession(cookieValue: string): TableSessionData | null {
     }
 
     const json = Buffer.from(base64, "base64url").toString("utf-8");
-    return JSON.parse(json) as TableSessionData;
+    const data = JSON.parse(json) as TableSessionData;
+
+    // Ensure customerSessionId exists for order ownership validation
+    if (!data.customerSessionId && data.sessionId) {
+      data.customerSessionId = `cust_${data.sessionId}`;
+    }
+    return data;
   } catch {
     return null;
   }

@@ -8,8 +8,8 @@ interface OrderStatusProgressProps {
 }
 
 const STEPS: { key: OrderStatus; label: string; icon: string }[] = [
-  { key: "SUBMITTED", label: "Received", icon: "📝" },
-  { key: "ACCEPTED", label: "Accepted", icon: "👍" },
+  { key: "PENDING_CONFIRMATION", label: "Verification", icon: "⏳" },
+  { key: "CONFIRMED", label: "Confirmed", icon: "✓" },
   { key: "PREPARING", label: "Preparing", icon: "🍳" },
   { key: "READY", label: "Ready", icon: "🔔" },
   { key: "SERVED", label: "Served", icon: "✨" },
@@ -17,14 +17,18 @@ const STEPS: { key: OrderStatus; label: string; icon: string }[] = [
 
 function getStepIndex(status: OrderStatus): number {
   switch (status) {
+    case "DRAFT":
+    case "PENDING_CONFIRMATION":
     case "SUBMITTED":
       return 0;
+    case "CONFIRMED":
     case "ACCEPTED":
       return 1;
     case "PREPARING":
       return 2;
     case "READY":
       return 3;
+    case "COMPLETED":
     case "SERVED":
     case "CLOSED":
       return 4;

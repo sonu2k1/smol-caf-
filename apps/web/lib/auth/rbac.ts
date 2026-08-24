@@ -12,6 +12,30 @@ export interface AuthCheckResult {
 }
 
 /**
+ * Sets the staff session cookie with explicit role permissions.
+ */
+export async function setStaffSessionCookie(
+  role: "kitchen" | "cashier" | "admin" | "super_admin"
+): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.set(STAFF_SESSION_COOKIE, role, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24, // 24 hours
+  });
+}
+
+/**
+ * Clears the staff session cookie upon logout.
+ */
+export async function clearStaffSessionCookie(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.delete(STAFF_SESSION_COOKIE);
+}
+
+/**
  * Server-Side RBAC Guard: Validates that the request has an active authenticated staff session.
  * Checks both the HTTP-only staff session cookie and Supabase JWT app_metadata role.
  */
@@ -21,9 +45,24 @@ export async function requireStaffAuth(
   const cookieStore = await cookies();
   const staffCookie = cookieStore.get(STAFF_SESSION_COOKIE)?.value;
 
-  // 1. Check Fast HTTP-Only Staff Cookie (Kitchen Tablet / Quick POS)
-  if (staffCookie === "authenticated") {
-    return { authorized: true, role: "admin" };
+  // 1. Check HTTP-Only Staff Role Cookie
+  if (staffCookie) {
+    const role = staffCookie.toLowerCase();
+    // Super admin & admin have access to all dashboards
+    if (role === "admin" || role === "super_admin" || role === "authenticated") {
+      return { authorized: true, role: "admin" };
+    }
+
+    if (allowedRoles.includes(role)) {
+      return { authorized: true, role };
+    }
+
+    return {
+      authorized: false,
+      error: "FORBIDDEN",
+      role,
+      message: `Access denied. Your current staff role (${role}) cannot access this section.`,
+    };
   }
 
   // 2. Check Supabase Auth JWT Session

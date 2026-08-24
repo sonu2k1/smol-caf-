@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import type { CustomerOrderDetails } from "@/app/orders/actions";
 import { OrderStatusProgress } from "./OrderStatusProgress";
 
@@ -16,39 +17,42 @@ interface StatusCopy {
 
 function getStatusCopy(status: string): StatusCopy {
   switch (status) {
-    case "SUBMITTED":
+    case "PENDING_CONFIRMATION":
+    case "DRAFT":
       return {
-        title: "Order Received",
-        subtitle: "Your order was sent to the kitchen and is queued up.",
+        title: "Waiting for Confirmation",
+        subtitle: "Order sent to Cashier Queue. You can still modify items or instructions.",
         badgeColor:
-          "bg-amber-100 text-amber-900 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-900/40",
+          "bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-900/40",
       };
+    case "CONFIRMED":
     case "ACCEPTED":
       return {
-        title: "Order Accepted",
-        subtitle: "The kitchen team has confirmed your items.",
+        title: "Order Confirmed ✓",
+        subtitle: "Cashier verified your order! Pushed to Kitchen for preparation.",
         badgeColor:
-          "bg-blue-100 text-blue-900 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-900/40",
+          "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900/40",
       };
     case "PREPARING":
       return {
         title: "Crafting Your Order",
         subtitle: "Your coffee is brewing and your food is on the grill.",
         badgeColor:
-          "bg-orange-100 text-orange-900 border-orange-200 dark:bg-orange-950/60 dark:text-orange-300 dark:border-orange-900/40",
+          "bg-orange-100 text-orange-900 border-orange-300 dark:bg-orange-950/60 dark:text-orange-300 dark:border-orange-900/40",
       };
     case "READY":
       return {
-        title: "Order is Ready!",
+        title: "Order is Ready! 🔔",
         subtitle:
           "Fresh and piping hot. Your server is bringing it over, or collect at the counter.",
         badgeColor:
-          "bg-emerald-100 text-emerald-900 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900/40",
+          "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900/40",
       };
+    case "COMPLETED":
     case "SERVED":
     case "CLOSED":
       return {
-        title: "Served & Enjoyed",
+        title: "Served & Enjoyed ✨",
         subtitle: "Hope you loved it! You can order another round anytime from the menu.",
         badgeColor:
           "bg-stone-100 text-stone-800 border-stone-200 dark:bg-stone-800 dark:text-stone-300 dark:border-stone-700",
@@ -57,7 +61,7 @@ function getStatusCopy(status: string): StatusCopy {
     case "REJECTED":
       return {
         title: "Order Cancelled",
-        subtitle: "This order was cancelled. Please check with café staff.",
+        subtitle: "This order was cancelled by staff.",
         badgeColor:
           "bg-red-100 text-red-900 border-red-200 dark:bg-red-950/60 dark:text-red-300 dark:border-red-900/40",
       };
@@ -86,9 +90,10 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
   const copy = getStatusCopy(order.status);
   const totalRupees = Math.round(order.totalPaise / 100);
   const timeAgo = formatRelativeTime(order.submittedAt);
+  const canEdit = order.status === "PENDING_CONFIRMATION" || order.status === "DRAFT";
 
   return (
-    <div className="rounded-3xl border border-stone-200/80 bg-white/85 p-5 shadow-sm backdrop-blur-sm transition-all hover:shadow-md dark:border-stone-800 dark:bg-stone-900/80">
+    <div className="rounded-3xl border border-stone-200/80 bg-white/85 p-5 shadow-sm backdrop-blur-sm transition-all hover:shadow-md dark:border-stone-800 dark:bg-stone-900/80 space-y-3">
       {/* Header: Order No & Status Badge */}
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -107,17 +112,40 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
         <span
           className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wider ${copy.badgeColor}`}
         >
-          {order.status}
+          {order.status.replace("_", " ")}
         </span>
       </div>
 
-      <div className="flex items-center justify-between mt-1">
+      {/* Verification Notice & Customer Edit Button */}
+      {canEdit ? (
+        <div className="flex items-center justify-between rounded-2xl border border-amber-400/60 bg-amber-50/80 p-3 text-xs dark:bg-amber-950/30 dark:border-amber-800/40">
+          <div className="text-amber-900 dark:text-amber-200">
+            <span className="font-bold">Pending Confirmation</span>
+            <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80">
+              Cashier is verifying. You can edit items now:
+            </p>
+          </div>
+          <Link
+            href={`/smol-menu?editOrder=${order.id}`}
+            className="rounded-xl bg-[#B72E35] px-3 py-1.5 font-mono text-xs font-bold text-white shadow-xs hover:bg-[#9E242B] active:scale-95 transition"
+          >
+            ✏️ Edit Order
+          </Link>
+        </div>
+      ) : (order.status === "CONFIRMED" || order.status === "ACCEPTED" || order.status === "PREPARING") ? (
+        <div className="rounded-xl border border-stone-200 bg-stone-50 p-2.5 text-[11px] text-stone-600 dark:bg-stone-800/50 dark:border-stone-700 dark:text-stone-300 font-serif italic text-center">
+          🔒 Order confirmed. Preparation has started and editing is locked.
+        </div>
+      ) : null}
+
+      <div className="flex items-center justify-between">
         <p className="text-xs leading-relaxed text-stone-600 dark:text-stone-400">
           {copy.subtitle}
         </p>
 
-        {/* Honest ETA Range Badge (SUBMITTED, ACCEPTED, PREPARING) */}
-        {(order.status === "SUBMITTED" ||
+        {/* Honest ETA Range Badge */}
+        {(order.status === "PENDING_CONFIRMATION" ||
+          order.status === "CONFIRMED" ||
           order.status === "ACCEPTED" ||
           order.status === "PREPARING") &&
           order.etaMinMinutes &&

@@ -117,3 +117,76 @@ export async function redeemLoyaltyPointsAction(
     return { success: false, message: "An unexpected error occurred." };
   }
 }
+
+/**
+ * Server Action: Redeems a specific catalog loyalty reward (e.g. Free Pour Over, ₹100 Off)
+ */
+export async function redeemLoyaltyRewardAction(
+  rewardId: string
+): Promise<LoyaltyActionResult & { rewardId?: string; discountPaise?: number }> {
+  const supabase = await createClient();
+  const { data: authUser } = await supabase.auth.getUser();
+  const profileId = authUser?.user?.id || "usr_guest_demo";
+
+  const admin = createAdminClient();
+
+  try {
+    const { data: rpcRes, error } = await admin.rpc("redeem_loyalty_reward", {
+      p_profile_id: profileId,
+      p_reward_id: rewardId,
+    });
+
+    if (error) {
+      return { success: false, message: "Failed to redeem reward." };
+    }
+
+    const res = rpcRes as {
+      success: boolean;
+      reward_id?: string;
+      title?: string;
+      discount_paise?: number;
+      new_balance?: number;
+      error?: string;
+      message?: string;
+    };
+
+    if (!res.success) {
+      return {
+        success: false,
+        error: res.error,
+        message: res.message || "Failed to redeem reward.",
+      };
+    }
+
+    return {
+      success: true,
+      rewardId: res.reward_id,
+      discountPaise: res.discount_paise,
+      newBalance: res.new_balance,
+      message: res.message || "Reward redeemed successfully!",
+    };
+  } catch (err) {
+    console.error("Error in redeemLoyaltyRewardAction:", err);
+    return { success: false, message: "An unexpected error occurred." };
+  }
+}
+
+/**
+ * Server Action: Fetches completed and past orders for customer history persistence
+ */
+export async function fetchCustomerPastOrdersAction() {
+  const admin = createAdminClient();
+
+  try {
+    const { data: orders } = await admin
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    return orders || [];
+  } catch {
+    return [];
+  }
+}
+

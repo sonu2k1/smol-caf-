@@ -4,10 +4,13 @@
 
 export type OrderStatus =
   | "DRAFT"
+  | "PENDING_CONFIRMATION"
   | "SUBMITTED"
+  | "CONFIRMED"
   | "ACCEPTED"
   | "PREPARING"
   | "READY"
+  | "COMPLETED"
   | "SERVED"
   | "CLOSED"
   | "CANCELLED"
@@ -109,10 +112,15 @@ export interface Order {
   location_id: string;
   table_session_id: string;
   customer_id: string | null;
+  customer_session_id?: string | null;
+  verification_code?: string | null;
   order_no: number;
   status: OrderStatus;
   service_mode: string;
+  instructions?: string | null;
   submitted_at: string | null;
+  confirmed_at?: string | null;
+  confirmed_by?: string | null;
   accepted_at: string | null;
   ready_at: string | null;
   served_at: string | null;

@@ -49,11 +49,11 @@ export async function fetchKitchenOrdersAction(): Promise<FetchKitchenOrdersResu
   recordKdsHeartbeat();
 
   try {
-    // 1. Fetch active orders
+    // 1. Fetch active confirmed orders only (orders must be confirmed by cashier first)
     const { data: orders, error: ordersError } = await supabase
       .from("orders")
       .select("*")
-      .in("status", ["SUBMITTED", "ACCEPTED", "PREPARING", "READY"])
+      .in("status", ["CONFIRMED", "ACCEPTED", "PREPARING", "READY"])
       .order("submitted_at", { ascending: true });
 
     if (ordersError || !orders) {

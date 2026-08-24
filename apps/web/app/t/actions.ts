@@ -169,6 +169,11 @@ export async function resolveQrToken(
       openedAt = createdSession.opened_at;
     }
 
+    // Generate secure 4-digit verification code (e.g. 4821)
+    const verificationCode = (existingSession as { verification_code?: string })?.verification_code ||
+      String(Math.floor(1000 + Math.random() * 9000));
+    const customerSessionId = `cust_${sessionId}_${Math.random().toString(36).slice(2, 7)}`;
+
     // 4. Set signed session cookie if requested
     const sessionData: TableSessionData = {
       sessionId,
@@ -177,6 +182,8 @@ export async function resolveQrToken(
       locationId: diningTable.location_id,
       locationName,
       openedAt,
+      customerSessionId,
+      verificationCode,
     };
 
     if (setCookie) {

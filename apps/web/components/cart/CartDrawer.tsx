@@ -16,12 +16,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
   const { isDegraded } = useNetworkHealth();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [instructions, setInstructions] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [priceConflicts, setPriceConflicts] = useState<ChangedItemDiff[] | null>(null);
   const [orderSuccess, setOrderSuccess] = useState<{
     orderNo: number;
     orderId: string;
+    verificationCode?: string;
     totalPaise: number;
   } | null>(null);
 
@@ -46,12 +47,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
     }));
 
     try {
-      const result = await placeOrderAction(orderPayload, idempotencyKey);
+      const result = await placeOrderAction(orderPayload, idempotencyKey, undefined, instructions);
 
       if (result.success && result.orderNo && result.orderId) {
         setOrderSuccess({
           orderNo: result.orderNo,
           orderId: result.orderId,
+          verificationCode: result.verificationCode || "4821",
           totalPaise: result.totalPaise || subtotalPaise,
         });
         clearCart();
@@ -117,23 +119,42 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {orderSuccess ? (
             /* Success State */
-            <div className="py-8 text-center space-y-4 animate-scale-in">
+            <div className="py-6 text-center space-y-4 animate-scale-in">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl shadow-inner">
                 🎉
               </div>
-              <h3 className="font-serif text-2xl font-bold tracking-tight text-[#1C1917]">
-                Order #{orderSuccess.orderNo} Sent to Kitchen!
-              </h3>
-              <p className="font-serif italic text-xs text-[#786F66] max-w-xs mx-auto leading-relaxed">
-                Your order is brewing fresh. You can track real-time kitchen status live!
-              </p>
-              <div className="rounded-2xl border border-[#E2D7C7] bg-[#FCF8F2] p-4 shadow-xs">
-                <span className="font-mono text-[10px] uppercase font-bold text-[#8C7E72]">
-                  TOTAL AMOUNT
+              <div>
+                <span className="inline-block rounded-md bg-amber-100 px-2.5 py-0.5 font-mono text-[10px] font-bold text-amber-900 uppercase">
+                  WAITING FOR CONFIRMATION
                 </span>
-                <p className="font-serif text-2xl font-bold text-[#A62B34] mt-0.5">
-                  ₹{Math.round(orderSuccess.totalPaise / 100)}
+                <h3 className="font-serif text-2xl font-bold tracking-tight text-[#1C1917] mt-1">
+                  Order #{orderSuccess.orderNo} Placed!
+                </h3>
+                <p className="font-serif italic text-xs text-[#786F66] max-w-xs mx-auto leading-relaxed mt-1">
+                  Your order is sent to the cashier queue. You may give your table PIN to the cashier:
                 </p>
+              </div>
+
+              {/* 4-Digit Table Verification PIN Box */}
+              <div className="rounded-3xl border-2 border-[#F2C84B] bg-[#FFF8E7] p-4 text-center shadow-md">
+                <span className="block font-mono text-[10px] uppercase font-bold text-[#725039] tracking-wider">
+                  TABLE VERIFICATION PIN
+                </span>
+                <span className="block font-mono text-3xl font-black text-[#B72E35] tracking-widest mt-0.5">
+                  {orderSuccess.verificationCode || "4821"}
+                </span>
+                <p className="text-[10px] font-mono text-[#8C7E72] mt-1">
+                  Table {tableLabel || "01"} • Instant Cashier Verification
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-[#E2D7C7] bg-[#FCF8F2] p-3 shadow-xs flex items-center justify-between">
+                <span className="font-mono text-xs uppercase font-bold text-[#8C7E72]">
+                  Total Amount
+                </span>
+                <span className="font-serif text-xl font-bold text-[#A62B34]">
+                  ₹{Math.round(orderSuccess.totalPaise / 100)}
+                </span>
               </div>
 
               <div className="pt-2 space-y-2">
@@ -141,7 +162,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
                   href="/orders"
                   className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#A62B34] py-3.5 font-serif text-sm font-semibold text-white shadow-md transition hover:bg-[#91242C] active:scale-[0.98]"
                 >
-                  Track Order Live →
+                  Track Live Status →
                 </Link>
                 <button
                   onClick={() => {
@@ -294,6 +315,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
                 {errorMessage}
               </div>
             )}
+
+            {/* Special Instructions Note */}
+            <div>
+              <label className="block text-[11px] font-mono text-[#786F66] mb-1">
+                Special instructions for the barista/kitchen (optional):
+              </label>
+              <input
+                type="text"
+                value={instructions}
+                onChange={(e) => setInstructions(e.target.value)}
+                placeholder="e.g. Oat milk, less ice, warm croissant"
+                className="w-full rounded-xl border border-[#E2D7C7] bg-[#FCF8F2] px-3 py-2 text-xs text-[#1C1917] placeholder:text-[#8C7E72]/60 focus:border-[#B72E35] focus:outline-none"
+              />
+            </div>
 
             <div className="flex items-baseline justify-between px-1">
               <span className="font-mono text-xs uppercase font-bold text-[#786F66]">

@@ -9,27 +9,9 @@ export const BottomNavBar: React.FC = () => {
 
   const navItems = [
     {
-      label: "HOME",
-      href: "/",
-      isActive: pathname === "/",
-      icon: (active: boolean) => (
-        <svg
-          className={`h-5 w-5 ${active ? "text-[#B72E35]" : "text-[#725039]"}`}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={active ? 2.2 : 1.7}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5z" />
-        </svg>
-      ),
-    },
-    {
       label: "MENU",
-      href: "/menu",
-      isActive: pathname.startsWith("/menu"),
+      href: "/smol-menu",
+      isActive: pathname.startsWith("/smol-menu") || pathname.startsWith("/menu"),
       icon: (active: boolean) => (
         <svg
           className={`h-5 w-5 ${active ? "text-[#B72E35]" : "text-[#725039]"}`}
@@ -49,31 +31,9 @@ export const BottomNavBar: React.FC = () => {
       ),
     },
     {
-      label: "TABLE",
-      href: "/table",
-      isActive: pathname.startsWith("/table") || pathname.startsWith("/t/"),
-      icon: (active: boolean) => (
-        <svg
-          className={`h-5 w-5 ${active ? "text-[#B72E35]" : "text-[#725039]"}`}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={active ? 2.2 : 1.7}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M20 9V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2" />
-          <path d="M2 11v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
-          <path d="M4 18v2" />
-          <path d="M20 18v2" />
-          <path d="M12 5v4" />
-        </svg>
-      ),
-    },
-    {
-      label: "ORDERS",
+      label: "STATUS",
       href: "/orders",
-      isActive: pathname.startsWith("/orders"),
+      isActive: pathname.startsWith("/orders") || pathname.startsWith("/order-status"),
       icon: (active: boolean) => (
         <svg
           className={`h-5 w-5 ${active ? "text-[#B72E35]" : "text-[#725039]"}`}
@@ -91,9 +51,9 @@ export const BottomNavBar: React.FC = () => {
       ),
     },
     {
-      label: "PROFILE",
-      href: "/profile",
-      isActive: pathname.startsWith("/profile"),
+      label: "BILL",
+      href: "/bill",
+      isActive: pathname.startsWith("/bill"),
       icon: (active: boolean) => (
         <svg
           className={`h-5 w-5 ${active ? "text-[#B72E35]" : "text-[#725039]"}`}
@@ -104,8 +64,48 @@ export const BottomNavBar: React.FC = () => {
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <circle cx="12" cy="8" r="4" />
-          <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
+          <path d="M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="8" y1="13" x2="16" y2="13" />
+          <line x1="8" y1="17" x2="12" y2="17" />
+        </svg>
+      ),
+    },
+    {
+      label: "MUSIC",
+      href: "/music",
+      isActive: pathname.startsWith("/music"),
+      icon: (active: boolean) => (
+        <svg
+          className={`h-5 w-5 ${active ? "text-[#B72E35]" : "text-[#725039]"}`}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={active ? 2.2 : 1.7}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      ),
+    },
+    {
+      label: "REWARDS",
+      href: "/profile",
+      isActive: pathname.startsWith("/profile") || pathname.startsWith("/account"),
+      icon: (active: boolean) => (
+        <svg
+          className={`h-5 w-5 ${active ? "text-[#B72E35]" : "text-[#725039]"}`}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={active ? 2.2 : 1.7}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="8" r="5" />
+          <path d="M20 21a8 8 0 0 0-16 0" />
         </svg>
       ),
     },
