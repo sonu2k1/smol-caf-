@@ -10,7 +10,14 @@ export function createAdminClient(): SupabaseClient {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!supabaseUrl || !serviceRoleKey || supabaseUrl.includes("placeholder")) {
+  const isPlaceholder =
+    !supabaseUrl ||
+    !serviceRoleKey ||
+    supabaseUrl.includes("placeholder") ||
+    serviceRoleKey.includes("placeholder") ||
+    (!supabaseUrl.startsWith("http://") && !supabaseUrl.startsWith("https://"));
+
+  if (isPlaceholder) {
     return new MockSupabaseClient() as unknown as SupabaseClient;
   }
 
