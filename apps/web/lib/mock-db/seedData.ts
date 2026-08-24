@@ -1,0 +1,1784 @@
+/**
+ * Smol Café — Master Mock Seed Data
+ * Contains all 59 menu items from Smol_Door_Final_All_Day_Menu_V0_8 workbook,
+ * 12 dining tables with QR tokens, active daily specials, community events, jukebox,
+ * loyalty rewards, inventory, procurement, and budgets.
+ */
+
+import { getFoodImage } from "../food-images";
+
+export interface MockLocation {
+
+  id: string;
+  name: string;
+  timezone: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MockDiningTable {
+  id: string;
+  location_id: string;
+  label: string;
+  seats: number;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MockTableQrToken {
+  id: string;
+  table_id: string;
+  token_hash: string;
+  version: number;
+  revoked_at: string | null;
+  created_at: string;
+}
+
+export interface MockMenuCategory {
+  id: string;
+  location_id: string;
+  name: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MockMenuItem {
+  id: string;
+  category_id: string;
+  name: string;
+  status: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MockMenuItemVersion {
+  id: string;
+  menu_item_id: string;
+  description: string;
+  image_url: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface MockMenuPrice {
+  id: string;
+  menu_item_id: string;
+  amount_paise: number;
+  currency: string;
+  effective_from: string;
+  effective_to: string | null;
+  created_at: string;
+}
+
+export interface MockBlackboardPost {
+  id: string;
+  title: string;
+  content: string;
+  starts_at: string;
+  ends_at: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MockCafeEvent {
+  id: string;
+  title: string;
+  description: string;
+  date_time: string;
+  location: string;
+  max_capacity: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MockEventRsvp {
+  id: string;
+  event_id: string;
+  guest_name: string;
+  guest_phone: string;
+  guest_count: number;
+  created_at: string;
+}
+
+export interface MockMusicSession {
+  id: string;
+  status: string;
+  started_at: string;
+  ended_at: string | null;
+  created_at: string;
+}
+
+export interface MockSongRequest {
+  id: string;
+  music_session_id: string;
+  title: string;
+  artist: string;
+  votes: number;
+  status: "PENDING" | "PLAYING" | "PLAYED" | "REJECTED";
+  requested_by_table: string;
+  created_at: string;
+}
+
+export interface MockSongVote {
+  id: string;
+  song_request_id: string;
+  table_session_id: string;
+  created_at: string;
+}
+
+export interface MockReward {
+  id: string;
+  title: string;
+  description: string;
+  points_required: number;
+  discount_paise: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface MockVendor {
+  id: string;
+  name: string;
+  contact_person: string;
+  phone: string;
+  email: string;
+  category: string;
+  created_at: string;
+}
+
+export interface MockBudget {
+  id: string;
+  month: string;
+  category: string;
+  allocated_paise: number;
+  created_at: string;
+}
+
+export interface MockIngredient {
+  id: string;
+  name: string;
+  unit: string;
+  current_stock: number;
+  reorder_level: number;
+  unit_cost_paise: number;
+  created_at: string;
+}
+
+export const MOCK_LOCATION_ID = "loc_tapovan_01";
+export const MOCK_LOCATION: MockLocation = {
+  id: MOCK_LOCATION_ID,
+  name: "Smol Café — Tapovan, Rishikesh",
+  timezone: "Asia/Kolkata",
+  created_at: "2026-08-01T00:00:00.000Z",
+  updated_at: "2026-08-01T00:00:00.000Z",
+};
+
+// 12 Dining Tables
+export const MOCK_TABLES: MockDiningTable[] = Array.from({ length: 12 }, (_, i) => {
+  const tableNum = (i + 1).toString().padStart(2, "0");
+  return {
+    id: `tbl_${tableNum}`,
+    location_id: MOCK_LOCATION_ID,
+    label: `${tableNum}`,
+    seats: i % 2 === 0 ? 4 : 2,
+    active: true,
+    created_at: "2026-08-01T00:00:00.000Z",
+    updated_at: "2026-08-01T00:00:00.000Z",
+  };
+});
+
+// SHA-256 tokens for tables 01-12
+export const MOCK_QR_TOKENS: MockTableQrToken[] = MOCK_TABLES.map((t) => {
+  const tokenStr = `table-${t.label.toLowerCase()}`;
+  return {
+    id: `qr_${t.id}`,
+    table_id: t.id,
+    token_hash: tokenStr,
+    version: 1,
+    revoked_at: null,
+    created_at: "2026-08-01T00:00:00.000Z",
+  };
+});
+
+// 13 Menu Categories
+export const RAW_CATEGORIES = [
+  "Slow Mornings",
+  "Big Sandwiches",
+  "Bowls & Comfort",
+  "Something Green",
+  "Pasta & Pizza",
+  "Got the Munchies",
+  "There's Always Room",
+  "Coffee, Obviously",
+  "Cold & Easy",
+  "Shakes",
+  "Smol Experiments",
+  "Chai, Chaas & Other Good Decisions",
+  "Chai ke Saathi",
+];
+
+export const MOCK_CATEGORIES: MockMenuCategory[] = RAW_CATEGORIES.map((name, index) => ({
+  id: `cat_${(index + 1).toString().padStart(2, "0")}`,
+  location_id: MOCK_LOCATION_ID,
+  name,
+  sort_order: index + 1,
+  created_at: "2026-08-01T00:00:00.000Z",
+  updated_at: "2026-08-01T00:00:00.000Z",
+}));
+
+const catIdMap = new Map<string, string>();
+MOCK_CATEGORIES.forEach((c) => catIdMap.set(c.name, c.id));
+
+export interface RawItemData {
+  cat: string;
+  sub: string;
+  name: string;
+  desc: string;
+  ingredients: string;
+  prep: string;
+  equipment: string;
+  ware: string;
+  price: number;
+  ceiling: number;
+  avail: string;
+  pairing: string;
+  saathi: boolean;
+  dietary: string;
+  protein: string;
+  spice: string;
+  status: string;
+  notes: string;
+}
+
+export const RAW_MENU_ITEMS: RawItemData[] = [
+  {
+    cat: "Slow Mornings",
+    sub: "Breakfast",
+    name: "Bun Makkhan, Kanpur Se",
+    desc: "Warm toasted bun with generous salted butter.",
+    ingredients: "Bun, salted butter",
+    prep: "Portion butter; slice buns",
+    equipment: "OTG / panini grill",
+    ware: "7–8 in side plate",
+    price: 79,
+    ceiling: 89,
+    avail: "All Day",
+    pairing: "Smol Chai / Adrak Chai",
+    saathi: true,
+    dietary: "Vegetarian",
+    protein: "Low",
+    spice: "Mild",
+    status: "ACTIVE",
+    notes: "Keep deliberately simple; signature nostalgia item.",
+  },
+  {
+    cat: "Slow Mornings",
+    sub: "Breakfast",
+    name: "Oats, Fruit & Yoghurt Bowl",
+    desc: "Rolled oats, yoghurt, seasonal fruit, banana, seeds/granola and honey or jaggery.",
+    ingredients: "Rolled oats, yoghurt, banana, seasonal fruit, seeds/granola, honey/jaggery",
+    prep: "Portion oats; cut fruit; granola batch",
+    equipment: "No-cook / microwave optional",
+    ware: "9 in universal deep bowl",
+    price: 179,
+    ceiling: 189,
+    avail: "All Day",
+    pairing: "Americano / Iced Coffee",
+    saathi: false,
+    dietary: "Vegetarian; plant-milk adaptable",
+    protein: "Medium",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "Use seasonal fruit only; avoid large fruit inventory.",
+  },
+  {
+    cat: "Slow Mornings",
+    sub: "Breakfast",
+    name: "Masala Omelette Breakfast",
+    desc: "Masala omelette with toast, house pickle and crispy herbed potatoes.",
+    ingredients: "Eggs, onion, tomato, chilli, coriander, bread, potatoes, pickle",
+    prep: "Chopped omelette mix; herbed potato batch; house pickle",
+    equipment: "Gas / induction + air fryer",
+    ware: "10 in main plate",
+    price: 159,
+    ceiling: 179,
+    avail: "All Day",
+    pairing: "Chai / Coffee",
+    saathi: true,
+    dietary: "Egg",
+    protein: "High",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "Egg legality/operational permission to be confirmed for exact property.",
+  },
+  {
+    cat: "Slow Mornings",
+    sub: "Breakfast",
+    name: "Creamy Cheese Mushroom Omelette",
+    desc: "Egg omelette with creamy garlic-herb mushrooms and cheese; toast and slaw.",
+    ingredients: "Eggs, mushroom, garlic, herbs, cheese, bread, slaw",
+    prep: "Creamy mushroom base; slaw",
+    equipment: "Gas / induction",
+    ware: "10 in main plate",
+    price: 189,
+    ceiling: 209,
+    avail: "All Day",
+    pairing: "Cappuccino / Americano",
+    saathi: false,
+    dietary: "Egg; Vegetarian otherwise",
+    protein: "High",
+    spice: "Mild",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Slow Mornings",
+    sub: "Breakfast",
+    name: "Egg Bhurji Pav",
+    desc: "Masala egg bhurji with warm buttered pav and house pickle.",
+    ingredients: "Eggs, onion, tomato, chilli, coriander, pav, butter, pickle",
+    prep: "Bhurji masala base; sliced pav",
+    equipment: "Gas + grill/OTG",
+    ware: "10 in main plate",
+    price: 149,
+    ceiling: 169,
+    avail: "All Day",
+    pairing: "Smol Chai",
+    saathi: true,
+    dietary: "Egg",
+    protein: "High",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Slow Mornings",
+    sub: "Breakfast",
+    name: "Paneer Bhurji Pav",
+    desc: "Masala paneer bhurji with warm buttered pav and house pickle.",
+    ingredients: "Paneer, onion, tomato, chilli, coriander, pav, butter, pickle",
+    prep: "Bhurji masala base; crumble paneer; sliced pav",
+    equipment: "Gas + grill/OTG",
+    ware: "10 in main plate",
+    price: 159,
+    ceiling: 179,
+    avail: "All Day",
+    pairing: "Smol Chai",
+    saathi: true,
+    dietary: "Vegetarian",
+    protein: "High",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Big Sandwiches",
+    sub: "Sandwich",
+    name: "The Smol Triple Decker",
+    desc: "Three-layer toasted sandwich with masala potato, green chutney, vegetables, cheese and creamy paneer spread.",
+    ingredients: "Bread, masala potato, green chutney, tomato, cucumber, cheese, paneer spread",
+    prep: "Masala potato; chutney; paneer spread; sliced vegetables",
+    equipment: "Panini grill / OTG",
+    ware: "10 in main plate",
+    price: 199,
+    ceiling: 209,
+    avail: "All Day",
+    pairing: "Chai / Lemonade",
+    saathi: true,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "Sagar Gaire-inspired format, not copied recipe.",
+  },
+  {
+    cat: "Big Sandwiches",
+    sub: "Sandwich",
+    name: "Creamy Cheese Mushroom Decker",
+    desc: "Three-layer sandwich with creamy garlic-herb mushrooms, caramelised onion and melted cheese.",
+    ingredients: "Bread, mushroom, garlic, herbs, onion, cheese",
+    prep: "Creamy mushroom base; caramelised onion",
+    equipment: "Panini grill / OTG",
+    ware: "10 in main plate",
+    price: 219,
+    ceiling: 229,
+    avail: "All Day",
+    pairing: "Cappuccino / Iced Tea",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "Mild",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Big Sandwiches",
+    sub: "Sandwich",
+    name: "Chickpea Paneer Protein Decker",
+    desc: "Smashed chickpeas, paneer, cucumber, tomato, herbs and yoghurt-chilli spread.",
+    ingredients: "Bread, chickpeas, paneer, cucumber, tomato, yoghurt, herbs, chilli",
+    prep: "Cooked chickpeas; chickpea mash; paneer portion; yoghurt spread",
+    equipment: "Panini grill / OTG",
+    ware: "10 in main plate",
+    price: 219,
+    ceiling: 229,
+    avail: "All Day",
+    pairing: "Lemonade / Americano",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "High",
+    spice: "Mild-Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Big Sandwiches",
+    sub: "Sandwich",
+    name: "Bombay Toastie",
+    desc: "Masala potato, vegetables, green chutney and cheese.",
+    ingredients: "Bread, potato, tomato, onion, cucumber, green chutney, cheese",
+    prep: "Masala potato; chutney; sliced vegetables",
+    equipment: "Panini grill / OTG",
+    ware: "10 in main plate",
+    price: 169,
+    ceiling: 179,
+    avail: "All Day",
+    pairing: "Smol Chai",
+    saathi: true,
+    dietary: "Vegetarian",
+    protein: "Low-Medium",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Bowls & Comfort",
+    sub: "Comfort Bowl",
+    name: "Ghar Wali Dal Khichdi",
+    desc: "Moong dal and rice khichdi with ghee tadka; yoghurt, pickle and papad.",
+    ingredients: "Moong dal, rice, ghee, cumin, garlic, yoghurt, pickle, papad",
+    prep: "Cooked khichdi base; tadka mise en place",
+    equipment: "Pressure cooker / gas",
+    ware: "9 in universal deep bowl",
+    price: 149,
+    ceiling: 159,
+    avail: "All Day",
+    pairing: "Chaas / Chai",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "Mild",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Bowls & Comfort",
+    sub: "Comfort Bowl",
+    name: "Dal Chawal Bowl",
+    desc: "Homestyle dal, steamed rice, ghee tadka, pickled onion and papad.",
+    ingredients: "Dal, rice, ghee, garlic, cumin, pickled onion, papad",
+    prep: "Cooked dal; steamed rice; tadka; pickled onion",
+    equipment: "Gas / induction",
+    ware: "9 in universal deep bowl",
+    price: 149,
+    ceiling: 159,
+    avail: "All Day",
+    pairing: "Masala Chaas",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium-High",
+    spice: "Mild-Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Bowls & Comfort",
+    sub: "Comfort Bowl",
+    name: "Rajma Chawal Bowl",
+    desc: "Slow-cooked rajma, rice, pickled onion, yoghurt and papad crunch.",
+    ingredients: "Rajma, rice, tomato-onion masala, yoghurt, pickled onion, papad",
+    prep: "Soaked/cooked rajma; base gravy; steamed rice",
+    equipment: "Gas / pressure cooker",
+    ware: "9 in universal deep bowl",
+    price: 159,
+    ceiling: 169,
+    avail: "All Day",
+    pairing: "Chaas / Lime Soda",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "High",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Bowls & Comfort",
+    sub: "Protein Bowl",
+    name: "Chana Crunch Bowl",
+    desc: "Spiced chickpeas, rice, cucumber, tomato, slaw, mint yoghurt and crispy chana.",
+    ingredients: "Chickpeas, rice, cucumber, tomato, cabbage/carrot slaw, yoghurt, mint, spices",
+    prep: "Cooked chickpeas; crispy chana batch; slaw; mint yoghurt; rice",
+    equipment: "Gas + air fryer",
+    ware: "9 in universal deep bowl",
+    price: 169,
+    ceiling: 179,
+    avail: "All Day",
+    pairing: "Lemonade / Chaas",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "High",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Bowls & Comfort",
+    sub: "Protein Bowl",
+    name: "Smoky Paneer Rice Bowl",
+    desc: "Smoky paneer, rice, roasted vegetables, cucumber, pickled onion and mint yoghurt.",
+    ingredients: "Paneer, rice, seasonal vegetables, cucumber, pickled onion, yoghurt, mint",
+    prep: "Paneer marinade; roasted veg; mint yoghurt; pickled onion; rice",
+    equipment: "Gas / OTG",
+    ware: "9 in universal deep bowl",
+    price: 199,
+    ceiling: 209,
+    avail: "All Day",
+    pairing: "Iced Tea / Lime Soda",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "High",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Bowls & Comfort",
+    sub: "Comfort Bowl",
+    name: "Creamy Mushroom & Herb Rice",
+    desc: "Creamy garlic-herb mushrooms over herbed rice with roast vegetables and a fresh crunchy side.",
+    ingredients: "Mushrooms, garlic, cream, herbs, rice, seasonal vegetables, slaw/cucumber",
+    prep: "Creamy mushroom base; herbed rice; roasted vegetables",
+    equipment: "Gas / induction",
+    ware: "9 in universal deep bowl",
+    price: 199,
+    ceiling: 209,
+    avail: "All Day",
+    pairing: "Americano / Iced Tea",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "Mild",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Something Green",
+    sub: "Salad",
+    name: "Crunchy Chana Salad",
+    desc: "Chickpeas, cucumber, tomato, carrot, cabbage, herbs, seeds, pickled onion and lemon dressing.",
+    ingredients: "Chickpeas, cucumber, tomato, carrot, cabbage, herbs, seeds, pickled onion, lemon",
+    prep: "Cooked chickpeas; slaw prep; pickled onion; dressing",
+    equipment: "No-cook",
+    ware: "9 in universal deep bowl",
+    price: 169,
+    ceiling: 179,
+    avail: "All Day",
+    pairing: "Lemonade / Juice",
+    saathi: false,
+    dietary: "Vegan adaptable",
+    protein: "High",
+    spice: "Mild",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Something Green",
+    sub: "Salad",
+    name: "Warm Mushroom & Roast Veg Salad",
+    desc: "Warm creamy/herbed mushrooms, roasted seasonal vegetables, crispy chickpeas, seeds and mustard-lemon dressing.",
+    ingredients: "Mushroom, seasonal vegetables, chickpeas, seeds, mustard, lemon, herbs",
+    prep: "Creamy/herbed mushroom; roasted veg; crispy chickpeas; dressing",
+    equipment: "OTG + gas",
+    ware: "9 in universal deep bowl",
+    price: 189,
+    ceiling: 199,
+    avail: "All Day",
+    pairing: "Americano / Lime Soda",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "Mild",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Pasta & Pizza",
+    sub: "Pasta",
+    name: "Smol Pink Pasta",
+    desc: "Tomato, garlic, light cream and cheese.",
+    ingredients: "Pasta, tomato sauce, garlic, cream, cheese, herbs",
+    prep: "Tomato sauce base; par-cooked pasta optional",
+    equipment: "Gas / induction",
+    ware: "9 in universal deep bowl",
+    price: 189,
+    ceiling: 199,
+    avail: "All Day",
+    pairing: "Iced Tea / Lime Soda",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Low-Medium",
+    spice: "Mild",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Pasta & Pizza",
+    sub: "Pasta",
+    name: "Garlic Chilli Aglio Olio",
+    desc: "Garlic, chilli, olive oil and herbs.",
+    ingredients: "Pasta, garlic, chilli, olive oil, herbs, optional cheese",
+    prep: "Garlic/chilli mise en place; par-cooked pasta optional",
+    equipment: "Gas / induction",
+    ware: "9 in universal deep bowl",
+    price: 179,
+    ceiling: 189,
+    avail: "All Day",
+    pairing: "Americano / Lemonade",
+    saathi: false,
+    dietary: "Vegan adaptable",
+    protein: "Low",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Pasta & Pizza",
+    sub: "Pizza",
+    name: "Classic Margherita",
+    desc: "Tomato, mozzarella and basil.",
+    ingredients: "Pizza dough, tomato sauce, mozzarella, basil",
+    prep: "Pizza dough; tomato sauce; grated cheese",
+    equipment: "OTG",
+    ware: "10 in main plate",
+    price: 199,
+    ceiling: 209,
+    avail: "All Day",
+    pairing: "Cold Coffee / Lime Soda",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "Mild",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Pasta & Pizza",
+    sub: "Pizza",
+    name: "Paneer Tikka & Pickled Onion Pizza",
+    desc: "Paneer, tomato sauce, mozzarella, pickled onion and coriander.",
+    ingredients: "Pizza dough, paneer, tomato sauce, cheese, pickled onion, coriander",
+    prep: "Dough; tomato sauce; paneer marinade; pickled onion",
+    equipment: "OTG",
+    ware: "10 in main plate",
+    price: 219,
+    ceiling: 229,
+    avail: "All Day",
+    pairing: "Lemonade / Iced Tea",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "High",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Pasta & Pizza",
+    sub: "Pizza",
+    name: "Creamy Mushroom & Herb Pizza",
+    desc: "Creamy garlic mushrooms, mozzarella, herbs and chilli oil.",
+    ingredients: "Pizza dough, creamy mushrooms, mozzarella, herbs, chilli oil",
+    prep: "Dough; creamy mushroom base; chilli oil",
+    equipment: "OTG",
+    ware: "10 in main plate",
+    price: 219,
+    ceiling: 229,
+    avail: "All Day",
+    pairing: "Americano / Iced Tea",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "Mild-Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Pasta & Pizza",
+    sub: "Pizza Lab",
+    name: "Pizza Lab – Rotating",
+    desc: "One experimental pizza rotates every few weeks: Bhutta Chilli Cheese / Aloo Achaar / Green Chutney Paneer / other test.",
+    ingredients: "Uses existing dough + rotating toppings",
+    prep: "Same dough/tomato/cheese system; one rotating topping prep",
+    equipment: "OTG",
+    ware: "10 in main plate",
+    price: 229,
+    ceiling: 249,
+    avail: "All Day when active",
+    pairing: "Seasonal drink / Iced Tea",
+    saathi: false,
+    dietary: "Varies",
+    protein: "Varies",
+    spice: "Varies",
+    status: "ACTIVE",
+    notes: "All-day while active. Keep one experiment only.",
+  },
+  {
+    cat: "Got the Munchies",
+    sub: "Snack",
+    name: "Vada Pav",
+    desc: "Potato vada, garlic chutney, green chutney and chilli.",
+    ingredients: "Pav, potato vada, garlic chutney, green chutney, chilli",
+    prep: "Potato filling; vada batter; chutneys",
+    equipment: "Gas / air fryer or fry setup",
+    ware: "7–8 in side plate",
+    price: 89,
+    ceiling: 99,
+    avail: "All Day",
+    pairing: "Smol Chai",
+    saathi: true,
+    dietary: "Vegetarian",
+    protein: "Low-Medium",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Got the Munchies",
+    sub: "Snack",
+    name: "Timur Crispy Potatoes",
+    desc: "Air-crisped potatoes, garlic, timur seasoning and herb yoghurt.",
+    ingredients: "Potatoes, garlic, timur, herbs, yoghurt",
+    prep: "Par-cooked potatoes; seasoning; herb yoghurt",
+    equipment: "Air fryer",
+    ware: "Small serving bowl",
+    price: 139,
+    ceiling: 149,
+    avail: "All Day",
+    pairing: "Iced Tea / Chai",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Low",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Got the Munchies",
+    sub: "Snack",
+    name: "Crispy Corn",
+    desc: "Corn, chilli, lime and spring onion.",
+    ingredients: "Corn, chilli, lime, spring onion, seasoning",
+    prep: "Portion corn; chop spring onion",
+    equipment: "Wok / air fryer",
+    ware: "Small serving bowl",
+    price: 139,
+    ceiling: 149,
+    avail: "All Day",
+    pairing: "Lime Soda / Cold Coffee",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Low",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Got the Munchies",
+    sub: "Snack",
+    name: "Chilli Cheese Toast Fingers",
+    desc: "Cheese, chilli and herbs on crisp toast.",
+    ingredients: "Bread, cheese, chilli, herbs, butter",
+    prep: "Cheese mix; cut toast fingers",
+    equipment: "OTG / grill",
+    ware: "7–8 in side plate",
+    price: 129,
+    ceiling: 139,
+    avail: "All Day",
+    pairing: "Smol Chai / Coffee",
+    saathi: true,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Got the Munchies",
+    sub: "Sharing",
+    name: "Loaded Papad Nachos",
+    desc: "Papad crisps, chickpeas or rajma, cheese, yoghurt, tomato, chutneys and pickled onions.",
+    ingredients: "Papad, chickpeas/rajma, cheese, yoghurt, tomato, chutneys, pickled onions",
+    prep: "Roasted papad; cooked legumes; chutneys; pickled onions",
+    equipment: "OTG + assembly",
+    ware: "Large sharing platter",
+    price: 199,
+    ceiling: 219,
+    avail: "All Day",
+    pairing: "Lime Soda / Seasonal Drink",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium-High",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Got the Munchies",
+    sub: "Sharing",
+    name: "Conversation Board",
+    desc: "A changing sharing board with smashed chickpea dip, crispy chana, toast, potatoes, pickle, vegetables and seasonal dips.",
+    ingredients: "Chickpeas, bread, potatoes, vegetables, pickle, yoghurt/tahini dips",
+    prep: "Chickpea dip; crispy chana; toast; potatoes; dips; pickles",
+    equipment: "Mixed / assembly",
+    ware: "Large sharing platter",
+    price: 329,
+    ceiling: 349,
+    avail: "All Day",
+    pairing: "Coffee / Seasonal Drink",
+    saathi: false,
+    dietary: "Vegetarian; vegan adaptable",
+    protein: "Medium-High",
+    spice: "Mild-Medium",
+    status: "ACTIVE",
+    notes: "Keep components flexible to absorb prep surplus and seasonal produce.",
+  },
+  {
+    cat: "There's Always Room",
+    sub: "Dessert",
+    name: "Affogato",
+    desc: "Vanilla ice cream with a shot of espresso.",
+    ingredients: "Vanilla ice cream, espresso",
+    prep: "Portion ice cream",
+    equipment: "Espresso machine",
+    ware: "Small dessert bowl / cup",
+    price: 129,
+    ceiling: 139,
+    avail: "All Day",
+    pairing: "—",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Low",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "There's Always Room",
+    sub: "Dessert",
+    name: "Warm Chocolate Brownie",
+    desc: "Warm brownie, vanilla ice cream and sea salt.",
+    ingredients: "Brownie, vanilla ice cream, sea salt",
+    prep: "Bake brownie batch; portion",
+    equipment: "OTG + microwave",
+    ware: "7–8 in side plate",
+    price: 149,
+    ceiling: 169,
+    avail: "All Day",
+    pairing: "Cappuccino / Americano",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Low",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Coffee, Obviously",
+    sub: "Coffee",
+    name: "Espresso",
+    desc: "Single espresso.",
+    ingredients: "Coffee beans, water",
+    prep: "Dial-in grinder",
+    equipment: "Espresso machine",
+    ware: "Espresso cup",
+    price: 79,
+    ceiling: 89,
+    avail: "All Day",
+    pairing: "Brownie / Affogato",
+    saathi: false,
+    dietary: "Vegan",
+    protein: "Low",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Coffee, Obviously",
+    sub: "Coffee",
+    name: "Americano",
+    desc: "Espresso with hot water.",
+    ingredients: "Coffee beans, water",
+    prep: "Dial-in grinder",
+    equipment: "Espresso machine",
+    ware: "Coffee cup",
+    price: 99,
+    ceiling: 109,
+    avail: "All Day",
+    pairing: "Oats Bowl / Aglio Olio",
+    saathi: false,
+    dietary: "Vegan",
+    protein: "Low",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Coffee, Obviously",
+    sub: "Coffee",
+    name: "Cappuccino",
+    desc: "Espresso with steamed milk and foam.",
+    ingredients: "Coffee beans, milk",
+    prep: "Dial-in grinder; chilled milk",
+    equipment: "Espresso machine",
+    ware: "Cappuccino cup",
+    price: 119,
+    ceiling: 129,
+    avail: "All Day",
+    pairing: "Mushroom Omelette / Brownie",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Coffee, Obviously",
+    sub: "Coffee",
+    name: "Café Latte",
+    desc: "Espresso with steamed milk.",
+    ingredients: "Coffee beans, milk",
+    prep: "Dial-in grinder; chilled milk",
+    equipment: "Espresso machine",
+    ware: "Latte cup",
+    price: 129,
+    ceiling: 139,
+    avail: "All Day",
+    pairing: "Breakfast / Sandwiches",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Coffee, Obviously",
+    sub: "Coffee",
+    name: "Classic Cold Coffee",
+    desc: "Coffee, milk, ice and restrained sweetness.",
+    ingredients: "Coffee, milk, ice, sugar/jaggery",
+    prep: "Cold coffee concentrate optional",
+    equipment: "Blender",
+    ware: "Tall cold-coffee glass",
+    price: 139,
+    ceiling: 149,
+    avail: "All Day",
+    pairing: "Chilli Cheese Toast / Pizza",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Cold & Easy",
+    sub: "Cold Drink",
+    name: "Fresh Lime Soda",
+    desc: "Sweet, salted or mixed.",
+    ingredients: "Lime, soda, sugar/salt, ice",
+    prep: "Lime juice; simple syrup optional",
+    equipment: "No-cook",
+    ware: "Universal cold-drink glass",
+    price: 69,
+    ceiling: 79,
+    avail: "All Day",
+    pairing: "Vada Pav / Bowl",
+    saathi: false,
+    dietary: "Vegan",
+    protein: "Low",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Cold & Easy",
+    sub: "Cold Drink",
+    name: "Cucumber Mint Lemonade",
+    desc: "Cucumber, mint and citrus.",
+    ingredients: "Cucumber, mint, lemon/lime, sugar, water, ice",
+    prep: "Cucumber-mint base; citrus juice",
+    equipment: "No-cook",
+    ware: "Universal cold-drink glass",
+    price: 99,
+    ceiling: 109,
+    avail: "All Day",
+    pairing: "Sandwiches / Salad",
+    saathi: false,
+    dietary: "Vegan",
+    protein: "Low",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Cold & Easy",
+    sub: "Cold Drink",
+    name: "House Iced Tea",
+    desc: "Tea, citrus and restrained sweetness.",
+    ingredients: "Black tea, citrus, sugar, ice",
+    prep: "Tea concentrate; citrus",
+    equipment: "No-cook",
+    ware: "Universal cold-drink glass",
+    price: 99,
+    ceiling: 109,
+    avail: "All Day",
+    pairing: "Pizza / Pasta",
+    saathi: false,
+    dietary: "Vegan",
+    protein: "Low",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Cold & Easy",
+    sub: "Juice",
+    name: "Seasonal Fresh Juice",
+    desc: "One or two fruits only, based on quality and season.",
+    ingredients: "Seasonal fruit, optional citrus",
+    prep: "Wash/cut fruit",
+    equipment: "Juicer / blender",
+    ware: "Universal cold-drink glass",
+    price: 99,
+    ceiling: 129,
+    avail: "All Day when active",
+    pairing: "Breakfast / Salad",
+    saathi: false,
+    dietary: "Vegan",
+    protein: "Varies",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "Keep only when fruit quality and cost make sense.",
+  },
+  {
+    cat: "Shakes",
+    sub: "Shake",
+    name: "Banana Peanut Butter Oats Shake",
+    desc: "Banana, oats, peanut butter and milk; substantial enough for a light breakfast.",
+    ingredients: "Banana, oats, peanut butter, milk, ice",
+    prep: "Portion oats and peanut butter",
+    equipment: "Blender",
+    ware: "Tall shake glass",
+    price: 159,
+    ceiling: 169,
+    avail: "All Day",
+    pairing: "Breakfast",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "High",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Shakes",
+    sub: "Shake",
+    name: "Coffee Cocoa Shake",
+    desc: "Coffee, cocoa, milk and a little ice cream.",
+    ingredients: "Coffee, cocoa, milk, ice cream, ice",
+    prep: "Coffee concentrate optional",
+    equipment: "Blender",
+    ware: "Tall shake glass",
+    price: 159,
+    ceiling: 169,
+    avail: "All Day",
+    pairing: "Brownie / Toast",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Shakes",
+    sub: "Shake",
+    name: "Seasonal Fruit & Yoghurt Shake",
+    desc: "Seasonal fruit, yoghurt and minimal added sugar.",
+    ingredients: "Seasonal fruit, yoghurt, milk/water, optional honey",
+    prep: "Prep seasonal fruit",
+    equipment: "Blender",
+    ware: "Tall shake glass",
+    price: 149,
+    ceiling: 159,
+    avail: "All Day when active",
+    pairing: "Breakfast / Salad",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Smol Experiments",
+    sub: "Signature Drink",
+    name: "Jaggery Sea-Salt Latte",
+    desc: "Espresso, jaggery, milk and lightly salted foam.",
+    ingredients: "Coffee, milk, jaggery syrup, salt",
+    prep: "Jaggery syrup; salted foam mix",
+    equipment: "Espresso machine",
+    ware: "Latte cup / cold glass",
+    price: 169,
+    ceiling: 179,
+    avail: "All Day",
+    pairing: "Brownie / Sandwich",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Smol Experiments",
+    sub: "Signature Drink",
+    name: "Himalayan Citrus Espresso Tonic",
+    desc: "Espresso, house citrus cordial and tonic over ice.",
+    ingredients: "Coffee, citrus cordial, tonic, ice",
+    prep: "Citrus cordial",
+    equipment: "Espresso machine",
+    ware: "Universal cold-drink glass",
+    price: 169,
+    ceiling: 179,
+    avail: "All Day",
+    pairing: "Munchies / Pizza",
+    saathi: false,
+    dietary: "Vegan",
+    protein: "Low",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Smol Experiments",
+    sub: "Signature Drink",
+    name: "Buransh Fizz",
+    desc: "Buransh, lime and sparkling water.",
+    ingredients: "Buransh cordial, lime, sparkling water, ice",
+    prep: "Buransh cordial",
+    equipment: "No-cook",
+    ware: "Universal cold-drink glass",
+    price: 149,
+    ceiling: 159,
+    avail: "All Day",
+    pairing: "Munchies / Salad",
+    saathi: false,
+    dietary: "Vegan",
+    protein: "Low",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Smol Experiments",
+    sub: "Seasonal Drink",
+    name: "Seasonal Experiment 01",
+    desc: "Rotating seasonal drink: e.g., guava chilli fizz, peach cold brew, jamun soda or festive special.",
+    ingredients: "Rotating; prioritise existing ingredients",
+    prep: "One seasonal prep only",
+    equipment: "Varies",
+    ware: "Universal cold-drink glass",
+    price: 149,
+    ceiling: 179,
+    avail: "All Day when active",
+    pairing: "Varies",
+    saathi: false,
+    dietary: "Varies",
+    protein: "Varies",
+    spice: "Varies",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Smol Experiments",
+    sub: "Seasonal Drink",
+    name: "Seasonal Experiment 02",
+    desc: "Second rotating seasonal slot; may occasionally include matcha if demand justifies it.",
+    ingredients: "Rotating; prioritise existing ingredients",
+    prep: "One seasonal prep only",
+    equipment: "Varies",
+    ware: "Universal cold-drink glass",
+    price: 149,
+    ceiling: 179,
+    avail: "All Day when active",
+    pairing: "Varies",
+    saathi: false,
+    dietary: "Varies",
+    protein: "Varies",
+    spice: "Varies",
+    status: "ACTIVE",
+    notes: "Matcha is not a permanent section; only test in this slot if commercially justified.",
+  },
+  {
+    cat: "Chai, Chaas & Other Good Decisions",
+    sub: "Chai",
+    name: "Smol Chai",
+    desc: "Simple everyday chai designed as a repeat-visit traffic builder.",
+    ingredients: "Tea, milk, sugar, spices",
+    prep: "Chai spice mix",
+    equipment: "Gas / induction",
+    ware: "Chai glass",
+    price: 29,
+    ceiling: 39,
+    avail: "All Day",
+    pairing: "Bun Makkhan / Vada Pav",
+    saathi: true,
+    dietary: "Vegetarian",
+    protein: "Low",
+    spice: "Mild",
+    status: "ACTIVE",
+    notes: "Must be validated against actual vendor cost; target food cost must work at ₹29.",
+  },
+  {
+    cat: "Chai, Chaas & Other Good Decisions",
+    sub: "Chai",
+    name: "Adrak Chai",
+    desc: "Everyday ginger chai.",
+    ingredients: "Tea, milk, sugar, ginger",
+    prep: "Crushed ginger / ginger prep",
+    equipment: "Gas / induction",
+    ware: "Chai glass",
+    price: 39,
+    ceiling: 49,
+    avail: "All Day",
+    pairing: "Bhurji Pav / Toast",
+    saathi: true,
+    dietary: "Vegetarian",
+    protein: "Low",
+    spice: "Mild",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Chai, Chaas & Other Good Decisions",
+    sub: "Tea",
+    name: "Reset Tea",
+    desc: "Ginger, tulsi, lemongrass and citrus.",
+    ingredients: "Ginger, tulsi, lemongrass, citrus, water",
+    prep: "Herbal prep",
+    equipment: "Gas / induction",
+    ware: "Tea cup / glass",
+    price: 59,
+    ceiling: 69,
+    avail: "All Day",
+    pairing: "Light breakfast / Salad",
+    saathi: false,
+    dietary: "Vegan",
+    protein: "Low",
+    spice: "None",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Chai, Chaas & Other Good Decisions",
+    sub: "Chaas",
+    name: "Masala Chaas",
+    desc: "Yoghurt, roasted cumin, mint and spices.",
+    ingredients: "Yoghurt, water, cumin, mint, salt, spices",
+    prep: "Roast/grind cumin; mint prep",
+    equipment: "Blender / whisk",
+    ware: "Universal cold-drink glass",
+    price: 59,
+    ceiling: 69,
+    avail: "All Day",
+    pairing: "Dal Chawal / Rajma",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "Mild",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Chai, Chaas & Other Good Decisions",
+    sub: "Chaas",
+    name: "Smoked Jeera Chaas",
+    desc: "Buttermilk with roasted cumin and lightly smoky spice.",
+    ingredients: "Yoghurt, water, smoked/roasted cumin, herbs, salt",
+    prep: "Smoked cumin spice mix",
+    equipment: "Blender / whisk",
+    ware: "Universal cold-drink glass",
+    price: 69,
+    ceiling: 79,
+    avail: "All Day",
+    pairing: "Khichdi / Bowl",
+    saathi: false,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "Mild",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Chai ke Saathi",
+    sub: "Combo",
+    name: "Chai + Bun Makkhan",
+    desc: "Smol Chai with Bun Makkhan, Kanpur Se.",
+    ingredients: "Smol Chai + Bun Makkhan",
+    prep: "Use existing item prep",
+    equipment: "Existing stations",
+    ware: "Chai glass + side plate",
+    price: 99,
+    ceiling: 109,
+    avail: "All Day",
+    pairing: "—",
+    saathi: true,
+    dietary: "Vegetarian",
+    protein: "Low",
+    spice: "Mild",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Chai ke Saathi",
+    sub: "Combo",
+    name: "Chai + Vada Pav",
+    desc: "Smol Chai with Vada Pav.",
+    ingredients: "Smol Chai + Vada Pav",
+    prep: "Use existing item prep",
+    equipment: "Existing stations",
+    ware: "Chai glass + side plate",
+    price: 109,
+    ceiling: 119,
+    avail: "All Day",
+    pairing: "—",
+    saathi: true,
+    dietary: "Vegetarian",
+    protein: "Low-Medium",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Chai ke Saathi",
+    sub: "Combo",
+    name: "Chai + Chilli Cheese Toast",
+    desc: "Smol Chai with Chilli Cheese Toast Fingers.",
+    ingredients: "Smol Chai + Chilli Cheese Toast",
+    prep: "Use existing item prep",
+    equipment: "Existing stations",
+    ware: "Chai glass + side plate",
+    price: 149,
+    ceiling: 159,
+    avail: "All Day",
+    pairing: "—",
+    saathi: true,
+    dietary: "Vegetarian",
+    protein: "Medium",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Chai ke Saathi",
+    sub: "Combo",
+    name: "Chai + Bhurji Pav",
+    desc: "Smol Chai with Egg Bhurji Pav; paneer upgrade priced separately.",
+    ingredients: "Smol Chai + Egg Bhurji Pav",
+    prep: "Use existing item prep",
+    equipment: "Existing stations",
+    ware: "Chai glass + main plate",
+    price: 169,
+    ceiling: 179,
+    avail: "All Day",
+    pairing: "—",
+    saathi: true,
+    dietary: "Egg",
+    protein: "High",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+  {
+    cat: "Chai ke Saathi",
+    sub: "Combo",
+    name: "Chai + Bombay Toastie",
+    desc: "Smol Chai with Bombay Toastie.",
+    ingredients: "Smol Chai + Bombay Toastie",
+    prep: "Use existing item prep",
+    equipment: "Existing stations",
+    ware: "Chai glass + main plate",
+    price: 189,
+    ceiling: 199,
+    avail: "All Day",
+    pairing: "—",
+    saathi: true,
+    dietary: "Vegetarian",
+    protein: "Low-Medium",
+    spice: "Medium",
+    status: "ACTIVE",
+    notes: "",
+  },
+];
+
+export const MOCK_MENU_ITEMS: MockMenuItem[] = RAW_MENU_ITEMS.map((item, index) => {
+  const catId = catIdMap.get(item.cat) || "cat_01";
+  const itemId = `item_${(index + 1).toString().padStart(2, "0")}`;
+  return {
+    id: itemId,
+    category_id: catId,
+    name: item.name,
+    status: item.status,
+    metadata: {
+      dietary: item.dietary,
+      protein_focus: item.protein,
+      spice: item.spice,
+      best_pairing: item.pairing,
+      chai_ke_saathi: item.saathi,
+      subcategory: item.sub,
+      availability: item.avail,
+      core_ingredients: item.ingredients,
+      primary_equipment: item.equipment,
+      serving_ware: item.ware,
+      notes: item.notes,
+    },
+    created_at: "2026-08-01T00:00:00.000Z",
+    updated_at: "2026-08-01T00:00:00.000Z",
+  };
+});
+
+export const MOCK_MENU_VERSIONS: MockMenuItemVersion[] = RAW_MENU_ITEMS.map((item, index) => {
+  const itemId = `item_${(index + 1).toString().padStart(2, "0")}`;
+  return {
+    id: `ver_${(index + 1).toString().padStart(2, "0")}`,
+    menu_item_id: itemId,
+    description: item.desc,
+    image_url: getFoodImage(item.name),
+    metadata: {
+
+      dietary: item.dietary,
+      protein_focus: item.protein,
+      spice: item.spice,
+      best_pairing: item.pairing,
+      chai_ke_saathi: item.saathi,
+      subcategory: item.sub,
+      availability: item.avail,
+      core_ingredients: item.ingredients,
+      primary_equipment: item.equipment,
+      serving_ware: item.ware,
+      notes: item.notes,
+    },
+    created_at: "2026-08-01T00:00:00.000Z",
+  };
+});
+
+export const MOCK_MENU_PRICES: MockMenuPrice[] = RAW_MENU_ITEMS.map((item, index) => {
+  const itemId = `item_${(index + 1).toString().padStart(2, "0")}`;
+  return {
+    id: `prc_${(index + 1).toString().padStart(2, "0")}`,
+    menu_item_id: itemId,
+    amount_paise: item.price * 100,
+    currency: "INR",
+    effective_from: "2026-08-01T00:00:00.000Z",
+    effective_to: null,
+    created_at: "2026-08-01T00:00:00.000Z",
+  };
+});
+
+// Blackboard Posts
+export const MOCK_BLACKBOARD_POSTS: MockBlackboardPost[] = [
+  {
+    id: "bb_01",
+    title: "☕ Rishikesh Morning Special",
+    content: "Kanpur Bun Makkhan + Hot Smol Chai at ₹99 all morning. Freshly baked buns with salted Amul butter.",
+    starts_at: "2026-08-01T00:00:00.000Z",
+    ends_at: "2026-12-31T23:59:59.000Z",
+    is_active: true,
+    created_at: "2026-08-01T00:00:00.000Z",
+    updated_at: "2026-08-01T00:00:00.000Z",
+  },
+  {
+    id: "bb_02",
+    title: "🍵 Himalayan Buransh Fizz",
+    content: "Wild Rhododendron flower cordial, fresh lime and chilled sparkling water — local forage from Garhwal hills.",
+    starts_at: "2026-08-01T00:00:00.000Z",
+    ends_at: "2026-12-31T23:59:59.000Z",
+    is_active: true,
+    created_at: "2026-08-01T00:00:00.000Z",
+    updated_at: "2026-08-01T00:00:00.000Z",
+  },
+];
+
+// Community Events
+export const MOCK_CAFE_EVENTS: MockCafeEvent[] = [
+  {
+    id: "evt_01",
+    title: "Chai & Poetry Circle",
+    description: "An intimate evening of Hindi, Urdu & English spoken word by the Ganges. Chai is on the house.",
+    date_time: "2026-08-28T18:00:00.000Z",
+    location: "Smol Café Rooftop Garden",
+    max_capacity: 25,
+    is_active: true,
+    created_at: "2026-08-01T00:00:00.000Z",
+    updated_at: "2026-08-01T00:00:00.000Z",
+  },
+  {
+    id: "evt_02",
+    title: "Sunday Acoustic Jam",
+    description: "Unplugged indie folk & classical guitar session over pour-over brews & warm brownies.",
+    date_time: "2026-08-30T17:30:00.000Z",
+    location: "Smol Café Ground Floor",
+    max_capacity: 35,
+    is_active: true,
+    created_at: "2026-08-01T00:00:00.000Z",
+    updated_at: "2026-08-01T00:00:00.000Z",
+  },
+];
+
+export const MOCK_EVENT_RSVPS: MockEventRsvp[] = [
+  {
+    id: "rsvp_01",
+    event_id: "evt_01",
+    guest_name: "Aarav Sharma",
+    guest_phone: "+91 98765 43210",
+    guest_count: 2,
+    created_at: "2026-08-20T12:00:00.000Z",
+  },
+  {
+    id: "rsvp_02",
+    event_id: "evt_01",
+    guest_name: "Meera Sen",
+    guest_phone: "+91 98123 45678",
+    guest_count: 1,
+    created_at: "2026-08-21T15:30:00.000Z",
+  },
+  {
+    id: "rsvp_03",
+    event_id: "evt_02",
+    guest_name: "Devendra Negi",
+    guest_phone: "+91 99988 77665",
+    guest_count: 4,
+    created_at: "2026-08-22T09:15:00.000Z",
+  },
+];
+
+// Jukebox
+export const MOCK_MUSIC_SESSION: MockMusicSession = {
+  id: "music_ses_01",
+  status: "ACTIVE",
+  started_at: "2026-08-24T08:00:00.000Z",
+  ended_at: null,
+  created_at: "2026-08-24T08:00:00.000Z",
+};
+
+export const MOCK_SONG_REQUESTS: MockSongRequest[] = [
+  {
+    id: "song_01",
+    music_session_id: "music_ses_01",
+    title: "Ghar",
+    artist: "Bharat Chauhan",
+    votes: 8,
+    status: "PLAYING",
+    requested_by_table: "03",
+    created_at: "2026-08-24T09:00:00.000Z",
+  },
+  {
+    id: "song_02",
+    music_session_id: "music_ses_01",
+    title: "Kasoor (Acoustic)",
+    artist: "Prateek Kuhad",
+    votes: 5,
+    status: "PENDING",
+    requested_by_table: "05",
+    created_at: "2026-08-24T09:15:00.000Z",
+  },
+  {
+    id: "song_03",
+    music_session_id: "music_ses_01",
+    title: "Alag Aasmaan",
+    artist: "Anuv Jain",
+    votes: 4,
+    status: "PENDING",
+    requested_by_table: "01",
+    created_at: "2026-08-24T09:30:00.000Z",
+  },
+  {
+    id: "song_04",
+    music_session_id: "music_ses_01",
+    title: "Rishikesh Morning Raga",
+    artist: "Smol Acoustic Trio",
+    votes: 3,
+    status: "PENDING",
+    requested_by_table: "08",
+    created_at: "2026-08-24T09:45:00.000Z",
+  },
+];
+
+// Loyalty Rewards
+export const MOCK_REWARDS: MockReward[] = [
+  {
+    id: "rew_01",
+    title: "Free Smol Chai",
+    description: "Redeem 50 Smol Points for our signature tapri-style ginger chai.",
+    points_required: 50,
+    discount_paise: 2900,
+    is_active: true,
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+  {
+    id: "rew_02",
+    title: "Kanpur Bun Makkhan",
+    description: "Redeem 100 Smol Points for a warm toasted bun with generous salted butter.",
+    points_required: 100,
+    discount_paise: 7900,
+    is_active: true,
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+  {
+    id: "rew_03",
+    title: "₹50 Off Any Order",
+    description: "Get flat ₹50 discount on your current table bill.",
+    points_required: 100,
+    discount_paise: 5000,
+    is_active: true,
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+  {
+    id: "rew_04",
+    title: "Free Classic Cold Coffee",
+    description: "Redeem 150 Smol Points for a tall chilled glass of artisanal cold brew latte.",
+    points_required: 150,
+    discount_paise: 13900,
+    is_active: true,
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+];
+
+// Vendors
+export const MOCK_VENDORS: MockVendor[] = [
+  {
+    id: "ven_01",
+    name: "Tapovan Dairy & Farms",
+    contact_person: "Mukesh Rawat",
+    phone: "+91 94120 11223",
+    email: "dairy@tapovanfarms.in",
+    category: "Dairy & Butter",
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+  {
+    id: "ven_02",
+    name: "Himalayan Bean Co.",
+    contact_person: "Sunil Joshi",
+    phone: "+91 98370 44556",
+    email: "roast@himalayanbeanco.com",
+    category: "Specialty Coffee",
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+  {
+    id: "ven_03",
+    name: "Kanpur Artisan Bakery",
+    contact_person: "Ramesh Gupta",
+    phone: "+91 97200 66778",
+    email: "orders@kanpurbakery.in",
+    category: "Breads & Buns",
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+];
+
+// Budgets
+export const MOCK_BUDGETS: MockBudget[] = [
+  {
+    id: "bud_01",
+    month: "2026-08",
+    category: "Dairy & Eggs",
+    allocated_paise: 4500000,
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+  {
+    id: "bud_02",
+    month: "2026-08",
+    category: "Specialty Coffee Beans",
+    allocated_paise: 3500000,
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+  {
+    id: "bud_03",
+    month: "2026-08",
+    category: "Buns & Breads",
+    allocated_paise: 2000000,
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+  {
+    id: "bud_04",
+    month: "2026-08",
+    category: "Kitchen Dry Goods & Spices",
+    allocated_paise: 3000000,
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+];
+
+// Ingredients
+export const MOCK_INGREDIENTS: MockIngredient[] = [
+  {
+    id: "ing_01",
+    name: "Assam CTC Tea",
+    unit: "kg",
+    current_stock: 12.5,
+    reorder_level: 3.0,
+    unit_cost_paise: 45000,
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+  {
+    id: "ing_02",
+    name: "Full Cream Milk",
+    unit: "liters",
+    current_stock: 45.0,
+    reorder_level: 15.0,
+    unit_cost_paise: 6500,
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+  {
+    id: "ing_03",
+    name: "Kanpur Sweet Buns",
+    unit: "pieces",
+    current_stock: 60.0,
+    reorder_level: 20.0,
+    unit_cost_paise: 1200,
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+  {
+    id: "ing_04",
+    name: "Amul Salted Butter",
+    unit: "kg",
+    current_stock: 8.0,
+    reorder_level: 2.0,
+    unit_cost_paise: 56000,
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+  {
+    id: "ing_05",
+    name: "Arabica Espresso Roast",
+    unit: "kg",
+    current_stock: 15.0,
+    reorder_level: 4.0,
+    unit_cost_paise: 140000,
+    created_at: "2026-08-01T00:00:00.000Z",
+  },
+];

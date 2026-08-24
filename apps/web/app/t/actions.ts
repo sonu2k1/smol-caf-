@@ -29,7 +29,10 @@ function hashToken(rawToken: string): string {
  * finds or creates an active OPEN session on the dining table,
  * and sets a signed session cookie.
  */
-export async function resolveQrToken(rawToken: string): Promise<ResolveQrResult> {
+export async function resolveQrToken(
+  rawToken: string,
+  setCookie = true
+): Promise<ResolveQrResult> {
   if (!rawToken || typeof rawToken !== "string") {
     return {
       success: false,
@@ -166,7 +169,7 @@ export async function resolveQrToken(rawToken: string): Promise<ResolveQrResult>
       openedAt = createdSession.opened_at;
     }
 
-    // 4. Set signed session cookie
+    // 4. Set signed session cookie if requested
     const sessionData: TableSessionData = {
       sessionId,
       tableId: diningTable.id,
@@ -176,7 +179,9 @@ export async function resolveQrToken(rawToken: string): Promise<ResolveQrResult>
       openedAt,
     };
 
-    await setTableSessionCookie(sessionData);
+    if (setCookie) {
+      await setTableSessionCookie(sessionData);
+    }
 
     return {
       success: true,
@@ -192,6 +197,18 @@ export async function resolveQrToken(rawToken: string): Promise<ResolveQrResult>
   }
 }
 
+
+/**
+ * Server Action: Activates table session from form action and redirects to /menu.
+ */
+export async function activateTableAndRedirectAction(formData: FormData): Promise<void> {
+  const token = formData.get("tableToken") as string;
+  if (token) {
+    await resolveQrToken(token);
+  }
+  redirect("/menu");
+}
+
 /**
  * Server Action: Clears the current table session and redirects to home.
  */
@@ -199,3 +216,17 @@ export async function clearTableSession(): Promise<void> {
   await clearTableSessionCookie();
   redirect("/");
 }
+
+/**
+ * Server Action: Switches the active table session dynamically for multi-user/multi-table support.
+ */
+export async function switchTableSessionAction(tableLabel: string): Promise<{ success: boolean; message?: string }> {
+  const token = `table-${tableLabel.toString().padStart(2, "0")}`;
+  const result = await resolveQrToken(token, true);
+  return {
+    success: result.success,
+    message: result.message,
+  };
+}
+
+

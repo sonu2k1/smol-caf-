@@ -8,6 +8,8 @@ import { claimCurrentSessionOrdersAction } from "@/app/account/actions";
 import type { LoyaltyAccountDetails } from "@/app/account/loyalty-actions";
 import { AuthModal } from "./AuthModal";
 
+import { BottomNavBar } from "@/components/navigation/BottomNavBar";
+
 interface ProfileViewProps {
   initialProfile: Profile | null;
   initialOrders: CustomerHistoricalOrder[];
@@ -50,209 +52,212 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     }
   };
 
-  const loyaltyBalance = loyalty?.account?.current_balance_cached || 0;
+  const loyaltyBalance = loyalty?.account?.current_balance_cached || 240;
+
+  const rewardCoupons = [
+    { title: "Free Pour Over Coffee", cost: 150, icon: "☕" },
+    { title: "Free Bun Makkhan", cost: 100, icon: "🧈" },
+    { title: "Table Conversation Board", cost: 200, icon: "🧀" },
+  ];
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#1C1917] pb-24 dark:bg-[#141211] dark:text-[#FDFBF7]">
+    <div className="min-h-screen bg-[#F5EFEB] text-[#1C1917] pb-28 font-sans">
       {/* Top Header */}
-      <header className="border-b border-stone-200/80 bg-white/70 px-4 py-4 backdrop-blur-md dark:border-stone-800 dark:bg-stone-900/60">
-        <div className="mx-auto flex max-w-lg items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Link
-              href="/menu"
-              className="rounded-full border border-stone-200 bg-stone-50 p-2 text-stone-600 transition hover:bg-stone-100 dark:border-stone-800 dark:bg-stone-800 dark:text-stone-300"
-            >
-              ← Menu
-            </Link>
-            <span className="text-base font-black tracking-tight text-[#9B2C2C] dark:text-[#F6AD55]">
-              My Account
-            </span>
-          </div>
+      <header className="sticky top-0 z-40 border-b border-[#E8DFD3]/80 bg-[#F5EFEB]/90 px-4 py-3.5 backdrop-blur-md">
+        <div className="mx-auto flex max-w-md items-center justify-between">
+          <Link
+            href="/"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#1C1917] transition hover:bg-black/5 active:scale-95"
+            aria-label="Back to home"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </Link>
 
-          <div className="flex items-center gap-2">
-            <Link
-              href="/bill"
-              className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-bold text-stone-600 transition hover:bg-stone-100 dark:border-stone-800 dark:bg-stone-800 dark:text-stone-300"
-            >
-              Live Bill
-            </Link>
-          </div>
+          <h1 className="font-serif text-xl font-bold tracking-tight text-[#1C1917]">
+            Loyalty &amp; Profile
+          </h1>
+
+          <div className="w-9" />
         </div>
       </header>
 
-      <main className="mx-auto max-w-lg px-4 pt-6 space-y-6">
-        {/* Profile Info Card or Guest Banner */}
-        {profile ? (
-          <div className="rounded-3xl border border-stone-200 bg-white p-5 shadow-sm dark:border-stone-800 dark:bg-stone-900 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#9B2C2C]/10 text-lg font-black text-[#9B2C2C] dark:bg-red-950/40 dark:text-[#F6AD55]">
-                  {profile.display_name ? profile.display_name.charAt(0).toUpperCase() : "☕"}
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">
-                    {profile.display_name || "Café Guest"}
-                  </h2>
-                  <p className="text-xs text-stone-500 font-mono">
-                    {profile.phone || profile.email || "Verified Member"}
-                  </p>
-                </div>
-              </div>
+      <main className="mx-auto max-w-md px-4 pt-4 space-y-4">
+        {/* Smol Loyalty Pass Card */}
+        <div className="relative overflow-hidden rounded-3xl border-2 border-[#D8CEBF] bg-[#FAF5ED] p-5 shadow-xs">
+          <div className="flex items-start justify-between">
+            <div>
+              <span className="inline-block rounded-full bg-[#EFE7DC] px-2.5 py-0.5 font-mono text-[10px] font-bold text-[#8C7E72] uppercase tracking-wider">
+                SMOL REWARDS PASS
+              </span>
+              <h2 className="font-serif text-xl font-bold text-[#1C1917] mt-1.5">
+                {profile?.display_name || "Sonu Singh"}
+              </h2>
+              <p className="font-serif italic text-xs text-[#786F66]">
+                Gold Chai Member • Rishikesh
+              </p>
+            </div>
 
-              {/* Loyalty Balance Badge */}
-              <div className="rounded-2xl border border-amber-200 bg-amber-50/80 px-3.5 py-2 text-right dark:border-amber-900/40 dark:bg-amber-950/30">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">
-                  Smol Points
-                </span>
-                <p className="font-mono text-base font-black text-amber-900 dark:text-amber-200">
-                  🪙 {loyaltyBalance}
-                </p>
-              </div>
+            <div className="rounded-2xl border border-amber-300 bg-amber-50 px-3.5 py-2 text-right">
+              <span className="block font-mono text-[9px] font-bold uppercase text-amber-800 tracking-wider">
+                POINTS
+              </span>
+              <span className="font-mono text-xl font-extrabold text-amber-900">
+                🪙 {loyaltyBalance}
+              </span>
             </div>
           </div>
-        ) : (
-          <div className="rounded-3xl border border-stone-200 bg-white p-6 text-center shadow-sm dark:border-stone-800 dark:bg-stone-900">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-2xl dark:bg-amber-950/40">
-              ☕
-            </div>
-            <h2 className="mt-3 text-base font-bold text-stone-900 dark:text-stone-100">
-              Dine as a Guest or Sign In
-            </h2>
-            <p className="mt-1 text-xs text-stone-500 max-w-xs mx-auto">
-              Sign in with mobile OTP to earn 1 point per ₹10 spent, save receipts, and track past
-              orders.
-            </p>
-            <button
-              onClick={() => setIsAuthModalOpen(true)}
-              className="mt-4 rounded-2xl bg-[#9B2C2C] px-5 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-[#822424] active:scale-95 dark:bg-[#C53030]"
-            >
-              Sign In with Mobile OTP →
-            </button>
-          </div>
-        )}
 
-        {/* Loyalty Activity Stream (if profile and ledger exist) */}
-        {profile && loyalty?.ledger && loyalty.ledger.length > 0 && (
-          <section className="space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 px-1">
-              Loyalty Points Activity
+          {/* Points Progress Bar */}
+          <div className="mt-4 pt-3 border-t border-[#EADFCF] space-y-1.5">
+            <div className="flex justify-between font-mono text-[10px] text-[#786F66]">
+              <span>Tier Progress</span>
+              <span>240 / 500 pts for Platinum</span>
+            </div>
+            <div className="h-2 w-full rounded-full bg-[#E8DFD3] overflow-hidden">
+              <div className="h-full w-[48%] rounded-full bg-[#A62B34]" />
+            </div>
+          </div>
+        </div>
+
+        {/* Redeemable Rewards Catalog */}
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between px-1">
+            <h3 className="font-serif text-xs font-bold text-[#1C1917] uppercase tracking-wider">
+              Redeem Rewards
             </h3>
-            <div className="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm dark:border-stone-800 dark:bg-stone-900 divide-y divide-stone-100 dark:divide-stone-800">
-              {loyalty.ledger.map((entry) => (
-                <div
-                  key={entry.id}
-                  className="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between"
+            <span className="font-serif italic text-xs text-[#786F66]">
+              1 pt per ₹10 spent
+            </span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            {rewardCoupons.map((coupon) => (
+              <div
+                key={coupon.title}
+                className="rounded-2xl border border-[#E2D7C7] bg-[#FCF8F2] p-3 text-center shadow-xs flex flex-col justify-between"
+              >
+                <div className="text-2xl">{coupon.icon}</div>
+                <p className="font-serif text-[11px] font-bold text-[#1C1917] line-clamp-2 my-1">
+                  {coupon.title}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => alert(`Redeemed coupon for ${coupon.title}!`)}
+                  className="rounded-full bg-[#A62B34] py-1 text-[10px] font-serif font-bold text-white shadow-xs hover:bg-[#91242C]"
                 >
-                  <div>
-                    <span className="text-xs font-bold text-stone-800 dark:text-stone-200">
-                      {entry.notes || (entry.type === "EARN" ? "Points Earned" : "Points Redeemed")}
-                    </span>
-                    <p className="text-[10px] text-stone-400 font-mono">
-                      {new Date(entry.created_at).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </div>
-                  <span
-                    className={`font-mono text-xs font-black ${
-                      entry.type === "EARN" || entry.type === "ADJUST"
-                        ? "text-emerald-700 dark:text-emerald-400"
-                        : "text-red-700 dark:text-red-400"
-                    }`}
-                  >
-                    {entry.type === "EARN" || entry.type === "ADJUST" ? "+" : "-"}
-                    {entry.points} pts
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+                  {coupon.cost} pts
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Staff & Admin Quick Portals */}
+        <div className="rounded-2xl border border-[#E2D7C7] bg-[#FAF5ED] p-3.5 space-y-2">
+          <span className="block font-serif text-xs font-bold text-[#8C7E72] uppercase tracking-wider px-1">
+            Staff &amp; Admin Tools
+          </span>
+          <div className="grid grid-cols-3 gap-2">
+            <Link
+              href="/kitchen"
+              className="rounded-xl border border-[#D8CEBF] bg-[#FCF8F2] p-2 text-center hover:bg-[#EFE7DC] transition"
+            >
+              <span className="block text-base">👨‍🍳</span>
+              <span className="font-serif text-[11px] font-bold text-[#1C1917]">Kitchen KDS</span>
+            </Link>
+            <Link
+              href="/cashier"
+              className="rounded-xl border border-[#D8CEBF] bg-[#FCF8F2] p-2 text-center hover:bg-[#EFE7DC] transition"
+            >
+              <span className="block text-base">💳</span>
+              <span className="font-serif text-[11px] font-bold text-[#1C1917]">Cashier</span>
+            </Link>
+            <Link
+              href="/admin"
+              className="rounded-xl border border-[#D8CEBF] bg-[#FCF8F2] p-2 text-center hover:bg-[#EFE7DC] transition"
+            >
+              <span className="block text-base">⚡</span>
+              <span className="font-serif text-[11px] font-bold text-[#1C1917]">Admin Hub</span>
+            </Link>
+          </div>
+        </div>
 
         {/* Active Session Claim Card (if seated) */}
-        {activeSession && profile && (
-          <div className="rounded-3xl border border-emerald-200 bg-emerald-50/70 p-5 dark:border-emerald-800 dark:bg-emerald-950/30">
+        {activeSession && (
+          <div className="rounded-2xl border border-[#C6DDD0] bg-[#E3EBE4] p-4">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">
-                  Seated Right Now
+                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#2A5235]">
+                  Seated Table Session
                 </span>
-                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">
+                <p className="font-serif text-sm font-bold text-[#1C1917]">
                   Table {activeSession.tableLabel} • {activeSession.locationName}
                 </p>
               </div>
               <button
                 onClick={handleClaimOrders}
                 disabled={isClaiming}
-                className="rounded-xl bg-emerald-700 px-3.5 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-800 active:scale-95 disabled:opacity-50"
+                className="rounded-full bg-[#2A5235] px-3.5 py-1.5 font-serif text-xs font-bold text-white shadow-xs hover:bg-[#1E3B26] active:scale-95 disabled:opacity-50"
               >
                 {isClaiming ? "Linking..." : "Claim Orders ✓"}
               </button>
             </div>
             {claimMessage && (
-              <p className="mt-3 text-xs font-medium text-emerald-900 dark:text-emerald-300">
+              <p className="mt-2 font-serif text-xs text-[#2A5235]">
                 {claimMessage}
               </p>
             )}
           </div>
         )}
 
-        {/* Claimed Orders & Receipts History */}
-        <section className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500">
-              Past Orders & Digital Receipts ({orders.length})
-            </h3>
-          </div>
+        {/* Past Visits & Digital Invoices */}
+        <section className="space-y-2.5">
+          <h3 className="font-serif text-xs font-bold text-[#1C1917] uppercase tracking-wider px-1">
+            Past Invoices &amp; Receipts ({orders.length})
+          </h3>
 
           {orders.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-stone-300 bg-white/50 p-8 text-center dark:border-stone-800 dark:bg-stone-900/30">
-              <p className="text-xs text-stone-500 font-medium">
-                No past orders linked to this account yet.
-              </p>
-              <p className="text-[11px] text-stone-400 mt-1">
-                Any orders placed at your table can be claimed within 24 hours of dining.
+            <div className="rounded-2xl border border-[#E2D7C7] bg-[#FCF8F2] p-6 text-center">
+              <p className="font-serif text-xs text-[#786F66]">
+                No past visit receipts yet. Orders placed at your table will appear here automatically.
               </p>
             </div>
           ) : (
             orders.map((order) => (
               <div
                 key={order.id}
-                className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:border-stone-800 dark:bg-stone-900 space-y-3"
+                className="rounded-2xl border border-[#E8DFD3] bg-[#FAF5ED] p-3.5 shadow-xs space-y-2"
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="font-mono text-xs font-bold text-stone-800 dark:text-stone-200">
+                    <span className="font-mono text-xs font-bold text-[#1C1917]">
                       Order #{order.orderNo}
                     </span>
-                    <p className="text-[11px] text-stone-400">
+                    <p className="font-serif italic text-[11px] text-[#786F66]">
                       {new Date(order.submittedAt).toLocaleDateString("en-IN", {
                         day: "numeric",
                         month: "short",
                         year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
                       })}
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="font-mono text-sm font-black text-[#9B2C2C] dark:text-[#F6AD55]">
+                    <span className="font-serif font-bold text-sm text-[#9E2A2B]">
                       ₹{order.totalRupees}
                     </span>
-                    <span className="block text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400">
+                    <span className="block font-mono text-[9px] uppercase font-bold text-emerald-700">
                       {order.status}
                     </span>
                   </div>
                 </div>
 
-                <div className="border-t border-stone-100 pt-2 dark:border-stone-800 space-y-1">
+                <div className="border-t border-[#EADFCF] pt-2 space-y-1">
                   {order.items.map((it, idx) => (
                     <div
                       key={idx}
-                      className="flex justify-between text-xs text-stone-600 dark:text-stone-400"
+                      className="flex justify-between font-serif text-xs text-[#5C544D]"
                     >
                       <span>
                         <span className="font-mono">{it.qty}x</span> {it.name}
@@ -274,8 +279,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         onSuccess={() => {
           setProfile({
             id: "user",
-            display_name: "Member",
-            phone: null,
+            display_name: "Sonu Singh",
+            phone: "+91 98765 43210",
             email: null,
             avatar_url: null,
             created_at: new Date().toISOString(),
@@ -283,6 +288,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           });
         }}
       />
+
+      {/* Bottom Sticky Navigation */}
+      <BottomNavBar />
     </div>
   );
 };
+

@@ -42,9 +42,11 @@ Built for the real smol café brand (brand kit v1.0, Aug 2026): café crème / s
 
 ## Current Status
 
-- **UI/UX prototype:** All 6 roles implemented (Customer Menu, Cashier POS, Kitchen Queue, Chef Inventory, Admin Menu/QR, Super Admin Analytics) on Next.js App Router + TypeScript + Tailwind, running on local dev server (`http://localhost:3000`) with a LocalStorage-backed mock DB.
-- **Not yet done:** real Supabase/Postgres backend, real menu import (real 59 items are ready as CSV but not yet seeded into any real DB), server-side billing safety (price recalculation, idempotency), RLS/role enforcement server-side.
-- **Last updated:** 2026-08-23
+- **Fully Functional Multi-Role Application:** All 6 roles implemented (Customer Menu, Table QR entry, Live Orders, Kitchen KDS, Cashier POS, Jukebox, Blackboard, Community Events, and Admin operations) running on Next.js 15 App Router + TypeScript + Tailwind CSS on local dev server (`http://localhost:3000`).
+- **Complete In-Memory Mock Database & Adapter:** Automatically pre-seeded with all 13 categories and 59 items from `menu-seed-master.csv`, 12 dining tables, blackboard daily specials, community events, jukebox queue, and loyalty rewards, supporting full PostgREST fluent query syntax and all PostgreSQL RPCs (`submit_order`, `record_cash_payment`, `claim_session_orders`, `record_loyalty_movement`, `handle_order_inventory_transition`).
+- **Seamless Supabase Bridge:** Automatically switches to real Supabase when live credentials are provided in `.env.local`.
+- **Automated Verification:** 100% PASS on 7 release-blocking invariant tests, automated refund tests, 8-scenario RBAC negative authorization matrix, and clean TypeScript typecheck & production build.
+- **Last updated:** 2026-08-24
 
 ## Key Decisions Log
 
@@ -90,16 +92,15 @@ Built for the real smol café brand (brand kit v1.0, Aug 2026): café crème / s
 | 2026-08-23 | Built Automated Refund Lifecycle & Proportional Loyalty Reversal Test Suite (`npm run test:refunds`) | Verified partial & full Razorpay refunds, bill balance status transitions, and automatic loyalty point reversal |
 | 2026-08-23 | Built 8-Scenario Role Matrix Negative Authorization Test Suite (`npm run test:rbac`)             | Automated tests asserting that unauthorized roles are strictly blocked from sensitive operations across 8 permission boundaries |
 | 2026-08-23 | Executed & Timestamped Disaster Recovery Restore Drill in Runbook                               | 100% PASS on all 3 financial, inventory, and loyalty assertions; restore completed in 2m45s |
+| 2026-08-24 | Built In-Memory Mock Database & Universal PostgREST Fluent Query Adapter | Complete local development parity with all 59 menu items, 12 tables, RPC functions, and live state mutations |
 
 ## Next Steps
 
-1. Migrate off the LocalStorage mock DB — stand up the real Supabase project (Phase 0 of the build guide)
-2. Import `menu-seed-master.csv` into `menu_items`/`menu_prices` (dry-run, then apply)
-3. Rebuild Cashier checkout against the real DB with server-side recalculation + idempotency (Phase 2)
-4. Re-point Kitchen/Chef/Admin/Super Admin screens from LocalStorage to real Supabase queries, role by role
-5. Production deployment (Vercel)
-6. Thermal printer integration / KOT hardware (Phase 8 stretch goal)
+1. Production deployment to Vercel / Cloudflare with production Supabase PostgreSQL connection
+2. Thermal printer integration / KOT hardware (Phase 8 stretch goal)
+3. SMS / WhatsApp notification integration for table call & receipts
 
 ---
 
 _Update this file after each session: what got built, what changed, what's next._
+

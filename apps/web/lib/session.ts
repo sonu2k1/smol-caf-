@@ -62,17 +62,22 @@ export function decodeSession(cookieValue: string): TableSessionData | null {
  * Sets the signed table session cookie.
  */
 export async function setTableSessionCookie(data: TableSessionData): Promise<void> {
-  const cookieStore = await cookies();
-  const value = encodeSession(data);
+  try {
+    const cookieStore = await cookies();
+    const value = encodeSession(data);
 
-  cookieStore.set(TABLE_SESSION_COOKIE, value, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 12, // 12 hours
-  });
+    cookieStore.set(TABLE_SESSION_COOKIE, value, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 12, // 12 hours
+    });
+  } catch {
+    // Ignored if called during Server Component render phase
+  }
 }
+
 
 /**
  * Reads and verifies the table session from cookies.

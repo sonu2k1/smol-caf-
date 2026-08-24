@@ -1,13 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import type { CategoryWithItems, MenuItemWithDetails } from "@/lib/queries/menu";
 import { CartProvider } from "@/context/CartContext";
-import { CategoryNav } from "./CategoryNav";
 import { MenuItemCard } from "./MenuItemCard";
 import { ItemDetailModal } from "./ItemDetailModal";
 import { FloatingCartBar } from "@/components/cart/FloatingCartBar";
 import { CartDrawer } from "@/components/cart/CartDrawer";
+import { BottomNavBar } from "@/components/navigation/BottomNavBar";
+
+
 
 interface MenuClientViewProps {
   categories: CategoryWithItems[];
@@ -59,145 +62,196 @@ const MenuContent: React.FC<MenuClientViewProps> = ({
     .filter((cat) => cat.items.length > 0);
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#1C1917] pb-24 dark:bg-[#141211] dark:text-[#FDFBF7]">
+    <div className="min-h-screen bg-[#F5EFEB] text-[#1C1917] pb-28 font-sans">
       {/* Top Header */}
-      <header className="border-b border-stone-200/80 bg-white/70 px-4 py-4 backdrop-blur-md dark:border-stone-800 dark:bg-stone-900/60">
-        <div className="mx-auto flex max-w-2xl items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-black tracking-tight text-[#9B2C2C] dark:text-[#F6AD55]">
-                smol café
-              </span>
-              <span className="text-stone-300 dark:text-stone-700">•</span>
-              <span className="text-xs text-stone-500 font-medium">{locationName}</span>
-            </div>
-            {tableLabel ? (
-              <p className="text-xs font-semibold text-stone-800 dark:text-stone-200">
-                Seated at Table {tableLabel}
-              </p>
-            ) : (
-              <p className="text-xs text-stone-500">Digital Menu</p>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <a
-              href="/orders"
-              className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 dark:border-stone-800 dark:bg-stone-800 dark:text-stone-300"
-            >
-              Live Orders
-            </a>
-            <a
-              href="/bill"
-              className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 dark:border-stone-800 dark:bg-stone-800 dark:text-stone-300"
-            >
-              Bill
-            </a>
-            <a
-              href="/profile"
-              className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-medium text-stone-600 transition hover:bg-stone-100 dark:border-stone-800 dark:bg-stone-800 dark:text-stone-300"
-              title="My Account"
-            >
-              👤
-            </a>
-          </div>
-        </div>
-
-        {/* Search & Veg-only Filter */}
-        <div className="mx-auto mt-3.5 flex max-w-2xl items-center gap-2">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              placeholder="Search brews, bowls, deckers..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-stone-200 bg-stone-50/80 px-4 py-2 text-xs text-stone-900 placeholder:text-stone-400 focus:border-stone-400 focus:outline-none dark:border-stone-800 dark:bg-stone-800/60 dark:text-stone-100"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-stone-400"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
-          <button
-            onClick={() => setFilterVegOnly((v) => !v)}
-            className={`whitespace-nowrap rounded-full border px-3 py-2 text-xs font-medium transition ${
-              filterVegOnly
-                ? "border-green-600 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-950/60 dark:text-green-300"
-                : "border-stone-200 bg-stone-50/80 text-stone-600 dark:border-stone-800 dark:bg-stone-800/60 dark:text-stone-400"
-            }`}
+      <header className="sticky top-0 z-40 border-b border-[#E8DFD3]/80 bg-[#F5EFEB]/90 px-4 py-3.5 backdrop-blur-md">
+        <div className="mx-auto flex max-w-md items-center justify-between">
+          {/* Back Button */}
+          <Link
+            href="/"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#1C1917] transition hover:bg-black/5 active:scale-95"
+            aria-label="Back to home"
           >
-            🟢 Veg only
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </Link>
+
+          {/* Title & Location Context */}
+          <div className="text-center">
+            <h1 className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#9E2A2B]">
+              smol menu
+            </h1>
+            {tableLabel ? (
+              <p className="text-[10px] font-mono font-medium text-[#786F66]">
+                Table {tableLabel} • {locationName}
+              </p>
+            ) : null}
+          </div>
+
+          {/* Search Toggle */}
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById("menu-search-input");
+              el?.focus();
+            }}
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#1C1917] transition hover:bg-black/5 active:scale-95"
+            aria-label="Search menu"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
           </button>
         </div>
+
+        {/* Subtitle & Item Count */}
+        <div className="mx-auto mt-2 flex max-w-md items-baseline justify-between px-1">
+          <p className="font-serif italic text-xs text-[#786F66]">
+            what are we brewing &amp; baking today?
+          </p>
+          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#A62B34]">
+            59 ITEMS
+          </span>
+        </div>
+
+        {/* Category Horizontal Pill Scroller */}
+        <div className="mx-auto mt-3 flex max-w-md items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+          <button
+            type="button"
+            onClick={() => setActiveCategoryId("")}
+            className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-serif transition-colors ${
+              activeCategoryId === ""
+                ? "bg-[#9E2A2B] text-white font-bold shadow-xs"
+                : "border border-[#D8CEBF] bg-[#F5EFEB] text-[#3D3730] hover:bg-[#ECE4D8]"
+            }`}
+          >
+            all items
+          </button>
+
+          {categories.map((cat) => {
+            const isActive = activeCategoryId === cat.id;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => handleSelectCategory(cat.id)}
+                className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-serif transition-colors lowercase ${
+                  isActive
+                    ? "bg-[#9E2A2B] text-white font-bold shadow-xs"
+                    : "border border-[#D8CEBF] bg-[#F5EFEB] text-[#3D3730] hover:bg-[#ECE4D8]"
+                }`}
+              >
+                {cat.name}
+              </button>
+            );
+          })}
+
+          {/* Filter button */}
+          <button
+            type="button"
+            onClick={() => setFilterVegOnly(!filterVegOnly)}
+            className={`shrink-0 flex items-center justify-center h-8 w-8 rounded-full border border-[#D8CEBF] ${
+              filterVegOnly ? "bg-[#2E9946] text-white border-transparent" : "bg-[#F5EFEB] text-[#3D3730]"
+            }`}
+            title="Filter Veg only"
+          >
+            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <line x1="4" y1="21" x2="4" y2="14" />
+              <line x1="4" y1="10" x2="4" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12" y2="3" />
+              <line x1="20" y1="21" x2="20" y2="16" />
+              <line x1="20" y1="12" x2="20" y2="3" />
+              <line x1="1" y1="14" x2="7" y2="14" />
+              <line x1="9" y1="8" x2="15" y2="8" />
+              <line x1="17" y1="16" x2="23" y2="16" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Quick Table Switcher Bar for guests */}
+        {!tableLabel && (
+          <div className="mx-auto mt-2.5 flex max-w-md items-center justify-between rounded-xl border border-amber-200/80 bg-amber-50/70 px-3 py-1.5 text-xs text-amber-900">
+            <span className="text-[11px] font-medium">📍 Seated at:</span>
+            <div className="flex items-center gap-1.5 overflow-x-auto">
+              {[1, 2, 3, 4, 5, 6].map((num) => {
+                const label = num.toString().padStart(2, "0");
+                return (
+                  <Link
+                    key={num}
+                    href={`/t/table-${label}`}
+                    className="rounded-lg border border-amber-300 bg-white px-2 py-0.5 text-[11px] font-bold shadow-xs hover:bg-amber-100"
+                  >
+                    T{label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </header>
-
-      {/* Sticky Category Navigation */}
-      <CategoryNav
-        categories={filteredCategories}
-        activeCategoryId={activeCategoryId}
-        onSelectCategory={handleSelectCategory}
-      />
-
       {/* Main Menu List */}
-      <main className="mx-auto max-w-2xl px-4 py-6">
-        {filteredCategories.length === 0 ? (
-          <div className="rounded-3xl border border-stone-200/80 bg-white/60 p-12 text-center dark:border-stone-800 dark:bg-stone-900/60">
-            <p className="text-sm text-stone-500">No menu items found matching your filter.</p>
+      <main className="mx-auto max-w-md px-4 pt-4 space-y-6">
+        {filteredCategories.map((category) => (
+          <section key={category.id} id={`category-${category.id}`} className="space-y-2.5">
+            {/* Category Section Header */}
+            <div className="pt-2">
+              <div className="flex items-baseline justify-between">
+                <h2 className="font-serif text-lg sm:text-xl font-bold tracking-tight text-[#1C1917] lowercase flex items-center gap-1">
+                  <span>{category.name}</span>
+                  <span className="text-xs text-[#A62B34]">✧</span>
+                </h2>
+                <span className="font-mono text-xs text-[#786F66]">
+                  {category.items.length} items
+                </span>
+              </div>
+              {category.description && (
+                <p className="font-serif italic text-xs text-[#786F66] mt-0.5 lowercase">
+                  {category.description}
+                </p>
+              )}
+            </div>
+
+            {/* Item List */}
+            <div className="space-y-3">
+              {category.items.map((item) => (
+                <MenuItemCard key={item.id} item={item} onOpenDetail={setSelectedItem} />
+              ))}
+            </div>
+          </section>
+        ))}
+
+        {filteredCategories.length === 0 && (
+          <div className="py-16 text-center text-stone-500">
+            <p className="text-sm font-serif">No items found matching your search.</p>
             <button
               onClick={() => {
                 setSearchQuery("");
                 setFilterVegOnly(false);
               }}
-              className="mt-3 text-xs font-semibold text-[#9B2C2C] underline dark:text-[#F6AD55]"
+              className="mt-3 text-xs font-semibold text-[#9B2C2C] underline"
             >
-              Reset filters
+              Clear filters
             </button>
-          </div>
-        ) : (
-          <div className="space-y-10">
-            {filteredCategories.map((category) => (
-              <section
-                key={category.id}
-                id={`category-${category.id}`}
-                className="scroll-mt-16 space-y-3.5"
-              >
-                <div className="flex items-baseline justify-between border-b border-stone-200/80 pb-2 dark:border-stone-800">
-                  <h2 className="text-lg font-black tracking-tight text-stone-900 dark:text-stone-100">
-                    {category.name}
-                  </h2>
-                  <span className="text-xs text-stone-400 font-medium">
-                    {category.items.length} {category.items.length === 1 ? "item" : "items"}
-                  </span>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {category.items.map((item) => (
-                    <MenuItemCard
-                      key={item.id}
-                      item={item}
-                      onOpenDetail={(it) => setSelectedItem(it)}
-                    />
-                  ))}
-                </div>
-              </section>
-            ))}
           </div>
         )}
       </main>
-
-      {/* Item Detail Modal */}
-      <ItemDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
 
       {/* Floating Cart Bar */}
       <FloatingCartBar />
 
       {/* Cart Drawer */}
       <CartDrawer tableLabel={tableLabel} />
+
+      {/* Item Detail Modal */}
+      {selectedItem && (
+        <ItemDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+      )}
+
+      {/* Bottom Sticky Navigation */}
+      <BottomNavBar />
     </div>
   );
 };

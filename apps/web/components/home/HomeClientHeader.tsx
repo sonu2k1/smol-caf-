@@ -1,0 +1,59 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { AppDrawer } from "@/components/navigation/AppDrawer";
+
+interface HomeClientHeaderProps {
+  tableLabel?: string;
+}
+
+export const HomeClientHeader: React.FC<HomeClientHeaderProps> = ({ tableLabel }) => {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  return (
+    <>
+      <header className="sticky top-0 z-40 border-b border-[#E8DFD3]/80 bg-[#F5EFEB]/90 px-5 py-4 backdrop-blur-md">
+        <div className="mx-auto flex max-w-md items-center justify-between">
+          {/* Hamburger Menu Button */}
+          <button
+            type="button"
+            onClick={() => setIsDrawerOpen(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#1C1917] transition hover:bg-black/5 active:scale-95"
+            aria-label="Open navigation menu"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+
+          {/* Logo */}
+          <Link href="/" className="font-serif text-2xl font-bold tracking-tight text-[#1C1917]">
+            smol café
+          </Link>
+
+          {/* Profile Icon */}
+          <Link
+            href="/profile"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#1C1917] transition hover:bg-black/5 active:scale-95"
+            aria-label="Profile account"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>
+              <circle cx="12" cy="8" r="4" />
+              <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
+            </svg>
+          </Link>
+        </div>
+      </header>
+
+      {/* Slide-over Drawer */}
+      <AppDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        tableLabel={tableLabel}
+      />
+    </>
+  );
+};
