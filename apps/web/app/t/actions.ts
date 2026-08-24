@@ -1,0 +1,201 @@
+"use server";
+
+import crypto from "crypto";
+import { redirect } from "next/navigation";
+import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  setTableSessionCookie,
+  clearTableSessionCookie,
+  type TableSessionData,
+} from "@/lib/session";
+import type { TableQrToken, DiningTable, TableSession } from "@smol-cafe/db";
+
+export interface ResolveQrResult {
+  success: boolean;
+  error?: "INVALID_TOKEN" | "REVOKED_TOKEN" | "TABLE_INACTIVE" | "DB_ERROR";
+  message?: string;
+  session?: TableSessionData;
+}
+
+/**
+ * Computes SHA-256 hash of a string.
+ */
+function hashToken(rawToken: string): string {
+  return crypto.createHash("sha256").update(rawToken).digest("hex");
+}
+
+/**
+ * Server Action: Resolves a QR token, validates against table_qr_tokens,
+ * finds or creates an active OPEN session on the dining table,
+ * and sets a signed session cookie.
+ */
+export async function resolveQrToken(rawToken: string): Promise<ResolveQrResult> {
+  if (!rawToken || typeof rawToken !== "string") {
+    return {
+      success: false,
+      error: "INVALID_TOKEN",
+      message: "This QR code is invalid. Please ask staff for assistance.",
+    };
+  }
+
+  const tokenHash = hashToken(rawToken.trim());
+  const plainToken = rawToken.trim();
+
+  let supabase;
+  try {
+    supabase = createAdminClient();
+  } catch (err) {
+    console.error("Failed to initialize Supabase client:", err);
+    return {
+      success: false,
+      error: "DB_ERROR",
+      message: "Could not connect to the database. Please try again.",
+    };
+  }
+
+  try {
+    // 1. Query table_qr_tokens by hash or plain token
+    const { data: qrTokens, error: qrError } = await supabase
+      .from("table_qr_tokens")
+      .select("*")
+      .or(`token_hash.eq.${tokenHash},token_hash.eq.${plainToken}`)
+      .limit(1);
+
+    if (qrError || !qrTokens || qrTokens.length === 0) {
+      return {
+        success: false,
+        error: "INVALID_TOKEN",
+        message: "This QR isn't working, please call staff.",
+      };
+    }
+
+    const qrToken = qrTokens[0] as unknown as TableQrToken;
+
+    // Check if token was revoked
+    if (qrToken.revoked_at) {
+      return {
+        success: false,
+        error: "REVOKED_TOKEN",
+        message: "This QR code has expired or was revoked. Please ask staff for a fresh QR.",
+      };
+    }
+
+    // 2. Fetch dining table details
+    const { data: table, error: tableError } = await supabase
+      .from("dining_tables")
+      .select("*")
+      .eq("id", qrToken.table_id)
+      .single();
+
+    if (tableError || !table) {
+      return {
+        success: false,
+        error: "INVALID_TOKEN",
+        message: "Table information could not be found.",
+      };
+    }
+
+    const diningTable = table as unknown as DiningTable;
+
+    if (!diningTable.active) {
+      return {
+        success: false,
+        error: "TABLE_INACTIVE",
+        message: "This table is currently not in service. Please check with staff.",
+      };
+    }
+
+    // Fetch location name
+    const { data: location } = await supabase
+      .from("locations")
+      .select("name")
+      .eq("id", diningTable.location_id)
+      .single();
+
+    const locationName = (location as { name: string } | null)?.name || "Smol Café";
+
+    // 3. Find existing OPEN table session
+    const { data: existingSession } = await supabase
+      .from("table_sessions")
+      .select("*")
+      .eq("table_id", diningTable.id)
+      .eq("status", "OPEN")
+      .maybeSingle();
+
+    let sessionId: string;
+    let openedAt: string;
+
+    if (existingSession) {
+      const activeSession = existingSession as unknown as TableSession;
+      sessionId = activeSession.id;
+      openedAt = activeSession.opened_at;
+
+      // Update last activity timestamp
+      await supabase
+        .from("table_sessions")
+        .update({ last_activity_at: new Date().toISOString() })
+        .eq("id", sessionId);
+    } else {
+      // Create new OPEN table session
+      const now = new Date().toISOString();
+      const { data: newSession, error: insertError } = await supabase
+        .from("table_sessions")
+        .insert({
+          location_id: diningTable.location_id,
+          table_id: diningTable.id,
+          status: "OPEN",
+          opened_at: now,
+          last_activity_at: now,
+          guest_count: 1,
+          session_token_version: qrToken.version || 1,
+        })
+        .select("*")
+        .single();
+
+      if (insertError || !newSession) {
+        console.error("Failed to create table session:", insertError);
+        return {
+          success: false,
+          error: "DB_ERROR",
+          message: "Unable to start a dining session. Please ask staff.",
+        };
+      }
+
+      const createdSession = newSession as unknown as TableSession;
+      sessionId = createdSession.id;
+      openedAt = createdSession.opened_at;
+    }
+
+    // 4. Set signed session cookie
+    const sessionData: TableSessionData = {
+      sessionId,
+      tableId: diningTable.id,
+      tableLabel: diningTable.label,
+      locationId: diningTable.location_id,
+      locationName,
+      openedAt,
+    };
+
+    await setTableSessionCookie(sessionData);
+
+    return {
+      success: true,
+      session: sessionData,
+    };
+  } catch (error) {
+    console.error("Error in resolveQrToken:", error);
+    return {
+      success: false,
+      error: "DB_ERROR",
+      message: "An unexpected error occurred while resolving table session.",
+    };
+  }
+}
+
+/**
+ * Server Action: Clears the current table session and redirects to home.
+ */
+export async function clearTableSession(): Promise<void> {
+  await clearTableSessionCookie();
+  redirect("/");
+}

@@ -1,0 +1,47 @@
+name: Nightly Database Backup to Off-Site Storage
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # Daily at 02:00 UTC
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+jobs:
+  backup:
+    name: Logical DB Dump & Off-Site Upload
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL Client Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client gzip
+
+      - name: Configure AWS / Cloudflare R2 Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        if: env.AWS_ACCESS_KEY_ID != ''
+        with:
+          aws-access-key-id: ${{ secrets.OFFSITE_BACKUP_AWS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.OFFSITE_BACKUP_AWS_SECRET }}
+          aws-region: us-east-1
+          # For Cloudflare R2: set endpoint-url in secrets or env
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.OFFSITE_BACKUP_AWS_KEY_ID }}
+
+      - name: Run Nightly Backup Script
+        run: |
+          chmod +x packages/db/scripts/nightly-backup.sh
+          ./packages/db/scripts/nightly-backup.sh
+        env:
+          DATABASE_URL: ${{ secrets.SUPABASE_DIRECT_DB_URL || secrets.DATABASE_URL }}
+          S3_BUCKET_NAME: ${{ secrets.OFFSITE_BACKUP_S3_BUCKET || 'smol-cafe-backups-offsite' }}
+
+      - name: Upload Backup Artifact to GitHub (Secondary Fallback)
+        uses: actions/upload-artifact@v4
+        with:
+          name: smol-cafe-db-dump-${{ github.run_id }}
+          path: /tmp/smol_cafe_backups/*.sql.gz
+          retention-days: 7
+          if-no-files-found: warn
