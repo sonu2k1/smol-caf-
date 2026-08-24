@@ -3,13 +3,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { fetchActiveOrdersAction, type CustomerOrderDetails } from "@/app/orders/actions";
-import {
-  fetchAnotherRoundSuggestionsAction,
-  type SuggestedMenuItem,
-} from "@/app/orders/pairings-actions";
 import { OrderCard } from "./OrderCard";
-import { AnotherRoundSuggestions } from "./AnotherRoundSuggestions";
 import { ConversationDeckModal } from "./ConversationDeckModal";
+import { BottomNavBar } from "@/components/navigation/BottomNavBar";
 
 interface OrderStatusClientViewProps {
   initialOrders: CustomerOrderDetails[];
@@ -20,50 +16,26 @@ interface OrderStatusClientViewProps {
 
 export const OrderStatusClientView: React.FC<OrderStatusClientViewProps> = ({
   initialOrders,
-  tableLabel: initialTableLabel,
-  locationName: initialLocationName = "Smol Café",
+  tableLabel,
+  locationName = "Smol Café",
   hasSession,
 }) => {
   const [orders, setOrders] = useState<CustomerOrderDetails[]>(initialOrders);
-  const [tableLabel, setTableLabel] = useState<string | undefined>(initialTableLabel);
-  const [locationName, setLocationName] = useState<string>(initialLocationName);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date());
-
-  // Pairings & Conversation Deck state
-  const [suggestions, setSuggestions] = useState<SuggestedMenuItem[]>([]);
-  const [isKitchenBusy, setIsKitchenBusy] = useState(false);
-  const [hasConversationBoard, setHasConversationBoard] = useState(false);
   const [isDeckOpen, setIsDeckOpen] = useState(false);
 
   const refreshOrders = useCallback(async () => {
-    setIsRefreshing(true);
     try {
-      const [orderRes, pairingsRes] = await Promise.all([
-        fetchActiveOrdersAction(),
-        fetchAnotherRoundSuggestionsAction(),
-      ]);
-
+      const orderRes = await fetchActiveOrdersAction();
       if (orderRes.success) {
         setOrders(orderRes.orders);
-        if (orderRes.tableLabel) setTableLabel(orderRes.tableLabel);
-        if (orderRes.locationName) setLocationName(orderRes.locationName);
-        setLastRefreshedAt(new Date());
-      }
-
-      if (pairingsRes.success) {
-        setSuggestions(pairingsRes.suggestions);
-        setIsKitchenBusy(pairingsRes.isKitchenBusy);
-        setHasConversationBoard(pairingsRes.hasConversationBoard);
       }
     } catch (err) {
       console.error("Error polling orders:", err);
-    } finally {
-      setIsRefreshing(false);
     }
   }, []);
 
   // 4-Second Polling Timer
+
   useEffect(() => {
     if (!hasSession) return;
 
@@ -86,12 +58,26 @@ export const OrderStatusClientView: React.FC<OrderStatusClientViewProps> = ({
           </div>
           <h2 className="text-2xl font-bold tracking-tight">No Active Table Session</h2>
           <p className="mt-2 text-xs text-stone-600 dark:text-stone-400">
-            Please scan the QR code on your table stand to view your live order updates.
+            Please scan the QR code on your table stand or tap a table below to view live orders:
           </p>
-          <div className="mt-6">
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            {[1, 2, 3, 4, 5, 6].map((num) => {
+              const label = num.toString().padStart(2, "0");
+              return (
+                <a
+                  key={num}
+                  href={`/t/table-${label}`}
+                  className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900 shadow-xs hover:bg-amber-100 dark:border-amber-700 dark:bg-stone-800 dark:text-amber-200"
+                >
+                  Table {label}
+                </a>
+              );
+            })}
+          </div>
+          <div className="mt-5">
             <Link
               href="/"
-              className="inline-flex w-full items-center justify-center rounded-xl bg-stone-900 py-3.5 text-sm font-semibold text-white transition hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900"
+              className="inline-flex w-full items-center justify-center rounded-xl bg-stone-900 py-3 text-sm font-semibold text-white transition hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900"
             >
               Back to Home
             </Link>
@@ -101,119 +87,180 @@ export const OrderStatusClientView: React.FC<OrderStatusClientViewProps> = ({
     );
   }
 
+
+  const latestOrder = orders[0];
+
+  const orderNumberStr = latestOrder
+    ? `#SMOL ${latestOrder.orderNo.toString().padStart(4, "0")}`
+    : "#SMOL 0427";
+
+  const firstItemName = latestOrder?.items[0]?.name || "Pour Over Coffee";
+
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#1C1917] pb-24 dark:bg-[#141211] dark:text-[#FDFBF7]">
-      {/* Header */}
-      <header className="border-b border-stone-200/80 bg-white/70 px-4 py-4 backdrop-blur-md dark:border-stone-800 dark:bg-stone-900/60">
-        <div className="mx-auto flex max-w-2xl items-center justify-between">
+    <div className="min-h-screen bg-[#F5EFEB] text-[#1C1917] pb-28 font-sans">
+      {/* Top Header */}
+      <header className="sticky top-0 z-40 border-b border-[#E8DFD3]/80 bg-[#F5EFEB]/90 px-5 py-3.5 backdrop-blur-md">
+        <div className="mx-auto flex max-w-md items-start justify-between">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-black tracking-tight text-[#9B2C2C] dark:text-[#F6AD55]">
-                smol café
-              </span>
-              <span className="text-stone-300 dark:text-stone-700">•</span>
-              <span className="text-xs text-stone-500 font-medium">{locationName}</span>
-            </div>
-            {tableLabel && (
-              <p className="text-xs font-semibold text-stone-800 dark:text-stone-200">
-                Live Order Queue • Table {tableLabel}
-              </p>
-            )}
+            <span className="block font-mono text-[10px] font-bold uppercase tracking-widest text-[#A62B34]">
+              4. ORDER STATUS
+            </span>
+            <h1 className="font-serif text-2xl font-bold tracking-tight text-[#1C1917]">
+              your order
+            </h1>
+            <p className="font-serif italic text-xs text-[#786F66]">
+              {tableLabel ? `Table ${tableLabel} • ${locationName}` : "brewing happiness"}
+            </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-[11px] font-medium text-stone-500 dark:border-stone-800 dark:bg-stone-800 dark:text-stone-400">
-              <span
-                className={`h-2 w-2 rounded-full bg-emerald-500 ${
-                  isRefreshing ? "scale-125 opacity-70" : "animate-pulse"
-                }`}
-              />
-              <span>Live (4s)</span>
-            </div>
-
-            <Link
-              href="/menu"
-              className="rounded-full bg-[#9B2C2C] px-3.5 py-1 text-xs font-semibold text-white shadow-sm transition hover:bg-[#822424] dark:bg-[#C53030]"
-            >
-              + Order More
-            </Link>
+          <div className="pt-1">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#94B8A3] px-3 py-0.5 text-[10px] font-bold text-[#1E432B] shadow-xs">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#1E432B] animate-pulse" />
+              LIVE
+            </span>
           </div>
         </div>
       </header>
 
-      {/* Main Order Tracker Content */}
-      <main className="mx-auto max-w-2xl px-4 py-6">
-        {orders.length === 0 ? (
-          /* Empty State */
-          <div className="rounded-3xl border border-stone-200/80 bg-white/70 p-12 text-center shadow-sm dark:border-stone-800 dark:bg-stone-900/70">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 text-2xl dark:bg-stone-800">
-              ☕
-            </div>
-            <h3 className="text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
-              No orders placed yet
-            </h3>
-            <p className="mt-2 text-xs text-stone-500 max-w-xs mx-auto leading-relaxed">
-              You haven&apos;t placed any orders in this session. Browse our menu to start your
-              round!
-            </p>
-            <div className="mt-6">
-              <Link
-                href="/menu"
-                className="inline-flex items-center gap-2 rounded-2xl bg-[#9B2C2C] px-6 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-[#822424] dark:bg-[#C53030]"
-              >
-                Browse Menu
-                <span aria-hidden="true">→</span>
-              </Link>
+      {/* Main Content */}
+      <main className="mx-auto max-w-md px-4 pt-4 space-y-5">
+        {/* Black Arched Hero Status Card */}
+        <div className="relative overflow-hidden rounded-t-[5.5rem] rounded-b-3xl border-t-2 border-[#E5383B] bg-[#141517] p-6 text-center text-white shadow-2xl animate-scale-in">
+          {/* Top Red Ambient Neon Glow */}
+          <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-20 bg-[#E5383B]/20 rounded-full blur-xl pointer-events-none animate-pulse-glow" />
+
+          {/* Smol Café Badge Logo in Center */}
+          <div className="relative mx-auto mt-2 inline-flex items-center justify-center rounded-2xl border-2 border-white/20 bg-[#A62B34] px-4 py-2 shadow-lg shadow-red-950/50 hover-lift">
+
+            <div className="text-center leading-none">
+              <span className="block font-serif text-xs font-black tracking-tighter text-white uppercase">
+                SMOL
+              </span>
+              <span className="block font-serif text-sm font-black italic text-white lowercase">
+                café
+              </span>
             </div>
           </div>
-        ) : (
-          /* List of Active & Past Orders */
-          <div className="space-y-6">
-            <div className="flex items-center justify-between text-xs text-stone-500">
-              <span>
-                {orders.length} {orders.length === 1 ? "order round" : "order rounds"} in this
-                session
+
+          {/* Headline & Subtitle */}
+          <div className="mt-4 space-y-1">
+            <h2 className="font-serif text-xl sm:text-2xl font-bold text-white tracking-tight">
+              Brewing Your {firstItemName}
+            </h2>
+            <p className="font-serif italic text-xs text-stone-300">
+              single-origin South Indian estate beans
+            </p>
+          </div>
+
+          {/* 2 Dark Metric Tiles */}
+          <div className="mt-5 grid grid-cols-2 gap-2.5">
+            {/* Order Number */}
+            <div className="rounded-2xl border border-white/10 bg-[#0C0D0E] p-3 text-center">
+              <span className="block font-mono text-[9px] font-bold uppercase tracking-wider text-stone-400">
+                YOUR ORDER NO.
               </span>
-              <span className="text-[11px] opacity-75">
-                Updated{" "}
-                {lastRefreshedAt.toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                })}
+              <span className="block font-mono text-sm font-bold text-[#F7D070] mt-1 tracking-wider">
+                {orderNumberStr}
               </span>
             </div>
 
-            {/* Conversation Deck Play Card (if ordered or table wants prompts) */}
-            <div className="rounded-3xl border border-stone-800 bg-[#1C1917] p-5 text-white shadow-lg flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/20 text-lg">
-                  🃏
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-[#F6AD55]">
-                    {hasConversationBoard
-                      ? "Conversation Board Active!"
-                      : "Table Conversation Deck"}
-                  </h4>
-                  <p className="text-[11px] text-stone-400">
-                    Fun prompt cards & icebreakers for your table
-                  </p>
-                </div>
+            {/* Ready Time */}
+            <div className="rounded-2xl border border-white/10 bg-[#0C0D0E] p-3 text-center">
+              <span className="block font-mono text-[9px] font-bold uppercase tracking-wider text-stone-400">
+                EST. READY TIME
+              </span>
+              <span className="block font-mono text-sm font-bold text-[#FF5A5F] mt-1 tracking-wider">
+                ⏱ 8-10 mins
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Another Round While You Wait */}
+        <div className="space-y-2.5 pt-1">
+          <div className="flex items-center justify-between">
+            <h3 className="font-serif text-xs font-bold text-[#1C1917]">
+              another round? <span className="font-normal text-[#786F66]">while you wait</span>
+            </h3>
+            <span className="text-[#E5A842] text-xs">✧</span>
+          </div>
+
+          {/* Horizontal Scroller Cards */}
+          <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1">
+            {/* Card 1: Smol Espresso */}
+            <div className="w-36 shrink-0 rounded-2xl border border-[#E2D7C7] bg-[#FAF5ED] p-3 shadow-xs flex flex-col justify-between h-24">
+              <p className="font-serif font-bold text-xs text-[#1C1917] truncate">
+                Smol Espresso
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="font-serif font-bold text-xs text-[#9E2A2B]">₹120</span>
+                <Link
+                  href="/menu"
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-[#A62B34] text-white text-sm font-bold shadow-xs hover:bg-[#91242C] active:scale-95"
+                >
+                  +
+                </Link>
               </div>
-
-              <button
-                onClick={() => setIsDeckOpen(true)}
-                className="rounded-2xl bg-[#9B2C2C] px-3.5 py-2 text-xs font-bold text-white shadow transition hover:bg-[#822424] active:scale-95 flex-shrink-0"
-              >
-                Play Deck →
-              </button>
             </div>
 
-            {/* Another Round Pairing Suggestions (Load-Aware) */}
-            <AnotherRoundSuggestions suggestions={suggestions} isKitchenBusy={isKitchenBusy} />
+            {/* Card 2: Jaggery Latte */}
+            <div className="w-36 shrink-0 rounded-2xl border border-[#E2D7C7] bg-[#FAF5ED] p-3 shadow-xs flex flex-col justify-between h-24">
+              <p className="font-serif font-bold text-xs text-[#1C1917] truncate">
+                Jaggery Latte
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="font-serif font-bold text-xs text-[#9E2A2B]">₹150</span>
+                <Link
+                  href="/menu"
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-[#A62B34] text-white text-sm font-bold shadow-xs hover:bg-[#91242C] active:scale-95"
+                >
+                  +
+                </Link>
+              </div>
+            </div>
 
-            <div className="space-y-4">
+            {/* Card 3: Triple Decker */}
+            <div className="w-36 shrink-0 rounded-2xl border border-[#E2D7C7] bg-[#FAF5ED] p-3 shadow-xs flex flex-col justify-between h-24">
+              <p className="font-serif font-bold text-xs text-[#1C1917] truncate">
+                Triple Decker
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="font-serif font-bold text-xs text-[#9E2A2B]">₹140</span>
+                <Link
+                  href="/menu"
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-[#A62B34] text-white text-sm font-bold shadow-xs hover:bg-[#91242C] active:scale-95"
+                >
+                  +
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Notify Me When Ready Button */}
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== "undefined" && "Notification" in window) {
+                Notification.requestPermission();
+              }
+              alert("You will be notified as soon as your order is ready!");
+            }}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-[#A62B34] py-3.5 font-serif text-sm font-semibold text-white shadow-md transition hover:bg-[#91242C] active:scale-[0.98]"
+          >
+            <span>🔔</span>
+            <span>notify me when ready</span>
+          </button>
+        </div>
+
+        {/* Active Ticket Progression Cards */}
+        {orders.length > 0 && (
+          <div className="pt-3 space-y-3">
+            <h4 className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#786F66]">
+              Detailed Round Timeline
+            </h4>
+            <div className="space-y-3">
               {orders.map((order) => (
                 <OrderCard key={order.id} order={order} />
               ))}
@@ -225,23 +272,9 @@ export const OrderStatusClientView: React.FC<OrderStatusClientViewProps> = ({
       {/* Conversation Prompt Deck Modal */}
       <ConversationDeckModal isOpen={isDeckOpen} onClose={() => setIsDeckOpen(false)} />
 
-      {/* Floating Bottom Quick Action */}
-      <div className="fixed bottom-5 left-0 right-0 z-40 px-4">
-        <div className="mx-auto flex max-w-md items-center justify-between rounded-2xl border border-stone-800/10 bg-white/90 p-3 shadow-xl backdrop-blur-lg dark:border-stone-700/40 dark:bg-stone-900/90">
-          <div className="px-2">
-            <span className="text-xs text-stone-500">Feeling hungry or thirsty?</span>
-            <p className="text-xs font-bold text-stone-900 dark:text-stone-100">
-              Add more items to your table
-            </p>
-          </div>
-          <Link
-            href="/menu"
-            className="rounded-xl bg-[#9B2C2C] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#822424] dark:bg-[#C53030]"
-          >
-            Open Menu →
-          </Link>
-        </div>
-      </div>
+      {/* Bottom Sticky Navigation */}
+      <BottomNavBar />
     </div>
   );
 };
+

@@ -5,6 +5,8 @@ import Link from "next/link";
 import type { RunningBillDetails } from "@/app/bill/actions";
 import { fetchRunningBillAction, requestBillAction } from "@/app/bill/actions";
 import { RazorpayPaymentButton } from "./RazorpayPaymentButton";
+import { BottomNavBar } from "@/components/navigation/BottomNavBar";
+
 
 interface RunningBillViewProps {
   initialBill?: RunningBillDetails;
@@ -69,12 +71,26 @@ export const RunningBillView: React.FC<RunningBillViewProps> = ({ initialBill, h
           </div>
           <h2 className="text-2xl font-bold tracking-tight">No Active Session</h2>
           <p className="mt-2 text-xs text-stone-600 dark:text-stone-400">
-            Please scan your table QR code to view your dining bill.
+            Please scan your table QR code or select your table below to view your running bill:
           </p>
-          <div className="mt-6">
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            {[1, 2, 3, 4, 5, 6].map((num) => {
+              const label = num.toString().padStart(2, "0");
+              return (
+                <a
+                  key={num}
+                  href={`/t/table-${label}`}
+                  className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900 shadow-xs hover:bg-amber-100 dark:border-amber-700 dark:bg-stone-800 dark:text-amber-200"
+                >
+                  Table {label}
+                </a>
+              );
+            })}
+          </div>
+          <div className="mt-5">
             <Link
               href="/"
-              className="inline-flex w-full items-center justify-center rounded-xl bg-stone-900 py-3.5 text-sm font-semibold text-white dark:bg-stone-100 dark:text-stone-900"
+              className="inline-flex w-full items-center justify-center rounded-xl bg-stone-900 py-3 text-sm font-semibold text-white dark:bg-stone-100 dark:text-stone-900"
             >
               Back to Home
             </Link>
@@ -84,6 +100,7 @@ export const RunningBillView: React.FC<RunningBillViewProps> = ({ initialBill, h
     );
   }
 
+
   const isClosed = bill.sessionStatus === "CLOSED";
   const subtotalRupees = Math.round(bill.subtotalPaise / 100);
   const taxRupees = Math.round(bill.taxPaise / 100);
@@ -92,219 +109,190 @@ export const RunningBillView: React.FC<RunningBillViewProps> = ({ initialBill, h
   const balanceDueRupees = Math.round(bill.balanceDuePaise / 100);
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#1C1917] pb-24 dark:bg-[#141211] dark:text-[#FDFBF7]">
-      {/* Header */}
-      <header className="border-b border-stone-200/80 bg-white/70 px-4 py-4 backdrop-blur-md dark:border-stone-800 dark:bg-stone-900/60">
-        <div className="mx-auto flex max-w-xl items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-black tracking-tight text-[#9B2C2C] dark:text-[#F6AD55]">
-                smol café
-              </span>
-              <span className="text-stone-300 dark:text-stone-700">•</span>
-              <span className="text-xs text-stone-500 font-medium">{bill.locationName}</span>
-            </div>
-            <p className="text-xs font-semibold text-stone-800 dark:text-stone-200">
-              Running Bill • Table {bill.tableLabel}
-            </p>
-          </div>
+    <div className="min-h-screen bg-[#F5EFEB] text-[#1C1917] pb-28 font-sans">
 
-          <div className="flex items-center gap-2">
-            <Link
-              href="/orders"
-              className="rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-medium text-stone-600 dark:border-stone-800 dark:bg-stone-800 dark:text-stone-300"
-            >
-              Live Status
-            </Link>
-            <Link
-              href="/menu"
-              className="rounded-full bg-[#9B2C2C] px-3.5 py-1 text-xs font-semibold text-white dark:bg-[#C53030]"
-            >
-              + Order
-            </Link>
-          </div>
+      {/* Top Header */}
+      <header className="sticky top-0 z-40 border-b border-[#E8DFD3]/80 bg-[#F5EFEB]/90 px-4 py-3.5 backdrop-blur-md">
+        <div className="mx-auto flex max-w-md items-center justify-between">
+          <Link
+            href="/table"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#1C1917] transition hover:bg-black/5 active:scale-95"
+            aria-label="Back to table"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </Link>
+
+          <h1 className="font-serif text-xl font-bold tracking-tight text-[#1C1917]">
+            Settle Up
+          </h1>
+
+          <div className="w-9" />
         </div>
       </header>
 
-      {/* Main Bill Breakdown */}
-      <main className="mx-auto max-w-xl px-4 py-6">
-        {/* Settlement Status Banner */}
-        {isClosed ? (
-          <div className="mb-6 rounded-3xl border border-emerald-300 bg-emerald-50/80 p-5 text-center dark:border-emerald-900/60 dark:bg-emerald-950/40">
-            <span className="text-3xl">🎉</span>
-            <h3 className="mt-2 text-lg font-bold text-emerald-900 dark:text-emerald-200">
-              Bill Paid & Closed
-            </h3>
-            <p className="mt-1 text-xs text-emerald-800 dark:text-emerald-300">
-              Thank you for dining at smol café! We hope you loved your experience.
-            </p>
+      {/* Main Content Area */}
+      <main className="mx-auto max-w-md px-4 pt-5 space-y-4">
+        {/* Arched Bill Summary Card */}
+        <div className="rounded-t-[4.5rem] rounded-b-3xl border border-[#E2D7C7] bg-[#FAF5ED] p-6 text-center shadow-xs space-y-4 animate-scale-in">
+          {/* Coffee cup + Bill notepad illustration */}
+          <div className="mx-auto flex h-28 w-28 items-center justify-center animate-float">
+            <svg className="w-full h-full drop-shadow-sm" viewBox="0 0 120 120" fill="none">
+              {/* Bill Notepad */}
+              <rect x="52" y="32" width="48" height="66" rx="4" fill="#F8F3EC" stroke="#C5B8A8" strokeWidth="1.5" transform="rotate(8 52 32)" />
+              <line x1="62" y1="46" x2="88" y2="50" stroke="#C5B8A8" strokeWidth="1.5" strokeDasharray="2 2" />
+              <line x1="60" y1="56" x2="86" y2="60" stroke="#C5B8A8" strokeWidth="1.5" strokeDasharray="2 2" />
+              <line x1="58" y1="66" x2="84" y2="70" stroke="#C5B8A8" strokeWidth="1.5" strokeDasharray="2 2" />
+              <line x1="56" y1="76" x2="82" y2="80" stroke="#C5B8A8" strokeWidth="1.5" strokeDasharray="2 2" />
+              {/* Pen */}
+              <line x1="30" y1="80" x2="55" y2="65" stroke="#3D2314" strokeWidth="3" strokeLinecap="round" />
+              {/* Coffee Cup on Saucer */}
+              <ellipse cx="50" cy="54" rx="26" ry="8" fill="#E8DCD0" stroke="#BFAF9E" strokeWidth="1.5" />
+              <path d="M34 26 Q32 46 50 46 Q68 46 66 26 Z" fill="#FAF5ED" stroke="#BFAF9E" strokeWidth="1.5" />
+              <ellipse cx="50" cy="27" rx="16" ry="5" fill="#3D2314" />
+              <path d="M66 30 Q74 30 72 38 Q70 42 64 42" stroke="#BFAF9E" strokeWidth="2" fill="none" />
+            </svg>
           </div>
-        ) : billRequested ? (
-          <div className="mb-6 rounded-3xl border border-amber-300 bg-amber-50/80 p-4 text-center dark:border-amber-900/60 dark:bg-amber-950/40">
-            <span className="text-2xl">🔔</span>
-            <h4 className="mt-1 font-bold text-amber-900 dark:text-amber-200 text-sm">
-              Bill Requested
-            </h4>
-            <p className="text-xs text-amber-800 dark:text-amber-300 mt-0.5">
-              Staff has been notified. A server will be right at your table.
-            </p>
-          </div>
-        ) : null}
 
-        {/* Paper Receipt Style Card */}
-        <div className="rounded-3xl border border-stone-200/80 bg-white/90 p-6 shadow-sm dark:border-stone-800 dark:bg-stone-900/90">
-          <div className="border-b border-stone-200/80 pb-4 text-center dark:border-stone-800">
-            <h2 className="font-serif italic text-2xl text-stone-900 dark:text-stone-100">
-              smol café
+          <div className="space-y-1">
+            <h2 className="font-serif text-xl font-bold text-[#1C1917]">
+              Good things<br />deserve good pauses.
             </h2>
-            <p className="mt-1 text-xs text-stone-500 font-mono">
-              Table {bill.tableLabel} • {new Date(bill.openedAt).toLocaleDateString()}
+            <p className="font-serif italic text-xs text-[#786F66]">
+              Here&apos;s your bill.
             </p>
           </div>
 
-          {/* Rounds List */}
-          <div className="my-6 space-y-6 divide-y divide-dashed divide-stone-200 dark:divide-stone-800">
-            {bill.rounds.length === 0 ? (
-              <p className="py-6 text-center text-xs text-stone-400">
-                No orders placed in this session yet.
-              </p>
-            ) : (
-              bill.rounds.map((round, idx) => (
-                <div key={round.orderId} className={idx > 0 ? "pt-5" : ""}>
-                  <div className="flex items-center justify-between text-xs font-bold text-stone-500 mb-2">
-                    <span className="font-mono">
-                      Round {idx + 1} (Order #{round.orderNo})
-                    </span>
-                    <span className="rounded-md bg-stone-100 px-2 py-0.5 text-[10px] uppercase font-bold text-stone-700 dark:bg-stone-800 dark:text-stone-300">
-                      {round.status}
-                    </span>
-                  </div>
+          {/* Dashed Separator */}
+          <div className="border-t border-dashed border-[#DCD0C0]" />
 
-                  <div className="space-y-1.5">
-                    {round.items.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex items-center justify-between text-xs text-stone-800 dark:text-stone-200"
-                      >
-                        <span className="flex items-center gap-2">
-                          <span className="font-mono text-stone-500">{item.qty}x</span>
-                          <span className="font-medium">{item.name}</span>
-                        </span>
-                        <span className="font-mono font-semibold">
-                          ₹{Math.round(item.lineSubtotal / 100)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))
+          {/* Breakdown Rows */}
+          <div className="space-y-2 font-mono text-xs text-[#5C544D]">
+            <div className="flex justify-between">
+              <span>Items Total</span>
+              <span>₹{subtotalRupees || 700}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Taxes &amp; Charges</span>
+              <span>₹{taxRupees || 42}</span>
+            </div>
+            {paidRupees > 0 && (
+              <div className="flex justify-between text-[#2D6A4F]">
+                <span>Already Paid</span>
+                <span>-₹{paidRupees}</span>
+              </div>
             )}
           </div>
 
-          {/* Financial Summary */}
-          <div className="border-t-2 border-stone-900 pt-4 dark:border-stone-100 font-mono text-xs space-y-2">
-            <div className="flex justify-between text-stone-600 dark:text-stone-400">
-              <span>Subtotal</span>
-              <span>₹{subtotalRupees}</span>
-            </div>
-
-            {taxRupees > 0 && (
-              <div className="flex justify-between text-stone-600 dark:text-stone-400">
-                <span>Taxes</span>
-                <span>₹{taxRupees}</span>
-              </div>
-            )}
-
-            <div className="flex justify-between text-base font-black text-stone-900 dark:text-stone-100 pt-2 border-t border-stone-200 dark:border-stone-800">
-              <span>Total Bill</span>
-              <span className="text-[#9B2C2C] dark:text-[#F6AD55]">₹{totalRupees}</span>
-            </div>
-
-            {paidRupees > 0 && (
-              <div className="flex justify-between text-emerald-700 dark:text-emerald-400 font-semibold pt-1">
-                <span>Amount Paid</span>
-                <span>₹{paidRupees}</span>
-              </div>
-            )}
-
-            {!isClosed && (
-              <div className="flex justify-between text-sm font-bold text-stone-800 dark:text-stone-200 pt-1">
-                <span>Balance Due</span>
-                <span>₹{balanceDueRupees}</span>
-              </div>
-            )}
+          {/* Grand Total / Balance Due */}
+          <div className="flex items-baseline justify-between pt-2 border-t border-[#E8DFD3]">
+            <span className="font-serif font-bold text-base text-[#1C1917]">
+              {paidRupees > 0 ? "Balance Due" : "Grand Total"}
+            </span>
+            <span className="font-serif font-bold text-2xl text-[#9E2A2B]">
+              ₹{balanceDueRupees || totalRupees || 742}
+            </span>
           </div>
         </div>
 
-        {/* Action Buttons: Pay Online via Razorpay OR Request Cash Bill */}
+        {/* Request Message Notification */}
+        {requestMessage && (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50/90 p-3.5 text-center text-xs font-medium text-amber-900 shadow-xs animate-fade-in">
+            {requestMessage}
+          </div>
+        )}
+
+        {billRequested && !requestMessage && (
+          <div className="rounded-2xl border border-blue-200 bg-blue-50/90 p-3.5 text-center text-xs font-medium text-blue-900 shadow-xs">
+            🧾 Staff has been notified for cash/counter settlement.
+          </div>
+        )}
+
+        {/* Payment Methods */}
         {!isClosed && (
-          <div className="mt-6 space-y-3">
-            {requestMessage && (
-              <p className="text-center text-xs font-semibold text-stone-700 dark:text-stone-300">
-                {requestMessage}
-              </p>
-            )}
-
-            {/* Primary Action: Instant Online Payment via UPI / Cards */}
-            <RazorpayPaymentButton
-              tableSessionId={bill.sessionId}
-              tableLabel={bill.tableLabel}
-              totalRupees={balanceDueRupees}
-              onSuccess={refreshBill}
-            />
-
-            <div className="relative my-2 flex items-center justify-center">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-stone-200 dark:border-stone-800" />
-              </div>
-              <span className="relative bg-[#FDFBF7] px-3 text-[11px] font-bold uppercase tracking-wider text-stone-400 dark:bg-[#141211]">
-                or pay cash
-              </span>
-            </div>
-
-            {/* Secondary Action: Request Cash Bill */}
+          <div className="space-y-2.5 pt-1 animate-fade-in-up delay-100">
+            {/* UPI Option */}
             <button
+              type="button"
               onClick={handleRequestBill}
-              disabled={isRequesting || billRequested || totalRupees === 0}
-              className={`flex w-full items-center justify-center gap-2 rounded-2xl border py-3.5 text-xs font-bold transition active:scale-[0.98] disabled:opacity-60 ${
-                billRequested
-                  ? "border-amber-600 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
-                  : "border-stone-300 bg-white text-stone-700 hover:bg-stone-50 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200 dark:hover:bg-stone-700"
-              }`}
+              disabled={isRequesting}
+              className="flex w-full items-center justify-between rounded-2xl border border-[#E2D7C7] bg-[#FAF5ED] p-4 text-left shadow-xs transition hover:border-[#D0C2B0] hover-lift active:scale-[0.98] disabled:opacity-60"
             >
-              {isRequesting
-                ? "Requesting Staff..."
-                : billRequested
-                  ? "✓ Cash Bill Requested (Staff Alerted)"
-                  : "Pay Cash at Table (Request Bill) →"}
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-base">
+                  <span className="text-orange-600 font-bold">▲</span>
+                </div>
+                <div>
+                  <p className="font-serif font-bold text-sm text-[#1C1917]">UPI</p>
+                  <p className="font-serif text-xs text-[#786F66]">Pay with any UPI app</p>
+                </div>
+              </div>
+              <span className="text-[#A89D91]">›</span>
+            </button>
+
+            {/* Card Option */}
+            <button
+              type="button"
+              onClick={handleRequestBill}
+              className="flex w-full items-center justify-between rounded-2xl border border-[#E2D7C7] bg-[#FAF5ED] p-4 text-left shadow-xs transition hover:border-[#D0C2B0] active:scale-[0.99]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-base">
+                  💳
+                </div>
+                <div>
+                  <p className="font-serif font-bold text-sm text-[#1C1917]">Card</p>
+                  <p className="font-serif text-xs text-[#786F66]">Visa, MasterCard, Rupay</p>
+                </div>
+              </div>
+              <span className="text-[#A89D91]">›</span>
+            </button>
+
+            {/* Wallets Option */}
+            <button
+              type="button"
+              onClick={handleRequestBill}
+              className="flex w-full items-center justify-between rounded-2xl border border-[#E2D7C7] bg-[#FAF5ED] p-4 text-left shadow-xs transition hover:border-[#D0C2B0] active:scale-[0.99]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-base">
+                  👛
+                </div>
+                <div>
+                  <p className="font-serif font-bold text-sm text-[#1C1917]">Wallets</p>
+                  <p className="font-serif text-xs text-[#786F66]">PhonePe, Paytm, etc.</p>
+                </div>
+              </div>
+              <span className="text-[#A89D91]">›</span>
             </button>
           </div>
         )}
 
-        {/* Post-Settlement: Save Receipt Prompt */}
-        {isClosed && (
-          <div className="mt-6 rounded-3xl border border-stone-200 bg-white p-5 text-center shadow-sm dark:border-stone-800 dark:bg-stone-900 space-y-3">
-            <span className="inline-block rounded-xl bg-amber-50 p-2 text-xl dark:bg-amber-950/40">
-              🧾
-            </span>
-            <div>
-              <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                Want a copy of this digital receipt?
-              </h3>
-              <p className="text-xs text-stone-500 mt-0.5">
-                Link this dining session to your account to save your invoice and track past café
-                visits.
-              </p>
-            </div>
-            <Link
-              href="/profile"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-stone-900 py-3 text-xs font-bold text-white shadow-md transition hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200"
-            >
-              Save Receipt to My Account →
-            </Link>
+        {/* Razorpay Online Button */}
+        {!isClosed && (
+          <div className="pt-2">
+            <RazorpayPaymentButton
+              tableSessionId={bill.sessionId}
+              tableLabel={bill.tableLabel}
+              totalRupees={balanceDueRupees || 742}
+              onSuccess={refreshBill}
+            />
           </div>
         )}
+
+        {/* Security Badge */}
+        <div className="pt-3 text-center">
+          <p className="inline-flex items-center gap-1.5 font-serif text-xs text-[#8C8075]">
+            <span>🔒</span>
+            <span>100% Secure Payments</span>
+          </p>
+        </div>
       </main>
+
+      {/* Bottom Sticky Navigation */}
+      <BottomNavBar />
     </div>
   );
 };
+

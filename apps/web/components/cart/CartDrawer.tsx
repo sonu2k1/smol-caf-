@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { placeOrderAction, type ChangedItemDiff } from "@/app/menu/actions";
 import { useNetworkHealth } from "@/hooks/useNetworkHealth";
@@ -12,9 +13,10 @@ interface CartDrawerProps {
 export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
   const { items, updateQty, removeItem, clearCart, isCartOpen, closeCart, subtotalPaise } =
     useCart();
-  const { isDegraded, isOnline } = useNetworkHealth();
+  const { isDegraded } = useNetworkHealth();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [priceConflicts, setPriceConflicts] = useState<ChangedItemDiff[] | null>(null);
   const [orderSuccess, setOrderSuccess] = useState<{
@@ -67,7 +69,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
   };
 
   const handleApplyPriceUpdates = () => {
-    // Update local cart item prices to new current prices
     if (priceConflicts) {
       priceConflicts.forEach((conflict) => {
         const cartItem = items.find((i) => i.item.id === conflict.menu_item_id);
@@ -81,68 +82,73 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4"
+      className="fixed inset-0 z-[70] flex items-end justify-center bg-stone-900/60 backdrop-blur-xs sm:items-center sm:p-4 transition-opacity duration-300"
       onClick={closeCart}
     >
       <div
-        className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-t-3xl sm:rounded-3xl border border-stone-200/80 bg-[#FDFBF7] shadow-2xl transition-all dark:border-stone-800 dark:bg-[#1C1917]"
+        className="flex max-h-[92vh] w-full max-w-lg flex-col rounded-t-[2.5rem] sm:rounded-3xl border border-[#E2D7C7] bg-[#FAF5ED] shadow-2xl transition-all animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Mobile Pull Handle Indicator */}
+        <div className="pt-3 flex justify-center sm:hidden">
+          <div className="w-10 h-1.5 rounded-full bg-[#D8CEBF]" />
+        </div>
+
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-stone-200/80 p-5 dark:border-stone-800">
+        <div className="flex items-center justify-between border-b border-[#E8DFD3] px-5 py-4">
           <div>
-            <h2 className="text-lg font-black tracking-tight text-stone-900 dark:text-stone-100">
-              Your Order
+            <h2 className="font-serif text-xl font-bold tracking-tight text-[#1C1917]">
+              Your Table Order
             </h2>
-            {tableLabel && (
-              <p className="text-xs font-semibold text-stone-500">Seated at Table {tableLabel}</p>
-            )}
+            <p className="font-serif italic text-xs text-[#786F66]">
+              Seated at Table {tableLabel || "01"} • Rishikesh
+            </p>
           </div>
           <button
             onClick={closeCart}
             aria-label="Close cart"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 text-stone-500 hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EFE7DC] text-[#786F66] hover:bg-[#E2D6C5] active:scale-95 transition"
           >
             ✕
           </button>
         </div>
 
         {/* Body Content */}
-        <div className="flex-1 overflow-y-auto p-5">
+        <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {orderSuccess ? (
             /* Success State */
-            <div className="py-8 text-center space-y-4">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl dark:bg-emerald-950/80">
+            <div className="py-8 text-center space-y-4 animate-scale-in">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl shadow-inner">
                 🎉
               </div>
-              <h3 className="text-2xl font-black tracking-tight text-stone-900 dark:text-stone-100">
-                Order #{orderSuccess.orderNo} Placed!
+              <h3 className="font-serif text-2xl font-bold tracking-tight text-[#1C1917]">
+                Order #{orderSuccess.orderNo} Sent to Kitchen!
               </h3>
-              <p className="text-xs text-stone-600 dark:text-stone-400 max-w-xs mx-auto leading-relaxed">
-                Your order has been sent to the kitchen. Our baristas and chefs are preparing it
-                fresh.
+              <p className="font-serif italic text-xs text-[#786F66] max-w-xs mx-auto leading-relaxed">
+                Your order is brewing fresh. You can track real-time kitchen status live!
               </p>
-              <div className="rounded-2xl border border-stone-200 bg-white/70 p-4 dark:border-stone-800 dark:bg-stone-900/70">
-                <span className="text-xs text-stone-500">Total Amount</span>
-                <p className="text-xl font-bold text-stone-900 dark:text-stone-100">
+              <div className="rounded-2xl border border-[#E2D7C7] bg-[#FCF8F2] p-4 shadow-xs">
+                <span className="font-mono text-[10px] uppercase font-bold text-[#8C7E72]">
+                  TOTAL AMOUNT
+                </span>
+                <p className="font-serif text-2xl font-bold text-[#A62B34] mt-0.5">
                   ₹{Math.round(orderSuccess.totalPaise / 100)}
                 </p>
               </div>
 
               <div className="pt-2 space-y-2">
-                <a
+                <Link
                   href="/orders"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#9B2C2C] py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-[#822424] dark:bg-[#C53030]"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#A62B34] py-3.5 font-serif text-sm font-semibold text-white shadow-md transition hover:bg-[#91242C] active:scale-[0.98]"
                 >
-                  Track Order Status Live
-                  <span aria-hidden="true">→</span>
-                </a>
+                  Track Order Live →
+                </Link>
                 <button
                   onClick={() => {
                     setOrderSuccess(null);
                     closeCart();
                   }}
-                  className="w-full rounded-2xl bg-stone-100 py-3 text-xs font-semibold text-stone-700 transition hover:bg-stone-200 dark:bg-stone-800 dark:text-stone-300 dark:hover:bg-stone-700"
+                  className="w-full rounded-2xl border border-[#E2D7C7] bg-[#FAF5ED] py-3 font-serif text-xs font-semibold text-[#786F66] transition hover:bg-[#EFE7DC]"
                 >
                   Stay on Menu
                 </button>
@@ -150,15 +156,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
             </div>
           ) : priceConflicts ? (
             /* Price Changed 409 Conflict Dialog */
-            <div className="space-y-4 py-2">
-              <div className="rounded-2xl border border-amber-300 bg-amber-50/80 p-4 dark:border-amber-900/50 dark:bg-amber-950/40">
-                <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-bold text-sm">
+            <div className="space-y-4 py-2 animate-scale-in">
+              <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4">
+                <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
                   <span>⚠️</span>
                   <h4>Item Prices Updated</h4>
                 </div>
-                <p className="mt-1 text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-                  Prices were updated on the menu while you were browsing. Please review the updated
-                  rates below:
+                <p className="mt-1 font-serif text-xs text-amber-800 leading-relaxed">
+                  Prices were updated on the menu. Please review the updated rates below:
                 </p>
               </div>
 
@@ -166,16 +171,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
                 {priceConflicts.map((c) => (
                   <div
                     key={c.menu_item_id}
-                    className="flex items-center justify-between rounded-xl border border-stone-200 bg-white p-3 text-xs dark:border-stone-800 dark:bg-stone-900"
+                    className="flex items-center justify-between rounded-xl border border-[#E8DFD3] bg-[#FCF8F2] p-3 text-xs"
                   >
-                    <span className="font-semibold text-stone-800 dark:text-stone-200">
+                    <span className="font-serif font-bold text-[#1C1917]">
                       {c.name}
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 font-mono">
                       <span className="line-through text-stone-400">
                         ₹{c.expected_price_paise / 100}
                       </span>
-                      <span className="font-bold text-[#9B2C2C] dark:text-[#F6AD55]">
+                      <span className="font-bold text-[#A62B34]">
                         ₹{c.current_price_paise / 100}
                       </span>
                     </div>
@@ -185,69 +190,92 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
 
               <button
                 onClick={handleApplyPriceUpdates}
-                className="w-full rounded-2xl bg-[#9B2C2C] py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-[#822424]"
+                className="w-full rounded-2xl bg-[#A62B34] py-3 text-xs font-serif font-bold text-white shadow-sm"
               >
-                Accept New Prices & Continue
+                Accept New Prices &amp; Review
               </button>
             </div>
           ) : items.length === 0 ? (
             /* Empty Cart */
-            <div className="py-12 text-center text-stone-500">
-              <p className="text-3xl mb-2">🛒</p>
-              <p className="text-sm font-medium">Your cart is empty.</p>
-              <p className="text-xs text-stone-400 mt-1">
-                Add drinks, bowls, or deckers from the menu.
+            <div className="py-12 text-center space-y-3">
+              <span className="text-4xl">☕</span>
+              <p className="font-serif text-sm font-bold text-[#1C1917]">
+                Your cart is empty
               </p>
+              <p className="font-serif italic text-xs text-[#786F66]">
+                Explore our artisanal brews, buns &amp; comfort bowls.
+              </p>
+              <button
+                onClick={closeCart}
+                className="inline-flex rounded-full bg-[#A62B34] px-5 py-2 font-serif text-xs font-bold text-white shadow-xs"
+              >
+                Explore Menu
+              </button>
             </div>
           ) : (
-            /* Cart Items List */
-            <div className="space-y-4">
-              {errorMessage && (
-                <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
-                  {errorMessage}
-                </div>
-              )}
+            /* Cart Item List */
+            <div className="space-y-3">
+              <div className="flex items-center justify-between px-1">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#8C7E72]">
+                  {items.length} {items.length === 1 ? "ITEM" : "ITEMS"} IN ORDER
+                </span>
+                <button
+                  onClick={clearCart}
+                  className="font-serif text-xs text-[#A62B34] hover:underline"
+                >
+                  Clear all
+                </button>
+              </div>
 
-              <div className="divide-y divide-stone-100 dark:divide-stone-800">
+              <div className="divide-y divide-[#E8DFD3] rounded-2xl border border-[#E2D7C7] bg-[#FCF8F2] shadow-xs">
                 {items.map(({ item, qty }) => {
-                  const priceRupees = Math.round(item.pricePaise / 100);
+                  const unitRupees = Math.round(item.pricePaise / 100);
+                  const itemTotalRupees = unitRupees * qty;
+
                   return (
-                    <div key={item.id} className="flex items-center justify-between py-3">
-                      <div className="flex-1 pr-3">
-                        <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100">
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between gap-3 p-3.5"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-serif text-sm font-bold text-[#1C1917] truncate lowercase">
                           {item.name}
                         </h4>
-                        <p className="text-xs font-semibold text-[#9B2C2C] dark:text-[#F6AD55]">
-                          ₹{priceRupees} each
+                        <p className="font-mono text-xs text-[#786F66] mt-0.5">
+                          ₹{unitRupees} each
                         </p>
                       </div>
 
-                      {/* Quantity Modifier */}
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center rounded-xl border border-stone-300 bg-white px-1.5 py-1 dark:border-stone-700 dark:bg-stone-800">
+                      <div className="flex items-center gap-3">
+                        {/* Quantity Counter */}
+                        <div className="flex items-center rounded-xl border border-[#E2D7C7] bg-[#FAF5ED] px-1.5 py-0.5">
                           <button
-                            onClick={() => updateQty(item.id, -1)}
-                            className="flex h-6 w-6 items-center justify-center text-sm font-bold text-stone-600 dark:text-stone-300"
+                            onClick={() => updateQty(item.id, qty - 1)}
+                            className="flex h-6 w-6 items-center justify-center font-bold text-[#786F66] active:scale-95"
                           >
                             −
                           </button>
-                          <span className="w-6 text-center text-xs font-bold text-stone-900 dark:text-stone-100">
+                          <span className="w-6 text-center font-serif text-xs font-bold text-[#1C1917]">
                             {qty}
                           </span>
                           <button
-                            onClick={() => updateQty(item.id, 1)}
-                            className="flex h-6 w-6 items-center justify-center text-sm font-bold text-stone-600 dark:text-stone-300"
+                            onClick={() => updateQty(item.id, qty + 1)}
+                            className="flex h-6 w-6 items-center justify-center font-bold text-[#786F66] active:scale-95"
                           >
                             +
                           </button>
                         </div>
 
+                        <span className="w-12 text-right font-serif text-sm font-bold text-[#1C1917]">
+                          ₹{itemTotalRupees}
+                        </span>
+
                         <button
                           onClick={() => removeItem(item.id)}
                           aria-label="Remove item"
-                          className="text-stone-400 hover:text-red-600 text-xs px-1"
+                          className="text-[#8C7E72] hover:text-[#A62B34] text-xs px-1"
                         >
-                          🗑️
+                          ✕
                         </button>
                       </div>
                     </div>
@@ -260,24 +288,18 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
 
         {/* Footer with Subtotal & Place Order */}
         {!orderSuccess && !priceConflicts && items.length > 0 && (
-          <div className="border-t border-stone-200/80 bg-stone-50/80 p-5 dark:border-stone-800 dark:bg-stone-900/60 space-y-3">
-            {/* Graceful Degradation Warning Banner */}
-            {isDegraded && (
-              <div className="rounded-2xl border border-amber-300 bg-amber-50 p-3.5 text-xs text-amber-900 shadow-sm dark:border-amber-800/80 dark:bg-amber-950/60 dark:text-amber-200 space-y-1">
-                <div className="flex items-center gap-1.5 font-bold">
-                  <span>⚠️</span>
-                  <span>{isOnline ? "Café System Unreachable" : "You Are Currently Offline"}</span>
-                </div>
-                <p className="text-[11px] leading-relaxed text-amber-800 dark:text-amber-300">
-                  Online order submission is paused. Please call your server to place your order
-                  directly.
-                </p>
+          <div className="border-t border-[#E8DFD3] bg-[#FAF5ED] p-4 sm:p-5 space-y-3 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+            {errorMessage && (
+              <div className="rounded-xl border border-rose-200 bg-rose-50 p-2.5 text-xs text-rose-800">
+                {errorMessage}
               </div>
             )}
 
-            <div className="flex items-baseline justify-between">
-              <span className="text-xs font-medium text-stone-500">Subtotal</span>
-              <span className="text-lg font-black text-stone-900 dark:text-stone-100">
+            <div className="flex items-baseline justify-between px-1">
+              <span className="font-mono text-xs uppercase font-bold text-[#786F66]">
+                Order Total
+              </span>
+              <span className="font-serif text-xl font-bold text-[#A62B34]">
                 ₹{totalRupees}
               </span>
             </div>
@@ -285,24 +307,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
             <button
               onClick={handlePlaceOrder}
               disabled={isSubmitting || isDegraded}
-              className={`flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-semibold transition active:scale-[0.98] ${
-                isDegraded
-                  ? "bg-stone-300 text-stone-600 cursor-not-allowed dark:bg-stone-800 dark:text-stone-400"
-                  : "bg-[#9B2C2C] text-white shadow-lg shadow-red-900/20 hover:bg-[#822424] disabled:opacity-50 dark:bg-[#C53030] dark:hover:bg-[#9B2C2C]"
-              }`}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#A62B34] py-3.5 font-serif text-base font-semibold text-white shadow-md transition hover:bg-[#91242C] active:scale-[0.98] disabled:opacity-50 touch-manipulation hover-lift"
             >
               {isSubmitting ? (
                 <>
                   <span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                  Submitting Order...
-                </>
-              ) : isDegraded ? (
-                <>
-                  <span>⚠️ System Offline • Please Call Staff</span>
+                  Sending to Kitchen...
                 </>
               ) : (
                 <>
-                  Place Order • ₹{totalRupees}
+                  Place Order for Table {tableLabel || "01"} • ₹{totalRupees}
                   <span aria-hidden="true">→</span>
                 </>
               )}

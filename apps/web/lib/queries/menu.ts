@@ -27,9 +27,11 @@ export interface MenuItemWithDetails {
 export interface CategoryWithItems {
   id: string;
   name: string;
+  description?: string;
   sortOrder: number;
   items: MenuItemWithDetails[];
 }
+
 
 /**
  * Fetches active menu categories, items, and effective prices directly from the database.

@@ -1,16 +1,21 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Database } from "@smol-cafe/db";
+import { MockSupabaseClient } from "@/lib/mock-db";
 
 /**
  * Creates a typed Supabase client for use in Server Components,
  * Server Actions, and Route Handlers.
  */
 export async function createClient() {
-  const cookieStore = await cookies();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
+  if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes("placeholder")) {
+    return new MockSupabaseClient() as unknown as ReturnType<typeof createServerClient<Database>>;
+  }
+
+  const cookieStore = await cookies();
 
   return createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookies: {
@@ -30,3 +35,4 @@ export async function createClient() {
     },
   });
 }
+

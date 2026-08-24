@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import type { MenuItemWithDetails } from "@/lib/queries/menu";
+import { getFoodImage } from "@/lib/food-images";
 
 interface MenuItemCardProps {
   item: MenuItemWithDetails;
@@ -7,11 +8,13 @@ interface MenuItemCardProps {
 }
 
 export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onOpenDetail }) => {
+  const [imageError, setImageError] = useState(false);
   const priceRupees = Math.round(item.pricePaise / 100);
-  const dietary = item.metadata?.dietary || "";
-  const isVeg = dietary.toLowerCase().includes("veg") && !dietary.toLowerCase().includes("egg");
-  const isEgg = dietary.toLowerCase().includes("egg");
-  const isVegan = dietary.toLowerCase().includes("vegan");
+  const dietary = (item.metadata?.dietary || "").toLowerCase();
+  const isEgg = dietary.includes("egg");
+  const spiceLevel = item.metadata?.spice || "";
+  const pairing = item.metadata?.best_pairing || "";
+  const foodImageUrl = getFoodImage(item.name, item.imageUrl);
 
   return (
     <div
@@ -24,62 +27,74 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onOpenDetail }
           onOpenDetail(item);
         }
       }}
-      className="group relative flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-white/75 p-4 text-left shadow-sm transition hover:border-stone-300 hover:bg-white hover:shadow-md active:scale-[0.99] dark:border-stone-800 dark:bg-stone-900/70 dark:hover:border-stone-700 dark:hover:bg-stone-900"
+      className="group relative flex items-start justify-between gap-3.5 rounded-2xl border border-[#E8DFD3] bg-[#FCF8F2] p-3.5 text-left shadow-xs transition duration-200 hover:border-[#D8CEBF] hover-lift hover:shadow-md active:scale-[0.98] cursor-pointer animate-fade-in-up"
     >
-      <div>
-        {/* Header: Dietary tag & Subcategory / Chai ke Saathi */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5">
-            {isVegan ? (
-              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
-                🌱 Vegan
-              </span>
-            ) : isVeg ? (
-              <span className="inline-flex items-center gap-1 rounded-md bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700 dark:bg-green-950/60 dark:text-green-300">
-                🟢 Veg
-              </span>
-            ) : isEgg ? (
-              <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
-                🍳 Egg
-              </span>
-            ) : dietary ? (
-              <span className="inline-flex items-center gap-1 rounded-md bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-600 dark:bg-stone-800 dark:text-stone-300">
-                {dietary}
-              </span>
-            ) : null}
+      {/* Left: Arched Real Food Image */}
+      <div className="relative h-24 w-20 shrink-0 overflow-hidden rounded-t-full rounded-b-xl border border-[#E2D6C5] bg-[#EFE7DC] shadow-inner">
 
-            {item.metadata?.chai_ke_saathi && (
-              <span className="inline-flex items-center rounded-md bg-orange-50 px-2 py-0.5 text-[10px] font-semibold text-orange-800 dark:bg-orange-950/60 dark:text-orange-300">
-                ☕ Chai ke Saathi
-              </span>
-            )}
+        {!imageError ? (
+          <img
+            src={foodImageUrl}
+            alt={item.name}
+            loading="lazy"
+            onError={() => setImageError(true)}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-2xl">
+            ☕
           </div>
+        )}
+      </div>
 
-          <span className="text-base font-bold text-stone-900 dark:text-stone-100">
-            ₹{priceRupees}
-          </span>
+
+
+
+      {/* Middle: Details */}
+      <div className="flex-1 min-w-0 pr-2">
+        {/* Title & Dietary Dot */}
+        <div className="flex items-center gap-1.5">
+          <span
+            className={`h-2.5 w-2.5 shrink-0 rounded-full ${
+              isEgg ? "bg-[#E5A024]" : "bg-[#2E9946]"
+            }`}
+            title={isEgg ? "Egg" : "Veg"}
+          />
+          <h3 className="font-serif text-sm sm:text-base font-bold text-[#1C1917] tracking-tight lowercase truncate">
+            {item.name}
+          </h3>
         </div>
 
-        {/* Item Name */}
-        <h3 className="mt-2.5 text-base font-bold tracking-tight text-stone-900 transition group-hover:text-[#9B2C2C] dark:text-stone-100 dark:group-hover:text-[#F6AD55]">
-          {item.name}
-        </h3>
+        {/* Spice Level Indicator */}
+        {spiceLevel && (
+          <p className="mt-0.5 flex items-center gap-1 font-serif italic text-[11px] text-[#786F66]">
+            <span>🌶</span>
+            <span>{spiceLevel}</span>
+          </p>
+        )}
 
-        {/* Short Description */}
+        {/* Description */}
         {item.description && (
-          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-stone-600 dark:text-stone-400">
+          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[#5C544D]">
             {item.description}
+          </p>
+        )}
+
+        {/* Pairing info */}
+        {pairing && (
+          <p className="mt-1 font-serif italic text-[11px] text-[#A64B38] truncate">
+            pairs with: {pairing}
           </p>
         )}
       </div>
 
-      {/* Footer info: Pairing or Spice indicator */}
-      {item.metadata?.best_pairing && (
-        <div className="mt-3 flex items-center gap-1 text-[11px] text-stone-500 dark:text-stone-400 border-t border-stone-100 dark:border-stone-800/80 pt-2">
-          <span className="font-medium text-stone-700 dark:text-stone-300">Pairs with:</span>
-          <span className="truncate italic">{item.metadata.best_pairing}</span>
-        </div>
-      )}
+      {/* Right: Price */}
+      <div className="shrink-0 text-right pt-0.5">
+        <span className="font-serif text-base sm:text-lg font-bold text-[#1C1917]">
+          ₹{priceRupees}
+        </span>
+      </div>
     </div>
   );
 };
+

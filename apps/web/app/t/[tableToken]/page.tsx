@@ -1,5 +1,6 @@
-import Link from "next/link";
-import { resolveQrToken, clearTableSession } from "../actions";
+import { resolveQrToken, clearTableSession, activateTableAndRedirectAction } from "../actions";
+
+
 
 interface PageProps {
   params: Promise<{ tableToken: string }>;
@@ -7,9 +8,10 @@ interface PageProps {
 
 export default async function TableEntryPage({ params }: PageProps) {
   const { tableToken } = await params;
-  const result = await resolveQrToken(tableToken);
+  const result = await resolveQrToken(tableToken, false);
 
   // 1. Invalid or Revoked QR Error Screen
+
   if (!result.success || !result.session) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#FDFBF7] px-6 py-12 text-[#1C1917] dark:bg-[#141211] dark:text-[#FDFBF7]">
@@ -74,13 +76,17 @@ export default async function TableEntryPage({ params }: PageProps) {
 
         {/* Action Buttons */}
         <div className="mt-10 space-y-4">
-          <Link
-            href="/menu"
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#9B2C2C] py-4 text-base font-semibold text-white shadow-md shadow-red-900/20 transition hover:bg-[#822424] active:scale-[0.98] dark:bg-[#C53030] dark:hover:bg-[#9B2C2C]"
-          >
-            Browse Menu & Order
-            <span aria-hidden="true">→</span>
-          </Link>
+          <form action={activateTableAndRedirectAction}>
+            <input type="hidden" name="tableToken" value={tableToken} />
+            <button
+              type="submit"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#9B2C2C] py-4 text-base font-semibold text-white shadow-md shadow-red-900/20 transition hover:bg-[#822424] active:scale-[0.98] dark:bg-[#C53030] dark:hover:bg-[#9B2C2C]"
+            >
+              Browse Menu & Order
+              <span aria-hidden="true">→</span>
+            </button>
+          </form>
+
 
           <form action={clearTableSession}>
             <button
