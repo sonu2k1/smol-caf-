@@ -1,29 +1,27 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Caveat, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { EB_Garamond, Inter, Noto_Sans_Mono } from "next/font/google";
 import "./globals.css";
 
-const fraunces = Fraunces({
+const ebGaramond = EB_Garamond({
   subsets: ["latin"],
-  variable: "--font-fraunces",
+  variable: "--font-serif",
   display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
 });
 
-const caveat = Caveat({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-caveat",
+  variable: "--font-sans",
   display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-jakarta",
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
+const notoSansMono = Noto_Sans_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
   display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const viewport: Viewport = {
@@ -32,14 +30,13 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#F5EFEB",
+  themeColor: "#F3E7D3",
 };
 
 export const metadata: Metadata = {
   title: "smol café",
-  description: "Handcrafted coffee, wholesome treats & cozy vibes in Rishikesh.",
+  description: "A warm, literary neighbourhood café with a day-to-night personality in Rishikesh.",
 };
-
 
 export default function RootLayout({
   children,
@@ -49,9 +46,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${caveat.variable} ${jakarta.variable} ${jetbrainsMono.variable}`}
+      className={`${ebGaramond.variable} ${inter.variable} ${notoSansMono.variable}`}
     >
-      <body className="antialiased min-h-screen bg-[#F5EFEB] text-[#1C1917] font-sans selection:bg-[#A62B34]/20 selection:text-[#A62B34]">
+      <body className="antialiased min-h-screen bg-[#F3E7D3] text-[#241F1C] font-sans selection:bg-[#B72E35]/20 selection:text-[#B72E35]">
         {children}
       </body>
     </html>

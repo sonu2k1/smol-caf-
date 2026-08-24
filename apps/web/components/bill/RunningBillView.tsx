@@ -109,14 +109,13 @@ export const RunningBillView: React.FC<RunningBillViewProps> = ({ initialBill, h
   const balanceDueRupees = Math.round(bill.balanceDuePaise / 100);
 
   return (
-    <div className="min-h-screen bg-[#F5EFEB] text-[#1C1917] pb-28 font-sans">
-
+    <div className="min-h-screen bg-[#F3E7D3] text-[#241F1C] pb-28 font-sans">
       {/* Top Header */}
-      <header className="sticky top-0 z-40 border-b border-[#E8DFD3]/80 bg-[#F5EFEB]/90 px-4 py-3.5 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-[#C9AE8B]/40 bg-[#F3E7D3]/90 px-4 py-3.5 backdrop-blur-md">
         <div className="mx-auto flex max-w-md items-center justify-between">
           <Link
             href="/table"
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#1C1917] transition hover:bg-black/5 active:scale-95"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#241F1C] transition hover:bg-black/5 active:scale-95"
             aria-label="Back to table"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -124,8 +123,8 @@ export const RunningBillView: React.FC<RunningBillViewProps> = ({ initialBill, h
             </svg>
           </Link>
 
-          <h1 className="font-serif text-xl font-bold tracking-tight text-[#1C1917]">
-            Settle Up
+          <h1 className="font-serif text-xl font-bold tracking-tight text-[#B72E35] lowercase">
+            settle up
           </h1>
 
           <div className="w-9" />
@@ -135,37 +134,37 @@ export const RunningBillView: React.FC<RunningBillViewProps> = ({ initialBill, h
       {/* Main Content Area */}
       <main className="mx-auto max-w-md px-4 pt-5 space-y-4">
         {/* Arched Bill Summary Card */}
-        <div className="rounded-t-[4.5rem] rounded-b-3xl border border-[#E2D7C7] bg-[#FAF5ED] p-6 text-center shadow-xs space-y-4 animate-scale-in">
+        <div className="rounded-t-[4.5rem] rounded-b-3xl border border-[#C9AE8B]/50 bg-[#FAF4EB] p-6 text-center shadow-xs space-y-4 animate-scale-in">
           {/* Coffee cup + Bill notepad illustration */}
           <div className="mx-auto flex h-28 w-28 items-center justify-center animate-float">
             <svg className="w-full h-full drop-shadow-sm" viewBox="0 0 120 120" fill="none">
               {/* Bill Notepad */}
-              <rect x="52" y="32" width="48" height="66" rx="4" fill="#F8F3EC" stroke="#C5B8A8" strokeWidth="1.5" transform="rotate(8 52 32)" />
-              <line x1="62" y1="46" x2="88" y2="50" stroke="#C5B8A8" strokeWidth="1.5" strokeDasharray="2 2" />
-              <line x1="60" y1="56" x2="86" y2="60" stroke="#C5B8A8" strokeWidth="1.5" strokeDasharray="2 2" />
-              <line x1="58" y1="66" x2="84" y2="70" stroke="#C5B8A8" strokeWidth="1.5" strokeDasharray="2 2" />
-              <line x1="56" y1="76" x2="82" y2="80" stroke="#C5B8A8" strokeWidth="1.5" strokeDasharray="2 2" />
+              <rect x="52" y="32" width="48" height="66" rx="4" fill="#F8F3EC" stroke="#C9AE8B" strokeWidth="1.5" transform="rotate(8 52 32)" />
+              <line x1="62" y1="46" x2="88" y2="50" stroke="#C9AE8B" strokeWidth="1.5" strokeDasharray="2 2" />
+              <line x1="60" y1="56" x2="86" y2="60" stroke="#C9AE8B" strokeWidth="1.5" strokeDasharray="2 2" />
+              <line x1="58" y1="66" x2="84" y2="70" stroke="#C9AE8B" strokeWidth="1.5" strokeDasharray="2 2" />
+              <line x1="56" y1="76" x2="82" y2="80" stroke="#C9AE8B" strokeWidth="1.5" strokeDasharray="2 2" />
               {/* Pen */}
-              <line x1="30" y1="80" x2="55" y2="65" stroke="#3D2314" strokeWidth="3" strokeLinecap="round" />
+              <line x1="30" y1="80" x2="55" y2="65" stroke="#241F1C" strokeWidth="3" strokeLinecap="round" />
               {/* Coffee Cup on Saucer */}
-              <ellipse cx="50" cy="54" rx="26" ry="8" fill="#E8DCD0" stroke="#BFAF9E" strokeWidth="1.5" />
-              <path d="M34 26 Q32 46 50 46 Q68 46 66 26 Z" fill="#FAF5ED" stroke="#BFAF9E" strokeWidth="1.5" />
-              <ellipse cx="50" cy="27" rx="16" ry="5" fill="#3D2314" />
-              <path d="M66 30 Q74 30 72 38 Q70 42 64 42" stroke="#BFAF9E" strokeWidth="2" fill="none" />
+              <ellipse cx="50" cy="54" rx="26" ry="8" fill="#E8DCD0" stroke="#C9AE8B" strokeWidth="1.5" />
+              <path d="M34 26 Q32 46 50 46 Q68 46 66 26 Z" fill="#FAF4EB" stroke="#C9AE8B" strokeWidth="1.5" />
+              <ellipse cx="50" cy="27" rx="16" ry="5" fill="#241F1C" />
+              <path d="M66 30 Q74 30 72 38 Q70 42 64 42" stroke="#C9AE8B" strokeWidth="2" fill="none" />
             </svg>
           </div>
 
           <div className="space-y-1">
-            <h2 className="font-serif text-xl font-bold text-[#1C1917]">
-              Good things<br />deserve good pauses.
+            <h2 className="font-serif text-xl font-bold text-[#241F1C]">
+              good things<br />deserve good pauses.
             </h2>
-            <p className="font-serif italic text-xs text-[#786F66]">
-              Here&apos;s your bill.
+            <p className="font-serif italic text-xs text-[#725039]">
+              here&apos;s your running bill.
             </p>
           </div>
 
-          {/* Dashed Separator */}
-          <div className="border-t border-dashed border-[#DCD0C0]" />
+          {/* Editorial Separator */}
+          <div className="border-t border-[#C9AE8B]/40" />
 
           {/* Breakdown Rows */}
           <div className="space-y-2 font-mono text-xs text-[#5C544D]">

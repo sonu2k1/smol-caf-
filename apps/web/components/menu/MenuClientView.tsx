@@ -62,14 +62,14 @@ const MenuContent: React.FC<MenuClientViewProps> = ({
     .filter((cat) => cat.items.length > 0);
 
   return (
-    <div className="min-h-screen bg-[#F5EFEB] text-[#1C1917] pb-28 font-sans">
+    <div className="min-h-screen bg-[#F3E7D3] text-[#241F1C] pb-28 font-sans">
       {/* Top Header */}
-      <header className="sticky top-0 z-40 border-b border-[#E8DFD3]/80 bg-[#F5EFEB]/90 px-4 py-3.5 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-[#C9AE8B]/40 bg-[#F3E7D3]/90 px-4 py-3.5 backdrop-blur-md">
         <div className="mx-auto flex max-w-md items-center justify-between">
           {/* Back Button */}
           <Link
             href="/"
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#1C1917] transition hover:bg-black/5 active:scale-95"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#241F1C] transition hover:bg-black/5 active:scale-95"
             aria-label="Back to home"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -79,12 +79,12 @@ const MenuContent: React.FC<MenuClientViewProps> = ({
 
           {/* Title & Location Context */}
           <div className="text-center">
-            <h1 className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#9E2A2B]">
+            <h1 className="font-serif text-2xl font-bold tracking-tight text-[#B72E35] lowercase">
               smol menu
             </h1>
             {tableLabel ? (
-              <p className="text-[10px] font-mono font-medium text-[#786F66]">
-                Table {tableLabel} • {locationName}
+              <p className="text-[10px] font-mono font-medium text-[#725039]">
+                table {tableLabel} • {locationName}
               </p>
             ) : null}
           </div>
@@ -96,7 +96,7 @@ const MenuContent: React.FC<MenuClientViewProps> = ({
               const el = document.getElementById("menu-search-input");
               el?.focus();
             }}
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#1C1917] transition hover:bg-black/5 active:scale-95"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#241F1C] transition hover:bg-black/5 active:scale-95"
             aria-label="Search menu"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -108,10 +108,10 @@ const MenuContent: React.FC<MenuClientViewProps> = ({
 
         {/* Subtitle & Item Count */}
         <div className="mx-auto mt-2 flex max-w-md items-baseline justify-between px-1">
-          <p className="font-serif italic text-xs text-[#786F66]">
+          <p className="font-serif italic text-xs text-[#725039]">
             what are we brewing &amp; baking today?
           </p>
-          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#A62B34]">
+          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#B72E35]">
             59 ITEMS
           </span>
         </div>
@@ -123,8 +123,8 @@ const MenuContent: React.FC<MenuClientViewProps> = ({
             onClick={() => setActiveCategoryId("")}
             className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-serif transition-colors ${
               activeCategoryId === ""
-                ? "bg-[#9E2A2B] text-white font-bold shadow-xs"
-                : "border border-[#D8CEBF] bg-[#F5EFEB] text-[#3D3730] hover:bg-[#ECE4D8]"
+                ? "bg-[#B72E35] text-white font-bold shadow-xs"
+                : "border border-[#C9AE8B]/60 bg-[#FAF4EB] text-[#241F1C] hover:bg-[#EFE7DC]"
             }`}
           >
             all items
@@ -139,8 +139,8 @@ const MenuContent: React.FC<MenuClientViewProps> = ({
                 onClick={() => handleSelectCategory(cat.id)}
                 className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-serif transition-colors lowercase ${
                   isActive
-                    ? "bg-[#9E2A2B] text-white font-bold shadow-xs"
-                    : "border border-[#D8CEBF] bg-[#F5EFEB] text-[#3D3730] hover:bg-[#ECE4D8]"
+                    ? "bg-[#B72E35] text-white font-bold shadow-xs"
+                    : "border border-[#C9AE8B]/60 bg-[#FAF4EB] text-[#241F1C] hover:bg-[#EFE7DC]"
                 }`}
               >
                 {cat.name}
@@ -152,8 +152,8 @@ const MenuContent: React.FC<MenuClientViewProps> = ({
           <button
             type="button"
             onClick={() => setFilterVegOnly(!filterVegOnly)}
-            className={`shrink-0 flex items-center justify-center h-8 w-8 rounded-full border border-[#D8CEBF] ${
-              filterVegOnly ? "bg-[#2E9946] text-white border-transparent" : "bg-[#F5EFEB] text-[#3D3730]"
+            className={`shrink-0 flex items-center justify-center h-8 w-8 rounded-full border border-[#C9AE8B]/60 ${
+              filterVegOnly ? "bg-[#75AFA7] text-white border-transparent" : "bg-[#FAF4EB] text-[#241F1C]"
             }`}
             title="Filter Veg only"
           >

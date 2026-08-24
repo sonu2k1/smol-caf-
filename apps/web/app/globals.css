@@ -3,8 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --background: #F5EFEB;
-  --foreground: #1C1917;
+  --background: #F3E7D3;
+  --foreground: #241F1C;
+  --smol-creme: #F3E7D3;
+  --smol-cherry: #B72E35;
+  --smol-butter: #F2C84B;
+  --smol-espresso: #241F1C;
+  --smol-biscuit: #C9AE8B;
+  --smol-violet: #754CFF;
+  --smol-pool: #75AFA7;
+  --smol-walnut: #725039;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-top: env(safe-area-inset-top, 0px);
 }
@@ -12,6 +20,7 @@
 html {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  background-color: #F3E7D3;
 }
 
 body {

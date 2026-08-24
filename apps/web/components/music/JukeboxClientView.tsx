@@ -98,13 +98,13 @@ export const JukeboxClientView: React.FC<JukeboxClientViewProps> = ({ initialDat
   };
 
   return (
-    <div className="min-h-screen bg-[#F5EFEB] text-[#1C1917] pb-28 font-sans">
+    <div className="min-h-screen bg-[#F3E7D3] text-[#241F1C] pb-28 font-sans">
       {/* Top Bar */}
-      <header className="sticky top-0 z-40 border-b border-[#E8DFD3]/80 bg-[#F5EFEB]/90 px-4 py-3.5 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-[#C9AE8B]/40 bg-[#F3E7D3]/90 px-4 py-3.5 backdrop-blur-md">
         <div className="mx-auto flex max-w-md items-center justify-between">
           <Link
             href="/"
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#1C1917] transition hover:bg-black/5 active:scale-95"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#241F1C] transition hover:bg-black/5 active:scale-95"
             aria-label="Back to home"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -112,14 +112,14 @@ export const JukeboxClientView: React.FC<JukeboxClientViewProps> = ({ initialDat
             </svg>
           </Link>
 
-          <h1 className="font-serif text-xl font-bold tracking-tight text-[#1C1917]">
-            Café Jukebox 🎵
+          <h1 className="font-serif text-xl font-bold tracking-tight text-[#B72E35] lowercase">
+            café jukebox
           </h1>
 
           <button
             onClick={() => setIsRequestModalOpen(true)}
             disabled={!data.isJukeboxOpen}
-            className="rounded-full bg-[#A62B34] px-3.5 py-1 font-serif text-xs font-bold text-white shadow-xs hover:bg-[#91242C] active:scale-95 disabled:opacity-50"
+            className="rounded-full bg-[#B72E35] px-3.5 py-1 font-mono text-xs font-bold text-white shadow-xs hover:bg-[#9E242B] active:scale-95 disabled:opacity-50"
           >
             + Request
           </button>
@@ -139,21 +139,24 @@ export const JukeboxClientView: React.FC<JukeboxClientViewProps> = ({ initialDat
           </div>
         )}
 
-        {/* Currently Playing Vinyl Card */}
-        <section className="relative overflow-hidden rounded-3xl border-2 border-[#2A211B] bg-[#18191B] p-5 text-[#FAF5EE] shadow-xl animate-scale-in">
-          <div className="flex items-center justify-between text-[10px] font-mono font-bold uppercase tracking-wider text-stone-400 mb-3">
-            <span className="flex items-center gap-1.5 text-amber-300">
-              <span className="h-2 w-2 rounded-full bg-amber-400 animate-ping" />
+        {/* Currently Playing Vinyl Card - After Dark Aesthetic */}
+        <section className="relative overflow-hidden rounded-3xl border border-[#754CFF]/40 bg-[#241F1C] p-5 text-[#F3E7D3] shadow-xl animate-scale-in">
+          {/* Subtle Electric Violet Glow */}
+          <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-[#754CFF]/15 blur-2xl pointer-events-none" />
+
+          <div className="flex items-center justify-between text-[10px] font-mono font-bold uppercase tracking-wider mb-3">
+            <span className="flex items-center gap-1.5 text-[#F2C84B]">
+              <span className="h-2 w-2 rounded-full bg-[#F2C84B] animate-ping" />
               NOW PLAYING
             </span>
-            <span>Rishikesh Soundsystem</span>
+            <span className="text-[#C9AE8B]">rishikesh soundsystem</span>
           </div>
 
           {data.playingTrack ? (
             <div className="flex items-center gap-4">
               {/* Spinning Vinyl Record Visual */}
-              <div className="relative flex h-18 w-18 shrink-0 items-center justify-center rounded-full bg-stone-900 border-4 border-stone-800 shadow-inner animate-spin-vinyl">
-                <div className="h-6 w-6 rounded-full bg-[#A62B34] flex items-center justify-center text-[9px] text-white">
+              <div className="relative flex h-18 w-18 shrink-0 items-center justify-center rounded-full bg-[#171514] border-4 border-[#3D3530] shadow-inner animate-spin-vinyl">
+                <div className="h-6 w-6 rounded-full bg-[#B72E35] flex items-center justify-center text-[9px] text-white">
                   ☕
                 </div>
               </div>
@@ -162,21 +165,21 @@ export const JukeboxClientView: React.FC<JukeboxClientViewProps> = ({ initialDat
                 <h2 className="font-serif text-base font-bold text-white truncate">
                   {data.playingTrack.track_name}
                 </h2>
-                <p className="font-serif italic text-xs text-stone-300 truncate">
+                <p className="font-serif italic text-xs text-[#C9AE8B] truncate">
                   {data.playingTrack.artist}
                 </p>
                 <div className="pt-1 flex items-center gap-2">
-                  <span className="rounded-md bg-stone-800 px-2 py-0.5 font-mono text-[10px] text-amber-300">
+                  <span className="rounded-md bg-[#3D3530] px-2 py-0.5 font-mono text-[10px] text-[#F2C84B]">
                     🔥 {data.playingTrack.vote_count} Upvotes
                   </span>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="text-center py-4 space-y-1 text-stone-400 font-serif">
+            <div className="text-center py-4 space-y-1 text-[#C9AE8B] font-serif">
               <span className="text-2xl">📻</span>
-              <p className="text-xs font-bold text-stone-200">Barista Chill Lo-Fi Mix Playing</p>
-              <p className="italic text-[11px] text-stone-400">Request a track below to start table voting!</p>
+              <p className="text-xs font-bold text-[#F3E7D3]">barista chill lo-fi mix playing</p>
+              <p className="italic text-[11px] text-[#C9AE8B]">request a track below to start table voting!</p>
             </div>
           )}
         </section>

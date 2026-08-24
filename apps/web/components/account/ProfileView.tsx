@@ -61,13 +61,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-[#F5EFEB] text-[#1C1917] pb-28 font-sans">
+    <div className="min-h-screen bg-[#F3E7D3] text-[#241F1C] pb-28 font-sans">
       {/* Top Header */}
-      <header className="sticky top-0 z-40 border-b border-[#E8DFD3]/80 bg-[#F5EFEB]/90 px-4 py-3.5 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-[#C9AE8B]/40 bg-[#F3E7D3]/90 px-4 py-3.5 backdrop-blur-md">
         <div className="mx-auto flex max-w-md items-center justify-between">
           <Link
             href="/"
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#1C1917] transition hover:bg-black/5 active:scale-95"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#241F1C] transition hover:bg-black/5 active:scale-95"
             aria-label="Back to home"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -75,8 +75,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </svg>
           </Link>
 
-          <h1 className="font-serif text-xl font-bold tracking-tight text-[#1C1917]">
-            Loyalty &amp; Profile
+          <h1 className="font-serif text-xl font-bold tracking-tight text-[#B72E35] lowercase">
+            loyalty &amp; pass
           </h1>
 
           <div className="w-9" />
@@ -85,38 +85,38 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
       <main className="mx-auto max-w-md px-4 pt-4 space-y-4">
         {/* Smol Loyalty Pass Card */}
-        <div className="relative overflow-hidden rounded-3xl border-2 border-[#D8CEBF] bg-[#FAF5ED] p-5 shadow-xs">
+        <div className="relative overflow-hidden rounded-3xl border border-[#C9AE8B]/50 bg-[#FAF4EB] p-5 shadow-xs">
           <div className="flex items-start justify-between">
             <div>
-              <span className="inline-block rounded-full bg-[#EFE7DC] px-2.5 py-0.5 font-mono text-[10px] font-bold text-[#8C7E72] uppercase tracking-wider">
+              <span className="inline-block rounded-full bg-[#EFE7DC] px-2.5 py-0.5 font-mono text-[10px] font-bold text-[#725039] uppercase tracking-wider">
                 SMOL REWARDS PASS
               </span>
-              <h2 className="font-serif text-xl font-bold text-[#1C1917] mt-1.5">
+              <h2 className="font-serif text-xl font-bold text-[#241F1C] mt-1.5">
                 {profile?.display_name || "Sonu Singh"}
               </h2>
-              <p className="font-serif italic text-xs text-[#786F66]">
-                Gold Chai Member • Rishikesh
+              <p className="font-serif italic text-xs text-[#725039]">
+                Gold Member • Rishikesh
               </p>
             </div>
 
-            <div className="rounded-2xl border border-amber-300 bg-amber-50 px-3.5 py-2 text-right">
-              <span className="block font-mono text-[9px] font-bold uppercase text-amber-800 tracking-wider">
+            <div className="rounded-2xl border border-[#F2C84B]/80 bg-[#FDF6E2] px-3.5 py-2 text-right">
+              <span className="block font-mono text-[9px] font-bold uppercase text-[#725039] tracking-wider">
                 POINTS
               </span>
-              <span className="font-mono text-xl font-extrabold text-amber-900">
+              <span className="font-mono text-xl font-extrabold text-[#241F1C]">
                 🪙 {loyaltyBalance}
               </span>
             </div>
           </div>
 
           {/* Points Progress Bar */}
-          <div className="mt-4 pt-3 border-t border-[#EADFCF] space-y-1.5">
-            <div className="flex justify-between font-mono text-[10px] text-[#786F66]">
+          <div className="mt-4 pt-3 border-t border-[#C9AE8B]/30 space-y-1.5">
+            <div className="flex justify-between font-mono text-[10px] text-[#725039]">
               <span>Tier Progress</span>
               <span>240 / 500 pts for Platinum</span>
             </div>
             <div className="h-2 w-full rounded-full bg-[#E8DFD3] overflow-hidden">
-              <div className="h-full w-[48%] rounded-full bg-[#A62B34]" />
+              <div className="h-full w-[48%] rounded-full bg-[#B72E35]" />
             </div>
           </div>
         </div>
@@ -124,10 +124,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         {/* Redeemable Rewards Catalog */}
         <div className="space-y-2.5">
           <div className="flex items-center justify-between px-1">
-            <h3 className="font-serif text-xs font-bold text-[#1C1917] uppercase tracking-wider">
+            <h3 className="font-serif text-xs font-bold text-[#241F1C] uppercase tracking-wider">
               Redeem Rewards
             </h3>
-            <span className="font-serif italic text-xs text-[#786F66]">
+            <span className="font-serif italic text-xs text-[#725039]">
               1 pt per ₹10 spent
             </span>
           </div>
@@ -136,7 +136,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             {rewardCoupons.map((coupon) => (
               <div
                 key={coupon.title}
-                className="rounded-2xl border border-[#E2D7C7] bg-[#FCF8F2] p-3 text-center shadow-xs flex flex-col justify-between"
+                className="rounded-2xl border border-[#C9AE8B]/40 bg-[#FAF4EB] p-3 text-center shadow-xs flex flex-col justify-between"
               >
                 <div className="text-2xl">{coupon.icon}</div>
                 <p className="font-serif text-[11px] font-bold text-[#1C1917] line-clamp-2 my-1">

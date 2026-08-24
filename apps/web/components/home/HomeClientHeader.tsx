@@ -13,13 +13,13 @@ export const HomeClientHeader: React.FC<HomeClientHeaderProps> = ({ tableLabel }
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-[#E8DFD3]/80 bg-[#F5EFEB]/90 px-5 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-[#C9AE8B]/40 bg-[#F3E7D3]/90 px-5 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-md items-center justify-between">
           {/* Hamburger Menu Button */}
           <button
             type="button"
             onClick={() => setIsDrawerOpen(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#1C1917] transition hover:bg-black/5 active:scale-95"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#241F1C] transition hover:bg-black/5 active:scale-95"
             aria-label="Open navigation menu"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -29,15 +29,15 @@ export const HomeClientHeader: React.FC<HomeClientHeaderProps> = ({ tableLabel }
             </svg>
           </button>
 
-          {/* Logo */}
-          <Link href="/" className="font-serif text-2xl font-bold tracking-tight text-[#1C1917]">
+          {/* Logo - smol café (always lowercase) */}
+          <Link href="/" className="font-serif text-2xl font-bold tracking-tight text-[#B72E35] transition hover:opacity-90">
             smol café
           </Link>
 
           {/* Profile Icon */}
           <Link
             href="/profile"
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#1C1917] transition hover:bg-black/5 active:scale-95"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-[#241F1C] transition hover:bg-black/5 active:scale-95"
             aria-label="Profile account"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}>

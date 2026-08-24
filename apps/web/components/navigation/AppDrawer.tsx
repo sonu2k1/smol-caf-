@@ -65,18 +65,18 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
       />
 
       {/* Drawer Panel */}
-      <div className="relative z-50 flex h-full w-[85%] max-w-sm flex-col border-r border-[#E2D7C7] bg-[#FAF5ED] shadow-2xl animate-in slide-in-from-left duration-300 ease-out">
+      <div className="relative z-50 flex h-full w-[85%] max-w-sm flex-col border-r border-[#C9AE8B]/40 bg-[#FAF4EB] shadow-2xl animate-in slide-in-from-left duration-300 ease-out">
         {/* Header */}
-        <div className="border-b border-[#E8DFD3] p-4 flex items-center justify-between bg-[#F5EFEB]">
+        <div className="border-b border-[#C9AE8B]/40 p-4 flex items-center justify-between bg-[#F3E7D3]">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#A62B34] text-white font-serif font-black text-lg shadow-sm hover-lift">
-              S
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#B72E35] text-white font-serif font-bold text-lg shadow-sm hover-lift">
+              s
             </div>
             <div>
-              <h2 className="font-serif text-lg font-bold text-[#1C1917] lowercase">
+              <h2 className="font-serif text-lg font-bold text-[#B72E35] lowercase tracking-tight">
                 smol café
               </h2>
-              <p className="font-serif italic text-xs text-[#786F66]">
+              <p className="font-serif italic text-xs text-[#725039]">
                 Rishikesh • All Features
               </p>
             </div>
@@ -85,7 +85,7 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-500 hover:bg-black/5 active:scale-95 transition-transform"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-[#725039] hover:bg-black/5 active:scale-95 transition-transform"
             aria-label="Close menu"
           >
             ✕
@@ -93,9 +93,9 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
         </div>
 
         {/* Quick Table Switcher Bar */}
-        <div className="border-b border-[#E8DFD3] bg-[#FCF8F2] px-4 py-2.5">
+        <div className="border-b border-[#C9AE8B]/30 bg-[#FAF4EB] px-4 py-2.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-mono text-[11px] font-bold text-[#786F66] uppercase">
+            <span className="font-mono text-[11px] font-bold text-[#725039] uppercase">
               Seated Table:
             </span>
             <div className="flex items-center gap-1">
@@ -109,8 +109,8 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
                     onClick={onClose}
                     className={`rounded-md px-2 py-0.5 font-mono text-xs font-bold transition-all duration-150 active:scale-95 ${
                       isSelected
-                        ? "bg-[#A62B34] text-white shadow-xs scale-105"
-                        : "bg-[#EFE7DC] text-[#4A423A] hover:bg-[#E2D6C5]"
+                        ? "bg-[#B72E35] text-white shadow-xs scale-105"
+                        : "border border-[#C9AE8B]/50 bg-[#F3E7D3] text-[#241F1C] hover:bg-[#EFE7DC]"
                     }`}
                   >
                     T{label}
@@ -125,7 +125,7 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
           {navSections.map((section) => (
             <div key={section.title} className="space-y-2">
-              <h3 className="font-serif text-xs font-bold text-[#8C7E72] uppercase tracking-wider px-1">
+              <h3 className="font-serif text-xs font-bold text-[#725039] uppercase tracking-wider px-1">
                 {section.title}
               </h3>
               <div className="space-y-1">
@@ -138,8 +138,8 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
                       onClick={onClose}
                       className={`group flex items-start gap-3 rounded-xl p-2.5 transition-all duration-150 active:scale-[0.98] ${
                         isActive
-                          ? "bg-[#A62B34] text-white shadow-xs"
-                          : "hover:bg-[#EFE7DC] hover:translate-x-1 text-[#1C1917]"
+                          ? "bg-[#B72E35]/10 text-[#B72E35] font-bold"
+                          : "text-[#241F1C] hover:bg-[#F3E7D3]"
                       }`}
                     >
                       <span className="text-lg leading-none shrink-0 mt-0.5 transition-transform group-hover:scale-110">{item.icon}</span>

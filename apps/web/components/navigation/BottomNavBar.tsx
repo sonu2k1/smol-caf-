@@ -14,7 +14,7 @@ export const BottomNavBar: React.FC = () => {
       isActive: pathname === "/",
       icon: (active: boolean) => (
         <svg
-          className={`h-5 w-5 ${active ? "text-[#A62B34]" : "text-[#786F66]"}`}
+          className={`h-5 w-5 ${active ? "text-[#B72E35]" : "text-[#725039]"}`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -32,7 +32,7 @@ export const BottomNavBar: React.FC = () => {
       isActive: pathname.startsWith("/menu"),
       icon: (active: boolean) => (
         <svg
-          className={`h-5 w-5 ${active ? "text-[#A62B34]" : "text-[#786F66]"}`}
+          className={`h-5 w-5 ${active ? "text-[#B72E35]" : "text-[#725039]"}`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -54,7 +54,7 @@ export const BottomNavBar: React.FC = () => {
       isActive: pathname.startsWith("/table") || pathname.startsWith("/t/"),
       icon: (active: boolean) => (
         <svg
-          className={`h-5 w-5 ${active ? "text-[#A62B34]" : "text-[#786F66]"}`}
+          className={`h-5 w-5 ${active ? "text-[#B72E35]" : "text-[#725039]"}`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -76,7 +76,7 @@ export const BottomNavBar: React.FC = () => {
       isActive: pathname.startsWith("/orders"),
       icon: (active: boolean) => (
         <svg
-          className={`h-5 w-5 ${active ? "text-[#A62B34]" : "text-[#786F66]"}`}
+          className={`h-5 w-5 ${active ? "text-[#B72E35]" : "text-[#725039]"}`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -96,7 +96,7 @@ export const BottomNavBar: React.FC = () => {
       isActive: pathname.startsWith("/profile"),
       icon: (active: boolean) => (
         <svg
-          className={`h-5 w-5 ${active ? "text-[#A62B34]" : "text-[#786F66]"}`}
+          className={`h-5 w-5 ${active ? "text-[#B72E35]" : "text-[#725039]"}`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -112,7 +112,7 @@ export const BottomNavBar: React.FC = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#E8DFD3]/90 bg-[#FAF5EE]/95 backdrop-blur-lg shadow-[0_-4px_24px_rgba(40,30,20,0.06)] pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1.5 select-none">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#C9AE8B]/40 bg-[#FAF4EB]/95 backdrop-blur-lg shadow-[0_-4px_24px_rgba(36,31,28,0.06)] pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1.5 select-none">
       <div className="mx-auto flex max-w-md items-center justify-around px-2">
         {navItems.map((item) => {
           const active = item.isActive;
@@ -121,15 +121,15 @@ export const BottomNavBar: React.FC = () => {
               key={item.label}
               href={item.href}
               className={`flex flex-col items-center justify-center gap-0.5 py-1 px-3.5 rounded-2xl transition-all duration-200 active:scale-90 touch-manipulation min-w-[56px] ${
-                active ? "text-[#A62B34]" : "text-[#786F66] hover:text-[#1C1917]"
+                active ? "text-[#B72E35]" : "text-[#725039] hover:text-[#241F1C]"
               }`}
             >
               <div className={`flex items-center justify-center h-6 w-6 transition-transform duration-200 ${active ? "animate-pop scale-110" : ""}`}>
                 {item.icon(active)}
               </div>
               <span
-                className={`text-[9px] tracking-wider font-sans transition-colors duration-200 ${
-                  active ? "font-bold text-[#A62B34]" : "font-medium text-[#8A8076]"
+                className={`text-[9px] tracking-widest font-mono uppercase transition-colors duration-200 ${
+                  active ? "font-bold text-[#B72E35]" : "font-medium text-[#725039]/80"
                 }`}
               >
                 {item.label}

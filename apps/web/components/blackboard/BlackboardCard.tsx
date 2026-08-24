@@ -10,20 +10,21 @@ export const BlackboardCard: React.FC<BlackboardCardProps> = ({ post }) => {
 
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border-4 border-[#2A211B] bg-[#18191B] p-5 text-[#FAF5EE] shadow-xl shadow-stone-900/10">
+    <section className="relative overflow-hidden rounded-3xl border border-[#C9AE8B]/40 bg-[#241F1C] p-5 text-[#F3E7D3] shadow-lg shadow-black/10">
       {/* Blackboard Title */}
-      <div className="text-center sm:text-left">
-        <h3 className="font-serif text-lg font-medium text-[#FAF5EE] tracking-tight">
-          Today&apos;s Blackboard
+      <div className="flex items-center justify-between">
+        <h3 className="font-mono text-xs font-bold uppercase tracking-widest text-[#F2C84B]">
+          Today&apos;s Special
         </h3>
+        <span className="font-mono text-[10px] text-[#C9AE8B]">DAILY BOARD</span>
       </div>
 
-      {/* Dashed Separator */}
-      <div className="my-3 border-t border-dashed border-stone-600/60" />
+      {/* Thin Editorial Rule */}
+      <div className="my-3 border-t border-[#C9AE8B]/30" />
 
-      {/* Chalk Handwriting Message */}
+      {/* Editorial Chalk Message */}
       <div className="py-2 text-center">
-        <p className="font-chalk text-2xl sm:text-3xl text-white/95 leading-snug tracking-wide whitespace-pre-line drop-shadow-[0_1px_2px_rgba(255,255,255,0.15)]">
+        <p className="font-serif italic text-xl sm:text-2xl text-[#F3E7D3] leading-snug tracking-normal whitespace-pre-line">
           {displayBody}
         </p>
       </div>
