@@ -2,7 +2,11 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import type { ActiveCashierTable } from "@/app/bill/actions";
-import { fetchActiveCashierTablesAction, recordCashPaymentAction } from "@/app/bill/actions";
+import {
+  fetchActiveCashierTablesAction,
+  recordCashPaymentAction,
+  openTableSessionAction,
+} from "@/app/bill/actions";
 
 interface CashierDashboardProps {
   initialTables: ActiveCashierTable[];
@@ -28,6 +32,11 @@ export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTable
       console.error("Failed to refresh cashier tables:", err);
     }
   }, []);
+
+  const handleOpenTableForGuest = async (label: string) => {
+    await openTableSessionAction(label);
+    refreshTables();
+  };
 
   // Poll tables every 4 seconds
   useEffect(() => {
@@ -130,10 +139,24 @@ export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTable
         </div>
 
         {tables.length === 0 ? (
-          <div className="rounded-3xl border border-stone-800 bg-[#1A1715] p-12 text-center text-stone-500">
-            <span className="text-3xl">🪑</span>
-            <p className="mt-2 text-sm font-medium">No open table sessions</p>
-            <p className="text-xs text-stone-600 mt-1">All dining tables are currently vacant.</p>
+          <div className="rounded-3xl border border-stone-800 bg-[#1A1715] p-8 text-center text-stone-400 space-y-4">
+            <span className="text-3xl block">🪑</span>
+            <p className="text-sm font-bold text-stone-200">No open table sessions</p>
+            <p className="text-xs text-stone-500 max-w-sm mx-auto">
+              All tables are currently settled. Open a table for walk-in guests:
+            </p>
+            <div className="flex flex-wrap justify-center gap-2 pt-2">
+              {["01", "02", "03", "04", "05", "06"].map((num) => (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => handleOpenTableForGuest(num)}
+                  className="rounded-xl border border-stone-700 bg-stone-900 px-4 py-2 font-mono text-xs font-bold text-[#F6AD55] hover:bg-stone-800 active:scale-95 transition"
+                >
+                  + Open Table {num}
+                </button>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

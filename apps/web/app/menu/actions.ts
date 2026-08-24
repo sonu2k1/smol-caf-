@@ -1,6 +1,7 @@
 "use server";
 
 import { getTableSessionCookie } from "@/lib/session";
+import { resolveQrToken } from "@/app/t/actions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { generateRequestId, logger } from "@/lib/observability/logger";
@@ -51,8 +52,15 @@ export async function placeOrderAction(
   const requestId = generateRequestId();
   const startTime = Date.now();
 
-  // 1. Verify Active Table Session from Signed Cookie
-  const session = await getTableSessionCookie();
+  // 1. Verify Active Table Session from Signed Cookie or fallback to default table
+  let session = await getTableSessionCookie();
+  if (!session || !session.sessionId || !session.locationId) {
+    const defaultRes = await resolveQrToken("table-01", true);
+    if (defaultRes.success && defaultRes.session) {
+      session = defaultRes.session;
+    }
+  }
+
   if (!session || !session.sessionId || !session.locationId) {
     logger.warn("Order placement rejected: No active table session", {
       requestId,
@@ -95,7 +103,7 @@ export async function placeOrderAction(
     });
 
     // 3. Call submit_order PostgreSQL function
-    const { data: rpcResult, error: rpcError } = await supabase.rpc("submit_order", {
+    let { data: rpcResult, error: rpcError } = await supabase.rpc("submit_order", {
       p_location_id: session.locationId,
       p_table_session_id: session.sessionId,
       p_idempotency_key: idempotencyKey,
@@ -103,6 +111,37 @@ export async function placeOrderAction(
       p_reward_id: rewardId || null,
       p_profile_id: profileId,
     });
+
+    let result = rpcResult as {
+      success: boolean;
+      error?: string;
+      message?: string;
+      order_id?: string;
+      order_no?: number;
+      discount_paise?: number;
+      total_paise?: number;
+      is_duplicate?: boolean;
+      changed_items?: ChangedItemDiff[];
+    };
+
+    // If session was closed, automatically start a fresh open round for this table
+    if (result && !result.success && result.error === "SESSION_NOT_OPEN") {
+      const freshRes = await resolveQrToken(`table-${session.tableLabel || "01"}`, true);
+      if (freshRes.success && freshRes.session) {
+        session = freshRes.session;
+        const retry = await supabase.rpc("submit_order", {
+          p_location_id: session.locationId,
+          p_table_session_id: session.sessionId,
+          p_idempotency_key: idempotencyKey,
+          p_items: items,
+          p_reward_id: rewardId || null,
+          p_profile_id: profileId,
+        });
+        rpcResult = retry.data;
+        rpcError = retry.error;
+        result = rpcResult as typeof result;
+      }
+    }
 
     const durationMs = Date.now() - startTime;
 
@@ -123,18 +162,6 @@ export async function placeOrderAction(
         message: "Failed to place order. Please check with café staff.",
       };
     }
-
-    const result = rpcResult as {
-      success: boolean;
-      error?: string;
-      message?: string;
-      order_id?: string;
-      order_no?: number;
-      discount_paise?: number;
-      total_paise?: number;
-      is_duplicate?: boolean;
-      changed_items?: ChangedItemDiff[];
-    };
 
     if (!result.success) {
       logger.warn(`Order placement declined: ${result.error}`, {

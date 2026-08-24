@@ -292,15 +292,15 @@ class MockDatabaseStore {
   }
 }
 
-// Global singleton instance for hot-reloading preservation in Next.js dev server
+// Global singleton instance for hot-reloading preservation across Server Actions and Route Handlers
 declare global {
   var __SMOL_MOCK_DB__: MockDatabaseStore | undefined;
 }
 
-export const mockStore = (globalThis as unknown as { __SMOL_MOCK_DB__?: MockDatabaseStore }).__SMOL_MOCK_DB__ || new MockDatabaseStore();
-if (process.env.NODE_ENV !== "production") {
-  (globalThis as unknown as { __SMOL_MOCK_DB__?: MockDatabaseStore }).__SMOL_MOCK_DB__ = mockStore;
-}
+export const mockStore =
+  (globalThis as unknown as { __SMOL_MOCK_DB__?: MockDatabaseStore }).__SMOL_MOCK_DB__ ||
+  new MockDatabaseStore();
+(globalThis as unknown as { __SMOL_MOCK_DB__?: MockDatabaseStore }).__SMOL_MOCK_DB__ = mockStore;
 
 
 type FilterFn = (row: Record<string, unknown>) => boolean;

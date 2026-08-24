@@ -1,6 +1,7 @@
 "use server";
 
 import { getTableSessionCookie } from "@/lib/session";
+import { resolveQrToken } from "@/app/t/actions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { TableSessionStatus, OrderStatus } from "@smol-cafe/db";
 
@@ -56,7 +57,14 @@ export interface RecordCashPaymentResult {
  * Server Action: Fetches the running bill breakdown for the current customer session
  */
 export async function fetchRunningBillAction(): Promise<FetchBillResult> {
-  const session = await getTableSessionCookie();
+  let session = await getTableSessionCookie();
+
+  if (!session || !session.sessionId) {
+    const defaultRes = await resolveQrToken("table-01", true);
+    if (defaultRes.success && defaultRes.session) {
+      session = defaultRes.session;
+    }
+  }
 
   if (!session || !session.sessionId) {
     return {
@@ -353,4 +361,18 @@ export async function fetchActiveCashierTablesAction(): Promise<ActiveCashierTab
     console.error("Error in fetchActiveCashierTablesAction:", err);
     return [];
   }
+}
+
+/**
+ * Server Action: Allows Cashier to open/activate a table session for walk-in guests
+ */
+export async function openTableSessionAction(
+  tableLabel: string
+): Promise<{ success: boolean; message?: string }> {
+  const token = `table-${tableLabel.toString().padStart(2, "0")}`;
+  const res = await resolveQrToken(token, false);
+  return {
+    success: res.success,
+    message: res.success ? `Table ${tableLabel} is now open.` : res.message,
+  };
 }

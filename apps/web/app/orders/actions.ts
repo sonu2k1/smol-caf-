@@ -1,6 +1,7 @@
 "use server";
 
 import { getTableSessionCookie } from "@/lib/session";
+import { resolveQrToken } from "@/app/t/actions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { OrderStatus } from "@smol-cafe/db";
 
@@ -43,7 +44,14 @@ export interface FetchOrdersResult {
  * Server Action: Fetches active orders for the current table session.
  */
 export async function fetchActiveOrdersAction(): Promise<FetchOrdersResult> {
-  const session = await getTableSessionCookie();
+  let session = await getTableSessionCookie();
+
+  if (!session || !session.sessionId) {
+    const defaultRes = await resolveQrToken("table-01", true);
+    if (defaultRes.success && defaultRes.session) {
+      session = defaultRes.session;
+    }
+  }
 
   if (!session || !session.sessionId) {
     return {
