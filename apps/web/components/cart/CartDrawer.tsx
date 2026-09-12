@@ -5,13 +5,17 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { placeOrderAction, type ChangedItemDiff } from "@/app/menu/actions";
 import { useNetworkHealth } from "@/hooks/useNetworkHealth";
-import { CheckCircle2, Coffee, AlertTriangle } from "lucide-react";
+import { createTableJsonTag } from "@/lib/table-tag";
+import { broadcastSyncEvent } from "@/lib/sync-events";
+import { JsonTagInspectorModal } from "@/components/table/JsonTagInspectorModal";
+import { UpiPaymentDrawer } from "@/components/payment/UpiPaymentDrawer";
+import { CheckCircle2, Coffee, AlertTriangle, Tag, Sparkles, CreditCard } from "lucide-react";
 
 interface CartDrawerProps {
   tableLabel?: string;
 }
 
-export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
+export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel = "01" }) => {
   const { items, updateQty, removeItem, clearCart, isCartOpen, closeCart, subtotalPaise } =
     useCart();
   const { isDegraded } = useNetworkHealth();
@@ -20,12 +24,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
   const [instructions, setInstructions] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [priceConflicts, setPriceConflicts] = useState<ChangedItemDiff[] | null>(null);
+  const [isJsonInspectorOpen, setIsJsonInspectorOpen] = useState(false);
+  const [isUpiDrawerOpen, setIsUpiDrawerOpen] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState<{
     orderNo: number;
     orderId: string;
     verificationCode?: string;
     totalPaise: number;
   } | null>(null);
+
+  const tableJsonTag = createTableJsonTag(tableLabel);
+  const loyaltyPointsEarned = Math.max(1, Math.floor(subtotalPaise / 1000));
 
   if (!isCartOpen) return null;
 
@@ -59,19 +68,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
         });
         clearCart();
 
-        // Broadcast order placement in real time to Kitchen KDS
-        try {
-          if (typeof window !== "undefined") {
-            localStorage.setItem("smol_last_order_ts", Date.now().toString());
-            if ("BroadcastChannel" in window) {
-              const bc = new BroadcastChannel("smol_orders_channel");
-              bc.postMessage({ type: "ORDER_PLACED", timestamp: Date.now() });
-              bc.close();
-            }
-          }
-        } catch {
-          // ignore storage/broadcast errors
-        }
+        // Broadcast order placement in real time to Kitchen KDS and Cashier
+        broadcastSyncEvent({
+          type: "ORDER_PLACED",
+          orderId: result.orderId,
+          orderNo: result.orderNo,
+          tableLabel: tableLabel || "01",
+          timestamp: Date.now(),
+        });
       } else if (result.error === "PRICE_CHANGED" && result.changedItems) {
         setPriceConflicts(result.changedItems);
       } else {
@@ -114,9 +118,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#E8DFD3] px-5 py-4">
           <div>
-            <h2 className="font-serif text-xl font-bold tracking-tight text-[#1C1917]">
-              Your Table Order
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="font-serif text-xl font-bold tracking-tight text-[#1C1917]">
+                Your Table Order
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsJsonInspectorOpen(true)}
+                className="inline-flex items-center gap-1 rounded-full border border-[#C9AE8B]/60 bg-white px-2 py-0.5 text-[10px] font-mono text-[#725039] hover:bg-amber-50 shadow-2xs"
+                title="Inspect Table JSON Tag"
+              >
+                <Tag className="h-2.5 w-2.5 text-[#B72E35]" />
+                <span>{tableJsonTag.zone}</span>
+              </button>
+            </div>
             <p className="font-serif italic text-xs text-[#786F66]">
               Seated at Table {tableLabel || "01"} • Rishikesh
             </p>
@@ -163,6 +178,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
                 </p>
               </div>
 
+              {/* Loyalty Reward Badge */}
+              <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-3 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5 text-amber-900 font-serif">
+                  <Sparkles className="h-4 w-4 text-[#F2C84B]" />
+                  <span>Smol Club Loyalty Points</span>
+                </div>
+                <span className="font-mono font-bold text-emerald-700">
+                  +{loyaltyPointsEarned} pts earned
+                </span>
+              </div>
+
               <div className="rounded-2xl border border-[#E2D7C7] bg-[#FCF8F2] p-3 shadow-xs flex items-center justify-between">
                 <span className="font-mono text-xs uppercase font-bold text-[#8C7E72]">
                   Total Amount
@@ -172,19 +198,30 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
                 </span>
               </div>
 
+              {/* Action Buttons: Pay via UPI or Track Live Status */}
               <div className="pt-2 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => setIsUpiDrawerOpen(true)}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#B72E35] py-3.5 font-serif text-sm font-bold text-white shadow-md transition hover:bg-[#91242C] active:scale-[0.98]"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  Pay Now via UPI Gateway →
+                </button>
+
                 <Link
                   href="/orders"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#A62B34] py-3.5 font-serif text-sm font-semibold text-white shadow-md transition hover:bg-[#91242C] active:scale-[0.98]"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[#E2D7C7] bg-white py-3 font-serif text-xs font-semibold text-[#1C1917] shadow-xs transition hover:bg-stone-50"
                 >
-                  Track Live Status →
+                  Track Live Kitchen Status →
                 </Link>
+
                 <button
                   onClick={() => {
                     setOrderSuccess(null);
                     closeCart();
                   }}
-                  className="w-full rounded-2xl border border-[#E2D7C7] bg-[#FAF5ED] py-3 font-serif text-xs font-semibold text-[#786F66] transition hover:bg-[#EFE7DC]"
+                  className="w-full rounded-2xl border border-[#E2D7C7] bg-[#FAF5ED] py-2.5 font-serif text-xs font-semibold text-[#786F66] transition hover:bg-[#EFE7DC]"
                 >
                   Stay on Menu
                 </button>
@@ -376,6 +413,37 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
           </div>
         )}
       </div>
+
+      {/* JSON Table Tag Inspector Modal */}
+      {isJsonInspectorOpen && (
+        <JsonTagInspectorModal
+          tag={tableJsonTag}
+          onClose={() => setIsJsonInspectorOpen(false)}
+        />
+      )}
+
+      {/* UPI Payment Gateway Drawer */}
+      {isUpiDrawerOpen && (
+        <UpiPaymentDrawer
+          orderId={orderSuccess?.orderId || `ORD-${Date.now().toString().slice(-6)}`}
+          orderNo={orderSuccess?.orderNo}
+          tableLabel={tableLabel || "01"}
+          zone={tableJsonTag.zone}
+          amountPaise={orderSuccess?.totalPaise || subtotalPaise}
+          items={items.map((i) => ({
+            name: i.item.name,
+            qty: i.qty,
+            priceRupees: Math.round(i.item.pricePaise / 100),
+            subtotalRupees: Math.round((i.item.pricePaise / 100) * i.qty),
+          }))}
+          onClose={() => setIsUpiDrawerOpen(false)}
+          onPaymentSuccess={() => {
+            setIsUpiDrawerOpen(false);
+            setOrderSuccess(null);
+            closeCart();
+          }}
+        />
+      )}
     </div>
   );
 };

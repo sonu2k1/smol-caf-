@@ -38,6 +38,8 @@ export const metadata: Metadata = {
   description: "A warm, literary neighbourhood café with a day-to-night personality in Rishikesh.",
 };
 
+import { RoleSwitcherBar } from "@/components/navigation/RoleSwitcherBar";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -49,6 +51,7 @@ export default function RootLayout({
       className={`${ebGaramond.variable} ${inter.variable} ${notoSansMono.variable}`}
     >
       <body className="antialiased min-h-screen bg-[#F3E7D3] text-[#241F1C] font-sans selection:bg-[#B72E35]/20 selection:text-[#B72E35]">
+        <RoleSwitcherBar />
         {children}
       </body>
     </html>

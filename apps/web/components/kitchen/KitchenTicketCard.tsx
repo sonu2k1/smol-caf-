@@ -77,7 +77,7 @@ export const KitchenTicketCard: React.FC<KitchenTicketCardProps> = ({ ticket, on
               #{ticket.orderNo}
             </span>
             <span className="rounded-lg bg-stone-100 px-2.5 py-1 text-xs font-bold text-stone-800 dark:bg-stone-800 dark:text-stone-200">
-              {ticket.tableLabel}
+              Table {ticket.tableLabel}
             </span>
           </div>
 
@@ -88,6 +88,13 @@ export const KitchenTicketCard: React.FC<KitchenTicketCardProps> = ({ ticket, on
             <span>{elapsedMinutes}m</span>
           </div>
         </div>
+
+        {/* Special Instructions Note (Prominent Alert for Kitchen) */}
+        {ticket.instructions && (
+          <div className="mt-2.5 rounded-xl border border-amber-500/50 bg-amber-500/15 p-2 text-xs font-mono font-medium text-amber-200">
+            <span className="font-bold text-amber-400">NOTE:</span> {ticket.instructions}
+          </div>
+        )}
 
         {/* Items List */}
         <div className="my-3 space-y-2">

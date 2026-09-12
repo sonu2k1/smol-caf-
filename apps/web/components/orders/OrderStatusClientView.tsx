@@ -6,8 +6,12 @@ import { fetchActiveOrdersAction, type CustomerOrderDetails } from "@/app/orders
 import { OrderCard } from "./OrderCard";
 import { ConversationDeckModal } from "./ConversationDeckModal";
 import { BottomNavBar } from "@/components/navigation/BottomNavBar";
-import { Bell } from "lucide-react";
+import { Bell, CreditCard, Tag } from "lucide-react";
 import { useSupabaseRealtime } from "@/hooks/useSupabaseRealtime";
+import { subscribeToSyncEvents } from "@/lib/sync-events";
+import { createTableJsonTag } from "@/lib/table-tag";
+import { JsonTagInspectorModal } from "@/components/table/JsonTagInspectorModal";
+import { UpiPaymentDrawer } from "@/components/payment/UpiPaymentDrawer";
 
 interface OrderStatusClientViewProps {
   initialOrders: CustomerOrderDetails[];
@@ -18,12 +22,16 @@ interface OrderStatusClientViewProps {
 
 export const OrderStatusClientView: React.FC<OrderStatusClientViewProps> = ({
   initialOrders,
-  tableLabel,
+  tableLabel = "01",
   locationName = "Smol Café",
   hasSession,
 }) => {
   const [orders, setOrders] = useState<CustomerOrderDetails[]>(initialOrders);
   const [isDeckOpen, setIsDeckOpen] = useState(false);
+  const [isJsonInspectorOpen, setIsJsonInspectorOpen] = useState(false);
+  const [isUpiDrawerOpen, setIsUpiDrawerOpen] = useState(false);
+
+  const tableJsonTag = createTableJsonTag(tableLabel);
 
   const refreshOrders = useCallback(async () => {
     try {
@@ -36,6 +44,21 @@ export const OrderStatusClientView: React.FC<OrderStatusClientViewProps> = ({
     }
   }, []);
 
+  // Cross-interface Real-Time Sync Event Listener (Kitchen ↔ Cashier ↔ Customer)
+  useEffect(() => {
+    const unsubscribe = subscribeToSyncEvents((event) => {
+      if (
+        event.type === "STATUS_CHANGED" ||
+        event.type === "ORDER_CONFIRMED" ||
+        event.type === "ORDER_PLACED" ||
+        event.type === "PAYMENT_COMPLETED"
+      ) {
+        refreshOrders();
+      }
+    });
+    return unsubscribe;
+  }, [refreshOrders]);
+
   // Supabase Realtime WebSocket subscription for Customer Order Status Updates
   useSupabaseRealtime({
     table: "orders",
@@ -45,16 +68,15 @@ export const OrderStatusClientView: React.FC<OrderStatusClientViewProps> = ({
     enabled: hasSession,
   });
 
-  // 4-Second Polling Timer Fallback
+  // 3-Second Polling Timer Fallback
   useEffect(() => {
     if (!hasSession) return;
 
     const intervalId = setInterval(() => {
-      // Poll only when tab is visible
       if (document.visibilityState === "visible") {
         refreshOrders();
       }
-    }, 4000);
+    }, 3000);
 
     return () => clearInterval(intervalId);
   }, [hasSession, refreshOrders]);
@@ -184,6 +206,30 @@ export const OrderStatusClientView: React.FC<OrderStatusClientViewProps> = ({
               </span>
             </div>
           </div>
+
+          {/* Table Zone Tag & UPI Payment CTA */}
+          <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={() => setIsJsonInspectorOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-2.5 py-1.5 text-[11px] font-mono text-stone-300 hover:bg-white/10 transition"
+              title="Inspect JSON Table Tag"
+            >
+              <Tag className="h-3 w-3 text-[#F7D070]" />
+              <span>{tableJsonTag.zone} • Tag</span>
+            </button>
+
+            {latestOrder && (
+              <button
+                type="button"
+                onClick={() => setIsUpiDrawerOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#B72E35] px-3.5 py-1.5 text-xs font-serif font-bold text-white shadow-sm hover:bg-[#91242C] transition active:scale-95"
+              >
+                <CreditCard className="h-3.5 w-3.5" />
+                <span>Pay via UPI • ₹{Math.round(latestOrder.totalPaise / 100)}</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Another Round While You Wait */}
@@ -281,6 +327,36 @@ export const OrderStatusClientView: React.FC<OrderStatusClientViewProps> = ({
 
       {/* Conversation Prompt Deck Modal */}
       <ConversationDeckModal isOpen={isDeckOpen} onClose={() => setIsDeckOpen(false)} />
+
+      {/* JSON Table Tag Inspector Modal */}
+      {isJsonInspectorOpen && (
+        <JsonTagInspectorModal
+          tag={tableJsonTag}
+          onClose={() => setIsJsonInspectorOpen(false)}
+        />
+      )}
+
+      {/* UPI Payment Gateway Drawer */}
+      {isUpiDrawerOpen && latestOrder && (
+        <UpiPaymentDrawer
+          orderId={latestOrder.id}
+          orderNo={latestOrder.orderNo}
+          tableLabel={tableLabel}
+          zone={tableJsonTag.zone}
+          amountPaise={latestOrder.totalPaise}
+          items={latestOrder.items.map((i) => ({
+            name: i.name,
+            qty: i.qty,
+            priceRupees: Math.round(i.unitPricePaise / 100),
+            subtotalRupees: Math.round((i.unitPricePaise / 100) * i.qty),
+          }))}
+          onClose={() => setIsUpiDrawerOpen(false)}
+          onPaymentSuccess={() => {
+            setIsUpiDrawerOpen(false);
+            refreshOrders();
+          }}
+        />
+      )}
 
       {/* Bottom Sticky Navigation */}
       <BottomNavBar />

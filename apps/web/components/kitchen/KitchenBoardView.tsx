@@ -12,6 +12,7 @@ import { KitchenTicketCard } from "./KitchenTicketCard";
 import { EtaAccuracyReview } from "./EtaAccuracyReview";
 import { Bell, BellOff, AlertTriangle } from "lucide-react";
 import { useSupabaseRealtime } from "@/hooks/useSupabaseRealtime";
+import { broadcastSyncEvent, subscribeToSyncEvents } from "@/lib/sync-events";
 
 interface KitchenBoardViewProps {
   initialOrders: KitchenTicket[];
@@ -86,37 +87,18 @@ export const KitchenBoardView: React.FC<KitchenBoardViewProps> = ({ initialOrder
       }
     }, 2000);
 
-    // 2. BroadcastChannel Real-Time Push Notification
-    let bc: BroadcastChannel | null = null;
-    try {
-      if ("BroadcastChannel" in window) {
-        bc = new BroadcastChannel("smol_orders_channel");
-        bc.onmessage = (event) => {
-          if (event.data?.type === "ORDER_PLACED") {
-            refreshOrders();
-          }
-        };
-      }
-    } catch {
-      // ignore
-    }
+    // 2. Cross-Interface Real-Time Sync Subscription
+    const unsubscribe = subscribeToSyncEvents(() => {
+      refreshOrders();
+    });
 
-    // 3. LocalStorage Cross-Tab Event Listener
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === "smol_last_order_ts") {
-        refreshOrders();
-      }
-    };
-    window.addEventListener("storage", handleStorage);
-
-    // 4. Window Focus Listener
+    // 3. Window Focus Listener
     const handleFocus = () => refreshOrders();
     window.addEventListener("focus", handleFocus);
 
     return () => {
       clearInterval(interval);
-      if (bc) bc.close();
-      window.removeEventListener("storage", handleStorage);
+      unsubscribe();
       window.removeEventListener("focus", handleFocus);
     };
   }, [refreshOrders]);
@@ -137,7 +119,14 @@ export const KitchenBoardView: React.FC<KitchenBoardViewProps> = ({ initialOrder
     // 2. Execute Server Action
     const result = await transitionOrderStatusAction(orderId, fromStatus, toStatus);
 
-    if (!result.success) {
+    if (result.success) {
+      broadcastSyncEvent({
+        type: "STATUS_CHANGED",
+        orderId,
+        status: toStatus,
+        timestamp: Date.now(),
+      });
+    } else {
       // Revert & notify
       if (result.error === "STATUS_MISMATCH") {
         setConflictMessage(result.message || "Order status changed by another device.");

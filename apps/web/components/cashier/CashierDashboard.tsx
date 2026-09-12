@@ -14,17 +14,50 @@ import {
   rejectCashierOrderAction,
   type PendingOrderVerification,
 } from "@/app/cashier/actions";
-import { Bell, Armchair, Sparkles, Check, Receipt } from "lucide-react";
+import { Bell, Armchair, Sparkles, Check, Receipt, CreditCard, Tag, Printer } from "lucide-react";
+import { broadcastSyncEvent, subscribeToSyncEvents } from "@/lib/sync-events";
+import { createTableJsonTag, type TableJsonTag } from "@/lib/table-tag";
+import { JsonTagInspectorModal } from "@/components/table/JsonTagInspectorModal";
+import { UpiPaymentDrawer } from "@/components/payment/UpiPaymentDrawer";
+import { DigitalReceiptModal, type ReceiptData } from "@/components/payment/DigitalReceiptModal";
 
 interface CashierDashboardProps {
   initialTables: ActiveCashierTable[];
 }
 
 export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTables }) => {
-  const [activeTab, setActiveTab] = useState<"queue" | "tables">("queue");
+  const [activeTab, setActiveTab] = useState<"queue" | "tables" | "paid">("queue");
   const [tables, setTables] = useState<ActiveCashierTable[]>(initialTables);
   const [pendingOrders, setPendingOrders] = useState<PendingOrderVerification[]>([]);
   const [selectedTable, setSelectedTable] = useState<ActiveCashierTable | null>(null);
+  const [inspectingTag, setInspectingTag] = useState<TableJsonTag | null>(null);
+  const [activeUpiTable, setActiveUpiTable] = useState<ActiveCashierTable | null>(null);
+  const [activeReceipt, setActiveReceipt] = useState<ReceiptData | null>(null);
+  const [paidHistory, setPaidHistory] = useState<Array<{
+    id: string;
+    tableLabel: string;
+    totalRupees: number;
+    paymentMethod: "UPI" | "CASH";
+    paidAt: string;
+    itemsCount: number;
+  }>>([
+    {
+      id: "SETTLE-8421",
+      tableLabel: "02",
+      totalRupees: 640,
+      paymentMethod: "UPI",
+      paidAt: new Date(Date.now() - 1800000).toISOString(),
+      itemsCount: 3,
+    },
+    {
+      id: "SETTLE-8420",
+      tableLabel: "05",
+      totalRupees: 380,
+      paymentMethod: "CASH",
+      paidAt: new Date(Date.now() - 3600000).toISOString(),
+      itemsCount: 2,
+    },
+  ]);
   const [amountTendered, setAmountTendered] = useState("");
   const [staffName, setStaffName] = useState("Cashier");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,7 +91,7 @@ export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTable
     refreshData();
   };
 
-  // Poll pending orders and tables every 3 seconds
+  // Poll pending orders and tables every 3 seconds + real-time event listener
   useEffect(() => {
     refreshData();
     const interval = setInterval(() => {
@@ -66,7 +99,15 @@ export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTable
         refreshData();
       }
     }, 3000);
-    return () => clearInterval(interval);
+
+    const unsubscribe = subscribeToSyncEvents(() => {
+      refreshData();
+    });
+
+    return () => {
+      clearInterval(interval);
+      unsubscribe();
+    };
   }, [refreshData]);
 
   const handleConfirmOrder = async (orderId: string) => {
@@ -75,6 +116,11 @@ export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTable
     try {
       const res = await confirmCashierOrderAction(orderId, staffName);
       if (res.success) {
+        broadcastSyncEvent({
+          type: "ORDER_CONFIRMED",
+          orderId,
+          timestamp: Date.now(),
+        });
         setActionFeedback({ type: "success", text: res.message || "Order confirmed & sent to kitchen!" });
         refreshData();
       } else {
@@ -247,6 +293,19 @@ export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTable
             <span className="rounded-full bg-stone-800 px-2 py-0.2 text-[10px] font-mono text-stone-300">
               {tables.length}
             </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("paid")}
+            className={`flex items-center gap-2 rounded-2xl px-5 py-2.5 text-xs font-bold transition-all ${
+              activeTab === "paid"
+                ? "bg-emerald-700 text-white shadow-md font-extrabold"
+                : "bg-stone-900 text-stone-400 hover:bg-stone-800"
+            }`}
+          >
+            <Receipt className="h-4 w-4 shrink-0 text-emerald-400" />
+            <span>Paid Orders ({paidHistory.length})</span>
           </button>
         </div>
 
@@ -441,23 +500,134 @@ export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTable
                       </div>
 
                       {/* Bottom: Total Bill & Action */}
-                      <div className="mt-6 flex items-baseline justify-between border-t border-stone-800/80 pt-4">
-                        <div>
-                          <span className="text-[10px] uppercase font-bold text-stone-500">
-                            Bill Total
-                          </span>
-                          <p className="font-mono text-xl font-black text-[#F6AD55]">₹{totalRupees}</p>
+                      <div className="mt-6 flex flex-col gap-2 border-t border-stone-800/80 pt-4">
+                        <div className="flex items-baseline justify-between">
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-stone-500">
+                              Bill Total
+                            </span>
+                            <p className="font-mono text-xl font-black text-[#F6AD55]">₹{totalRupees}</p>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setInspectingTag(createTableJsonTag(table.tableLabel));
+                            }}
+                            className="inline-flex items-center gap-1 rounded-lg border border-stone-700 bg-stone-800 px-2 py-1 text-[10px] font-mono text-stone-300 hover:bg-stone-700"
+                            title="Inspect JSON Tag"
+                          >
+                            <Tag className="h-3 w-3 text-[#F2C84B]" />
+                            <span>JSON Tag</span>
+                          </button>
                         </div>
 
-                        <button className="rounded-xl bg-[#9B2C2C] px-3.5 py-2 text-xs font-bold text-white shadow transition hover:bg-[#822424]">
-                          Settle Cash →
-                        </button>
+                        <div className="grid grid-cols-2 gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveUpiTable(table);
+                            }}
+                            className="flex items-center justify-center gap-1 rounded-xl border border-stone-700 bg-stone-900 py-2 text-xs font-bold text-[#F2C84B] hover:bg-stone-800 transition"
+                          >
+                            <CreditCard className="h-3.5 w-3.5" />
+                            <span>UPI QR</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenSettlement(table);
+                            }}
+                            className="rounded-xl bg-[#9B2C2C] py-2 text-xs font-bold text-white shadow transition hover:bg-[#822424]"
+                          >
+                            Settle Cash →
+                          </button>
+                        </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
             )}
+          </div>
+        )}
+
+        {/* TAB 3: PAID ORDERS & SETTLEMENT AUDIT */}
+        {activeTab === "paid" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-extrabold tracking-tight">Today&apos;s Paid Orders &amp; Audit Log</h1>
+                <p className="text-xs text-stone-400">
+                  Closed table chits and completed payment transactions
+                </p>
+              </div>
+              <span className="rounded-full bg-emerald-950/80 border border-emerald-800/60 px-3 py-1 font-mono text-xs font-bold text-emerald-400">
+                Total: ₹{paidHistory.reduce((acc, p) => acc + p.totalRupees, 0)}
+              </span>
+            </div>
+
+            <div className="rounded-3xl border border-stone-800 bg-[#1A1715] overflow-hidden">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-stone-900 text-[10px] uppercase tracking-wider font-mono text-stone-400 border-b border-stone-800">
+                  <tr>
+                    <th className="p-3.5">Settlement ID</th>
+                    <th className="p-3.5">Table</th>
+                    <th className="p-3.5">Method</th>
+                    <th className="p-3.5">Amount</th>
+                    <th className="p-3.5">Settled At</th>
+                    <th className="p-3.5 text-right">Receipt</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-800 font-mono">
+                  {paidHistory.map((rec) => (
+                    <tr key={rec.id} className="hover:bg-stone-900/50 transition">
+                      <td className="p-3.5 font-bold text-stone-200">{rec.id}</td>
+                      <td className="p-3.5 text-[#F6AD55] font-bold">Table {rec.tableLabel}</td>
+                      <td className="p-3.5">
+                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                          rec.paymentMethod === "UPI"
+                            ? "bg-blue-950 text-blue-300 border border-blue-800/50"
+                            : "bg-amber-950 text-amber-300 border border-amber-800/50"
+                        }`}>
+                          {rec.paymentMethod}
+                        </span>
+                      </td>
+                      <td className="p-3.5 font-bold text-white font-serif text-sm">₹{rec.totalRupees}</td>
+                      <td className="p-3.5 text-stone-400 text-[11px]">
+                        {new Date(rec.paidAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </td>
+                      <td className="p-3.5 text-right">
+                        <button
+                          onClick={() => {
+                            setActiveReceipt({
+                              orderId: rec.id,
+                              tableLabel: rec.tableLabel,
+                              items: [
+                                { name: "Settled Order Items", qty: rec.itemsCount, priceRupees: Math.round(rec.totalRupees / rec.itemsCount), subtotalRupees: rec.totalRupees }
+                              ],
+                              subtotalRupees: Math.round(rec.totalRupees / 1.05),
+                              taxRupees: Math.round(rec.totalRupees - rec.totalRupees / 1.05),
+                              totalRupees: rec.totalRupees,
+                              paymentMethod: rec.paymentMethod,
+                              paidAt: rec.paidAt,
+                            });
+                          }}
+                          className="inline-flex items-center gap-1 rounded-xl bg-stone-800 px-3 py-1 text-xs text-stone-300 hover:bg-stone-700 hover:text-white transition"
+                        >
+                          <Printer className="h-3 w-3" />
+                          <span>Chit</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </main>
@@ -587,6 +757,46 @@ export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTable
             )}
           </div>
         </div>
+      )}
+
+      {/* JSON Table Tag Inspector Modal */}
+      {inspectingTag && (
+        <JsonTagInspectorModal
+          tag={inspectingTag}
+          onClose={() => setInspectingTag(null)}
+        />
+      )}
+
+      {/* UPI Payment Gateway Drawer */}
+      {activeUpiTable && (
+        <UpiPaymentDrawer
+          tableLabel={activeUpiTable.tableLabel}
+          amountPaise={activeUpiTable.totalPaise}
+          onClose={() => setActiveUpiTable(null)}
+          onPaymentSuccess={(res) => {
+            setActiveUpiTable(null);
+            setPaidHistory((prev) => [
+              {
+                id: res.transactionId || `SETTLE-${Math.floor(1000 + Math.random() * 9000)}`,
+                tableLabel: activeUpiTable.tableLabel,
+                totalRupees: Math.round(activeUpiTable.totalPaise / 100),
+                paymentMethod: "UPI",
+                paidAt: res.paidAt,
+                itemsCount: activeUpiTable.orderCount || 1,
+              },
+              ...prev,
+            ]);
+            refreshData();
+          }}
+        />
+      )}
+
+      {/* Digital Receipt / Tax Chit Modal */}
+      {activeReceipt && (
+        <DigitalReceiptModal
+          receipt={activeReceipt}
+          onClose={() => setActiveReceipt(null)}
+        />
       )}
     </div>
   );
