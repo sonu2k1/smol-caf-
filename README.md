@@ -1,4 +1,4 @@
-# ☕ Smol Café — Full System Architecture & Operations Manual
+# ☕ Smol Café  Full System Architecture & Operations Manual
 
 Welcome to the **smol café** monorepo! This repository contains the complete, production-ready mobile-first Web POS, Customer Ordering, Kitchen Display System (KDS), Inventory & Procurement Engine, Community Subsystems, and Admin Analytics platform for **smol café** in Rishikesh.
 
