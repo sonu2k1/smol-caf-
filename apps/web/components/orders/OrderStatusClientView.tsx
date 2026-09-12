@@ -6,6 +6,8 @@ import { fetchActiveOrdersAction, type CustomerOrderDetails } from "@/app/orders
 import { OrderCard } from "./OrderCard";
 import { ConversationDeckModal } from "./ConversationDeckModal";
 import { BottomNavBar } from "@/components/navigation/BottomNavBar";
+import { Bell } from "lucide-react";
+import { useSupabaseRealtime } from "@/hooks/useSupabaseRealtime";
 
 interface OrderStatusClientViewProps {
   initialOrders: CustomerOrderDetails[];
@@ -34,8 +36,16 @@ export const OrderStatusClientView: React.FC<OrderStatusClientViewProps> = ({
     }
   }, []);
 
-  // 4-Second Polling Timer
+  // Supabase Realtime WebSocket subscription for Customer Order Status Updates
+  useSupabaseRealtime({
+    table: "orders",
+    onData: () => {
+      refreshOrders();
+    },
+    enabled: hasSession,
+  });
 
+  // 4-Second Polling Timer Fallback
   useEffect(() => {
     if (!hasSession) return;
 
@@ -249,7 +259,7 @@ export const OrderStatusClientView: React.FC<OrderStatusClientViewProps> = ({
             }}
             className="flex w-full items-center justify-center gap-2 rounded-full bg-[#A62B34] py-3.5 font-serif text-sm font-semibold text-white shadow-md transition hover:bg-[#91242C] active:scale-[0.98]"
           >
-            <span>🔔</span>
+            <Bell className="h-4 w-4" />
             <span>notify me when ready</span>
           </button>
         </div>

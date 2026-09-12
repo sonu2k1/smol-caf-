@@ -1506,7 +1506,7 @@ export const MOCK_MENU_PRICES: MockMenuPrice[] = RAW_MENU_ITEMS.map((item, index
 export const MOCK_BLACKBOARD_POSTS: MockBlackboardPost[] = [
   {
     id: "bb_01",
-    title: "☕ Rishikesh Morning Special",
+    title: "Rishikesh Morning Special",
     content: "Kanpur Bun Makkhan + Hot Smol Chai at ₹99 all morning. Freshly baked buns with salted Amul butter.",
     starts_at: "2026-08-01T00:00:00.000Z",
     ends_at: "2026-12-31T23:59:59.000Z",
@@ -1516,7 +1516,7 @@ export const MOCK_BLACKBOARD_POSTS: MockBlackboardPost[] = [
   },
   {
     id: "bb_02",
-    title: "🍵 Himalayan Buransh Fizz",
+    title: "Himalayan Buransh Fizz",
     content: "Wild Rhododendron flower cordial, fresh lime and chilled sparkling water — local forage from Garhwal hills.",
     starts_at: "2026-08-01T00:00:00.000Z",
     ends_at: "2026-12-31T23:59:59.000Z",

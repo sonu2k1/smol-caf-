@@ -2,6 +2,18 @@ import React from "react";
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+import {
+  Edit3,
+  Package,
+  DollarSign,
+  Ticket,
+  Trophy,
+  Music,
+  BarChart2,
+  ChefHat,
+  CreditCard,
+} from "lucide-react";
+
 export const metadata = {
   title: "Admin Control Tower — smol café",
   description: "Master operations dashboard for smol café staff, managers, and owners.",
@@ -24,7 +36,7 @@ export default async function AdminDashboardPage() {
       title: "Daily Blackboard",
       subtitle: "Chalkboard specials & love notes",
       href: "/admin/blackboard",
-      icon: "✍️",
+      icon: Edit3,
       stat: `${blackboardCount || 1} active note`,
       badge: "Customer Facing",
       badgeColor: "bg-amber-100 text-amber-900 border-amber-300",
@@ -33,7 +45,7 @@ export default async function AdminDashboardPage() {
       title: "Procurement & POs",
       subtitle: "Ingredient stock & purchase orders",
       href: "/admin/procurement",
-      icon: "📦",
+      icon: Package,
       stat: `${lowStockCount || 0} low stock items`,
       badge: "Inventory",
       badgeColor: "bg-orange-100 text-orange-900 border-orange-300",
@@ -42,7 +54,7 @@ export default async function AdminDashboardPage() {
       title: "Category Budgets",
       subtitle: "Monthly expense limits & burn rates",
       href: "/admin/budgets",
-      icon: "💰",
+      icon: DollarSign,
       stat: "8 category caps",
       badge: "Financials",
       badgeColor: "bg-emerald-100 text-emerald-900 border-emerald-300",
@@ -51,7 +63,7 @@ export default async function AdminDashboardPage() {
       title: "Community Events",
       subtitle: "Live sessions, RSVPs & capacity",
       href: "/admin/events",
-      icon: "🎟️",
+      icon: Ticket,
       stat: "Active schedule",
       badge: "Engage",
       badgeColor: "bg-teal-100 text-teal-900 border-teal-300",
@@ -60,7 +72,7 @@ export default async function AdminDashboardPage() {
       title: "Loyalty & Rewards",
       subtitle: "Points multipliers & free coupons",
       href: "/admin/rewards",
-      icon: "🏆",
+      icon: Trophy,
       stat: "Active catalog",
       badge: "Growth",
       badgeColor: "bg-purple-100 text-purple-900 border-purple-300",
@@ -69,7 +81,7 @@ export default async function AdminDashboardPage() {
       title: "Jukebox Queue",
       subtitle: "Manage playlist & guest requests",
       href: "/admin/music",
-      icon: "🎶",
+      icon: Music,
       stat: "Live stream",
       badge: "Vibe",
       badgeColor: "bg-rose-100 text-rose-900 border-rose-300",
@@ -78,7 +90,7 @@ export default async function AdminDashboardPage() {
       title: "Observability",
       subtitle: "Webhooks, RPCs & server health",
       href: "/admin/observability",
-      icon: "📊",
+      icon: BarChart2,
       stat: "100% RPC Health",
       badge: "Telemetry",
       badgeColor: "bg-blue-100 text-blue-900 border-blue-300",
@@ -87,7 +99,7 @@ export default async function AdminDashboardPage() {
       title: "Kitchen KDS",
       subtitle: "Live chef display & ticket pipeline",
       href: "/kitchen",
-      icon: "👨‍🍳",
+      icon: ChefHat,
       stat: `${activeOrdersCount || 0} active tickets`,
       badge: "Floor Ops",
       badgeColor: "bg-red-100 text-red-900 border-red-300",
@@ -96,7 +108,7 @@ export default async function AdminDashboardPage() {
       title: "Cashier Desk",
       subtitle: "Table settlement & cash invoices",
       href: "/cashier",
-      icon: "💳",
+      icon: CreditCard,
       stat: `${activeTablesCount || 0} active tables`,
       badge: "POS Desk",
       badgeColor: "bg-stone-200 text-stone-900 border-stone-400",
@@ -215,7 +227,7 @@ export default async function AdminDashboardPage() {
               >
                 <div>
                   <div className="flex items-start justify-between">
-                    <span className="text-3xl">{mod.icon}</span>
+                    <mod.icon className="h-7 w-7 text-[#9E2A2B]" />
                     <span
                       className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${mod.badgeColor}`}
                     >

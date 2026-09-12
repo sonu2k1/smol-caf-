@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import type { CustomerOrderDetails } from "@/app/orders/actions";
 import { OrderStatusProgress } from "./OrderStatusProgress";
+import { Clock } from "lucide-react";
 
 interface OrderCardProps {
   order: CustomerOrderDetails;
@@ -28,7 +29,7 @@ function getStatusCopy(status: string): StatusCopy {
     case "CONFIRMED":
     case "ACCEPTED":
       return {
-        title: "Order Confirmed ✓",
+        title: "Order Confirmed",
         subtitle: "Cashier verified your order! Pushed to Kitchen for preparation.",
         badgeColor:
           "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900/40",
@@ -42,7 +43,7 @@ function getStatusCopy(status: string): StatusCopy {
       };
     case "READY":
       return {
-        title: "Order is Ready! 🔔",
+        title: "Order is Ready!",
         subtitle:
           "Fresh and piping hot. Your server is bringing it over, or collect at the counter.",
         badgeColor:
@@ -52,7 +53,7 @@ function getStatusCopy(status: string): StatusCopy {
     case "SERVED":
     case "CLOSED":
       return {
-        title: "Served & Enjoyed ✨",
+        title: "Served & Enjoyed",
         subtitle: "Hope you loved it! You can order another round anytime from the menu.",
         badgeColor:
           "bg-stone-100 text-stone-800 border-stone-200 dark:bg-stone-800 dark:text-stone-300 dark:border-stone-700",
@@ -129,12 +130,12 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
             href={`/smol-menu?editOrder=${order.id}`}
             className="rounded-xl bg-[#B72E35] px-3 py-1.5 font-mono text-xs font-bold text-white shadow-xs hover:bg-[#9E242B] active:scale-95 transition"
           >
-            ✏️ Edit Order
+            Edit Order
           </Link>
         </div>
       ) : (order.status === "CONFIRMED" || order.status === "ACCEPTED" || order.status === "PREPARING") ? (
         <div className="rounded-xl border border-stone-200 bg-stone-50 p-2.5 text-[11px] text-stone-600 dark:bg-stone-800/50 dark:border-stone-700 dark:text-stone-300 font-serif italic text-center">
-          🔒 Order confirmed. Preparation has started and editing is locked.
+          Order confirmed. Preparation has started and editing is locked.
         </div>
       ) : null}
 
@@ -151,7 +152,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
           order.etaMinMinutes &&
           order.etaMaxMinutes && (
             <div className="flex-shrink-0 ml-2 flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 text-[11px] font-mono font-bold text-amber-700 dark:text-amber-300">
-              <span>⏱️</span>
+              <Clock className="h-3 w-3" />
               <span>
                 {order.etaMinMinutes}–{order.etaMaxMinutes} min
               </span>

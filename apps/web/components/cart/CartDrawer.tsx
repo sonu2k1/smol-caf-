@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { placeOrderAction, type ChangedItemDiff } from "@/app/menu/actions";
 import { useNetworkHealth } from "@/hooks/useNetworkHealth";
+import { CheckCircle2, Coffee, AlertTriangle } from "lucide-react";
 
 interface CartDrawerProps {
   tableLabel?: string;
@@ -57,6 +58,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
           totalPaise: result.totalPaise || subtotalPaise,
         });
         clearCart();
+
+        // Broadcast order placement in real time to Kitchen KDS
+        try {
+          if (typeof window !== "undefined") {
+            localStorage.setItem("smol_last_order_ts", Date.now().toString());
+            if ("BroadcastChannel" in window) {
+              const bc = new BroadcastChannel("smol_orders_channel");
+              bc.postMessage({ type: "ORDER_PLACED", timestamp: Date.now() });
+              bc.close();
+            }
+          }
+        } catch {
+          // ignore storage/broadcast errors
+        }
       } else if (result.error === "PRICE_CHANGED" && result.changedItems) {
         setPriceConflicts(result.changedItems);
       } else {
@@ -120,8 +135,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
           {orderSuccess ? (
             /* Success State */
             <div className="py-6 text-center space-y-4 animate-scale-in">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl shadow-inner">
-                🎉
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 shadow-inner">
+                <CheckCircle2 className="h-8 w-8" />
               </div>
               <div>
                 <span className="inline-block rounded-md bg-amber-100 px-2.5 py-0.5 font-mono text-[10px] font-bold text-amber-900 uppercase">
@@ -180,7 +195,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
             <div className="space-y-4 py-2 animate-scale-in">
               <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4">
                 <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
-                  <span>⚠️</span>
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-amber-700" />
                   <h4>Item Prices Updated</h4>
                 </div>
                 <p className="mt-1 font-serif text-xs text-amber-800 leading-relaxed">
@@ -219,7 +234,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ tableLabel }) => {
           ) : items.length === 0 ? (
             /* Empty Cart */
             <div className="py-12 text-center space-y-3">
-              <span className="text-4xl">☕</span>
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#EFE7DC] text-[#786F66]">
+                <Coffee className="h-6 w-6" />
+              </div>
               <p className="font-serif text-sm font-bold text-[#1C1917]">
                 Your cart is empty
               </p>

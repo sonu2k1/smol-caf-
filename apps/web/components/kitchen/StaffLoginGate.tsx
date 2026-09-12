@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { staffLoginAction } from "@/app/kitchen/actions";
+import { ChefHat } from "lucide-react";
 
 interface StaffLoginGateProps {
   onSuccess?: () => void;
@@ -41,8 +42,8 @@ export const StaffLoginGate: React.FC<StaffLoginGateProps> = ({ onSuccess }) => 
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#141211] p-4 text-[#FDFBF7]">
       <div className="w-full max-w-sm rounded-3xl border border-stone-800 bg-[#1C1917] p-8 shadow-2xl">
         <div className="text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#9B2C2C] text-2xl text-white">
-            🍳
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#9B2C2C] text-white">
+            <ChefHat className="h-7 w-7" />
           </div>
           <h2 className="text-xl font-bold tracking-tight text-white">smol café • kitchen KDS</h2>
           <p className="mt-1 text-xs text-stone-400">Enter staff PIN to access the kitchen board</p>

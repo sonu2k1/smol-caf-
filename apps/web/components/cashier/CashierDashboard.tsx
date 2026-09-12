@@ -14,6 +14,7 @@ import {
   rejectCashierOrderAction,
   type PendingOrderVerification,
 } from "@/app/cashier/actions";
+import { Bell, Armchair, Sparkles, Check, Receipt } from "lucide-react";
 
 interface CashierDashboardProps {
   initialTables: ActiveCashierTable[];
@@ -223,7 +224,8 @@ export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTable
                 : "bg-stone-900 text-stone-400 hover:bg-stone-800"
             }`}
           >
-            <span>🔔 Order Confirmation Queue</span>
+            <Bell className="h-4 w-4 shrink-0 text-[#F6AD55]" />
+            <span>Order Confirmation Queue</span>
             {pendingOrders.length > 0 && (
               <span className="rounded-full bg-white px-2 py-0.2 text-[10px] font-black text-[#B72E35] animate-bounce">
                 {pendingOrders.length}
@@ -240,7 +242,8 @@ export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTable
                 : "bg-stone-900 text-stone-400 hover:bg-stone-800"
             }`}
           >
-            <span>🪑 Tables &amp; Settlement</span>
+            <Armchair className="h-4 w-4 shrink-0 text-amber-400" />
+            <span>Tables &amp; Settlement</span>
             <span className="rounded-full bg-stone-800 px-2 py-0.2 text-[10px] font-mono text-stone-300">
               {tables.length}
             </span>
@@ -266,7 +269,7 @@ export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTable
 
             {pendingOrders.length === 0 ? (
               <div className="rounded-3xl border border-stone-800 bg-[#1A1715] p-12 text-center text-stone-500 space-y-2">
-                <span className="text-3xl block">✨</span>
+                <Sparkles className="h-8 w-8 text-amber-500 mx-auto" />
                 <p className="text-sm font-bold text-stone-200">No pending orders in queue</p>
                 <p className="text-xs text-stone-500">
                   All customer orders have been confirmed and sent to kitchen preparation.
@@ -305,7 +308,7 @@ export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTable
                       {/* Special Instructions Note if present */}
                       {order.instructions && (
                         <div className="mt-3 rounded-xl border border-amber-800/40 bg-amber-950/20 p-2.5 text-xs text-amber-300 font-serif italic">
-                          📝 &quot;{order.instructions}&quot;
+                          &quot;{order.instructions}&quot;
                         </div>
                       )}
 
@@ -350,7 +353,8 @@ export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTable
                           onClick={() => handleConfirmOrder(order.id)}
                           className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-emerald-500 active:scale-95 transition disabled:opacity-50"
                         >
-                          <span>✓ Confirm &amp; Push to Kitchen</span>
+                          <Check className="h-4 w-4" />
+                          <span>Confirm &amp; Push to Kitchen</span>
                         </button>
                       </div>
                     </div>
@@ -378,7 +382,7 @@ export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTable
 
             {tables.length === 0 ? (
               <div className="rounded-3xl border border-stone-800 bg-[#1A1715] p-8 text-center text-stone-400 space-y-4">
-                <span className="text-3xl block">🪑</span>
+                <Armchair className="h-8 w-8 text-stone-500 mx-auto" />
                 <p className="text-sm font-bold text-stone-200">No open table sessions</p>
                 <p className="text-xs text-stone-500 max-w-sm mx-auto">
                   All tables are currently settled. Open a table for walk-in guests:
@@ -422,7 +426,7 @@ export const CashierDashboard: React.FC<CashierDashboardProps> = ({ initialTable
                           </h2>
                           {isRequested ? (
                             <span className="flex items-center gap-1 rounded-full border border-amber-500/80 bg-amber-500/20 px-2.5 py-0.5 text-xs font-bold text-amber-300 animate-pulse">
-                              🔔 Bill Requested
+                              <Receipt className="h-3.5 w-3.5" /> Bill Requested
                             </span>
                           ) : (
                             <span className="rounded-full bg-stone-800 px-2.5 py-0.5 text-xs font-semibold text-stone-400">

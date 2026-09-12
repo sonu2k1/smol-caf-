@@ -2,17 +2,18 @@
 
 import React from "react";
 import type { OrderStatus } from "@smol-cafe/db";
+import { Clock, Check, ChefHat, Bell, Sparkles, XCircle } from "lucide-react";
 
 interface OrderStatusProgressProps {
   status: OrderStatus;
 }
 
-const STEPS: { key: OrderStatus; label: string; icon: string }[] = [
-  { key: "PENDING_CONFIRMATION", label: "Verification", icon: "⏳" },
-  { key: "CONFIRMED", label: "Confirmed", icon: "✓" },
-  { key: "PREPARING", label: "Preparing", icon: "🍳" },
-  { key: "READY", label: "Ready", icon: "🔔" },
-  { key: "SERVED", label: "Served", icon: "✨" },
+const STEPS: { key: OrderStatus; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { key: "PENDING_CONFIRMATION", label: "Verification", icon: Clock },
+  { key: "CONFIRMED", label: "Confirmed", icon: Check },
+  { key: "PREPARING", label: "Preparing", icon: ChefHat },
+  { key: "READY", label: "Ready", icon: Bell },
+  { key: "SERVED", label: "Served", icon: Sparkles },
 ];
 
 function getStepIndex(status: OrderStatus): number {
@@ -46,8 +47,9 @@ export const OrderStatusProgress: React.FC<OrderStatusProgressProps> = ({ status
 
   if (isCancelled) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50/80 p-3.5 text-center text-xs font-semibold text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
-        ❌ Order {status.toLowerCase()} by café staff.
+      <div className="flex items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50/80 p-3.5 text-center text-xs font-semibold text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
+        <XCircle className="h-4 w-4 shrink-0" />
+        <span>Order {status.toLowerCase()} by café staff.</span>
       </div>
     );
   }
@@ -80,7 +82,7 @@ export const OrderStatusProgress: React.FC<OrderStatusProgressProps> = ({ status
                       : "bg-white text-stone-400 border border-stone-300 dark:bg-stone-900 dark:border-stone-700 dark:text-stone-500"
                 }`}
               >
-                {isCurrent ? step.icon : isDone ? "✓" : idx + 1}
+                {isDone ? <step.icon className="h-4 w-4" /> : idx + 1}
               </div>
               <span
                 className={`mt-1.5 text-[10px] tracking-tight font-medium ${

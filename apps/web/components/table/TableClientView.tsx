@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { switchTableSessionAction } from "@/app/t/actions";
 import { BottomNavBar } from "@/components/navigation/BottomNavBar";
+import { Coffee, UtensilsCrossed } from "lucide-react";
 
 export interface TableItemView {
   id: string;
@@ -201,8 +202,8 @@ export const TableClientView: React.FC<TableClientViewProps> = ({
           ) : (
             /* If Table is Empty (Fresh session) */
             <div className="mt-6 text-center space-y-3 py-3 border-t border-dashed border-[#E2D7C7]">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EFE7DC] text-2xl shadow-inner">
-                ☕
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#EFE7DC] text-[#786F66] shadow-inner">
+                <Coffee className="h-7 w-7" />
               </div>
               <div className="space-y-1">
                 <h3 className="font-serif text-base font-bold text-[#1C1917]">
@@ -226,8 +227,8 @@ export const TableClientView: React.FC<TableClientViewProps> = ({
         {/* Upsell Conversation Board Card */}
         <div className="rounded-2xl border border-[#D0DFD2] bg-[#E3EBE4] p-3.5 flex items-center justify-between gap-3 shadow-xs hover-lift animate-fade-in-up delay-100">
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 shrink-0 rounded-xl bg-[#D4E3D6] border border-[#BED2C1] flex items-center justify-center text-xl overflow-hidden animate-float">
-              🧀
+            <div className="h-12 w-12 shrink-0 rounded-xl bg-[#D4E3D6] border border-[#BED2C1] flex items-center justify-center text-[#2C4830] overflow-hidden animate-float">
+              <UtensilsCrossed className="h-6 w-6" />
             </div>
             <div>
               <p className="font-serif font-bold text-xs text-[#1C1917]">

@@ -5,6 +5,7 @@ import { getTableSessionCookie } from "@/lib/session";
 import { BlackboardCard } from "@/components/blackboard/BlackboardCard";
 import { HomeClientHeader } from "@/components/home/HomeClientHeader";
 import { BottomNavBar } from "@/components/navigation/BottomNavBar";
+import { Music, Calendar, Gift, Zap } from "lucide-react";
 
 export const metadata = {
   title: "smol café — Artisanal Chai, Coffee & Buns",
@@ -199,7 +200,7 @@ export default async function HomePage() {
               className="group rounded-3xl border border-[#C9AE8B]/50 bg-[#FAF4EB] p-4 shadow-xs hover:border-[#B72E35] transition flex flex-col justify-between"
             >
               <div>
-                <span className="text-2xl">🎵</span>
+                <Music className="h-6 w-6 text-[#B72E35]" />
                 <h4 className="font-serif text-sm font-bold text-[#241F1C] mt-2 group-hover:text-[#B72E35] transition lowercase">
                   café jukebox
                 </h4>
@@ -218,7 +219,7 @@ export default async function HomePage() {
               className="group rounded-3xl border border-[#C9AE8B]/50 bg-[#FAF4EB] p-4 shadow-xs hover:border-[#B72E35] transition flex flex-col justify-between"
             >
               <div>
-                <span className="text-2xl">📅</span>
+                <Calendar className="h-6 w-6 text-[#B72E35]" />
                 <h4 className="font-serif text-sm font-bold text-[#241F1C] mt-2 group-hover:text-[#B72E35] transition lowercase">
                   live sessions
                 </h4>
@@ -237,7 +238,7 @@ export default async function HomePage() {
               className="group rounded-3xl border border-[#C9AE8B]/50 bg-[#FAF4EB] p-4 shadow-xs hover:border-[#B72E35] transition flex flex-col justify-between"
             >
               <div>
-                <span className="text-2xl">🎁</span>
+                <Gift className="h-6 w-6 text-[#B72E35]" />
                 <h4 className="font-serif text-sm font-bold text-[#241F1C] mt-2 group-hover:text-[#B72E35] transition lowercase">
                   smol rewards
                 </h4>
@@ -256,7 +257,7 @@ export default async function HomePage() {
               className="group rounded-3xl border border-[#C9AE8B]/50 bg-[#FAF4EB] p-4 shadow-xs hover:border-[#B72E35] transition flex flex-col justify-between"
             >
               <div>
-                <span className="text-2xl">⚡</span>
+                <Zap className="h-6 w-6 text-[#B72E35]" />
                 <h4 className="font-serif text-sm font-bold text-[#241F1C] mt-2 group-hover:text-[#B72E35] transition lowercase">
                   admin tower
                 </h4>

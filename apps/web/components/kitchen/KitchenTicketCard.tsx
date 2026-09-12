@@ -57,13 +57,13 @@ export const KitchenTicketCard: React.FC<KitchenTicketCardProps> = ({ ticket, on
     "bg-stone-900 text-white hover:bg-stone-800 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-200";
 
   if (ticket.status === "ACCEPTED") {
-    actionButtonLabel = "Start Preparing 🍳";
+    actionButtonLabel = "Start Preparing";
     actionButtonColor = "bg-amber-700 text-white hover:bg-amber-800 dark:bg-amber-600";
   } else if (ticket.status === "PREPARING") {
-    actionButtonLabel = "Mark Ready ✨";
+    actionButtonLabel = "Mark Ready";
     actionButtonColor = "bg-[#9B2C2C] text-white hover:bg-[#822424] dark:bg-[#C53030]";
   } else if (ticket.status === "READY") {
-    actionButtonLabel = "Mark Served ✓";
+    actionButtonLabel = "Mark Served";
     actionButtonColor = "bg-emerald-700 text-white hover:bg-emerald-800 dark:bg-emerald-600";
   }
 

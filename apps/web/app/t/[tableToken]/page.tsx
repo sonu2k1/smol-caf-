@@ -1,6 +1,5 @@
 import { resolveQrToken, clearTableSession, activateTableAndRedirectAction } from "../actions";
-
-
+import { AlertTriangle } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ tableToken: string }>;
@@ -17,8 +16,8 @@ export default async function TableEntryPage({ params }: PageProps) {
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#FDFBF7] px-6 py-12 text-[#1C1917] dark:bg-[#141211] dark:text-[#FDFBF7]">
         <div className="w-full max-w-md rounded-3xl border border-stone-200/80 bg-white/80 p-8 text-center shadow-lg shadow-stone-200/40 backdrop-blur-md dark:border-stone-800 dark:bg-stone-900/80 dark:shadow-none">
           {/* Warning Badge / Icon */}
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100/80 text-3xl dark:bg-amber-950/60">
-            ⚠️
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100/80 dark:bg-amber-950/60">
+            <AlertTriangle className="h-8 w-8 text-amber-600 dark:text-amber-400" />
           </div>
 
           <h1 className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">

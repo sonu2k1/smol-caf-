@@ -10,6 +10,8 @@ import {
 import type { OrderStatus } from "@smol-cafe/db";
 import { KitchenTicketCard } from "./KitchenTicketCard";
 import { EtaAccuracyReview } from "./EtaAccuracyReview";
+import { Bell, BellOff, AlertTriangle } from "lucide-react";
+import { useSupabaseRealtime } from "@/hooks/useSupabaseRealtime";
 
 interface KitchenBoardViewProps {
   initialOrders: KitchenTicket[];
@@ -67,15 +69,56 @@ export const KitchenBoardView: React.FC<KitchenBoardViewProps> = ({ initialOrder
     }
   }, [playChime]);
 
-  // 3-Second Polling Loop
+  // Supabase Realtime WebSocket subscription for Instant KDS Ticket updates
+  useSupabaseRealtime({
+    table: "orders",
+    onData: () => {
+      refreshOrders();
+    },
+  });
+
+  // Real-Time Event Listener & Polling Fallback Loop
   useEffect(() => {
+    // 1. Fast 2s Polling
     const interval = setInterval(() => {
       if (document.visibilityState === "visible") {
         refreshOrders();
       }
-    }, 3000);
+    }, 2000);
 
-    return () => clearInterval(interval);
+    // 2. BroadcastChannel Real-Time Push Notification
+    let bc: BroadcastChannel | null = null;
+    try {
+      if ("BroadcastChannel" in window) {
+        bc = new BroadcastChannel("smol_orders_channel");
+        bc.onmessage = (event) => {
+          if (event.data?.type === "ORDER_PLACED") {
+            refreshOrders();
+          }
+        };
+      }
+    } catch {
+      // ignore
+    }
+
+    // 3. LocalStorage Cross-Tab Event Listener
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "smol_last_order_ts") {
+        refreshOrders();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+
+    // 4. Window Focus Listener
+    const handleFocus = () => refreshOrders();
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      if (bc) bc.close();
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("focus", handleFocus);
+    };
   }, [refreshOrders]);
 
   // Optimistic Transition Handler
@@ -145,7 +188,11 @@ export const KitchenBoardView: React.FC<KitchenBoardViewProps> = ({ initialOrder
                   : "border-stone-800 bg-stone-900 text-stone-500 hover:text-stone-300"
               }`}
             >
-              <span>{soundEnabled ? "🔔 Chime On" : "🔕 Chime Off"}</span>
+              {soundEnabled ? (
+                <span className="flex items-center gap-1"><Bell className="h-3.5 w-3.5 text-amber-400" /> Chime On</span>
+              ) : (
+                <span className="flex items-center gap-1"><BellOff className="h-3.5 w-3.5" /> Chime Off</span>
+              )}
             </button>
 
             {/* Live Polling Indicator */}
@@ -181,7 +228,10 @@ export const KitchenBoardView: React.FC<KitchenBoardViewProps> = ({ initialOrder
         {/* Concurrency Conflict Toast */}
         {conflictMessage && (
           <div className="mt-2 flex items-center justify-between rounded-xl border border-amber-800/60 bg-amber-950/60 px-4 py-2 text-xs text-amber-200">
-            <span>⚠️ {conflictMessage}</span>
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
+              <span>{conflictMessage}</span>
+            </div>
             <button
               onClick={() => setConflictMessage(null)}
               className="font-bold text-amber-400 hover:text-amber-200"

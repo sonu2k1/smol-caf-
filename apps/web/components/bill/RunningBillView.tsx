@@ -4,8 +4,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import type { RunningBillDetails } from "@/app/bill/actions";
 import { fetchRunningBillAction, requestBillAction } from "@/app/bill/actions";
-import { RazorpayPaymentButton } from "./RazorpayPaymentButton";
+import { DirectUpiPaymentView } from "./DirectUpiPaymentView";
 import { BottomNavBar } from "@/components/navigation/BottomNavBar";
+import { Receipt, CreditCard, Wallet, ShieldCheck } from "lucide-react";
 
 
 interface RunningBillViewProps {
@@ -66,8 +67,8 @@ export const RunningBillView: React.FC<RunningBillViewProps> = ({ initialBill, h
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#FDFBF7] px-6 py-12 text-center text-[#1C1917] dark:bg-[#141211] dark:text-[#FDFBF7]">
         <div className="w-full max-w-md rounded-3xl border border-stone-200/80 bg-white/80 p-8 shadow-xl dark:border-stone-800 dark:bg-stone-900/80">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100 text-3xl">
-            🧾
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100 text-amber-900 shadow-inner">
+            <Receipt className="h-8 w-8" />
           </div>
           <h2 className="text-2xl font-bold tracking-tight">No Active Session</h2>
           <p className="mt-2 text-xs text-stone-600 dark:text-stone-400">
@@ -203,8 +204,9 @@ export const RunningBillView: React.FC<RunningBillViewProps> = ({ initialBill, h
         )}
 
         {billRequested && !requestMessage && (
-          <div className="rounded-2xl border border-blue-200 bg-blue-50/90 p-3.5 text-center text-xs font-medium text-blue-900 shadow-xs">
-            🧾 Staff has been notified for cash/counter settlement.
+          <div className="flex items-center justify-center gap-2 rounded-2xl border border-blue-200 bg-blue-50/90 p-3.5 text-center text-xs font-medium text-blue-900 shadow-xs">
+            <Receipt className="h-4 w-4 shrink-0 text-blue-700" />
+            <span>Staff has been notified for cash/counter settlement.</span>
           </div>
         )}
 
@@ -237,8 +239,8 @@ export const RunningBillView: React.FC<RunningBillViewProps> = ({ initialBill, h
               className="flex w-full items-center justify-between rounded-2xl border border-[#E2D7C7] bg-[#FAF5ED] p-4 text-left shadow-xs transition hover:border-[#D0C2B0] active:scale-[0.99]"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-base">
-                  💳
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-700">
+                  <CreditCard className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="font-serif font-bold text-sm text-[#1C1917]">Card</p>
@@ -255,8 +257,8 @@ export const RunningBillView: React.FC<RunningBillViewProps> = ({ initialBill, h
               className="flex w-full items-center justify-between rounded-2xl border border-[#E2D7C7] bg-[#FAF5ED] p-4 text-left shadow-xs transition hover:border-[#D0C2B0] active:scale-[0.99]"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-base">
-                  👛
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-800">
+                  <Wallet className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="font-serif font-bold text-sm text-[#1C1917]">Wallets</p>
@@ -268,14 +270,14 @@ export const RunningBillView: React.FC<RunningBillViewProps> = ({ initialBill, h
           </div>
         )}
 
-        {/* Razorpay Online Button */}
+        {/* Direct UPI Payment Engine */}
         {!isClosed && (
           <div className="pt-2">
-            <RazorpayPaymentButton
+            <DirectUpiPaymentView
               tableSessionId={bill.sessionId}
               tableLabel={bill.tableLabel}
-              totalRupees={balanceDueRupees || 742}
-              onSuccess={refreshBill}
+              totalRupees={balanceDueRupees || totalRupees || 742}
+              onPaymentInitiated={refreshBill}
             />
           </div>
         )}
@@ -283,7 +285,7 @@ export const RunningBillView: React.FC<RunningBillViewProps> = ({ initialBill, h
         {/* Security Badge */}
         <div className="pt-3 text-center">
           <p className="inline-flex items-center gap-1.5 font-serif text-xs text-[#8C8075]">
-            <span>🔒</span>
+            <ShieldCheck className="h-4 w-4 text-emerald-700" />
             <span>100% Secure Payments</span>
           </p>
         </div>

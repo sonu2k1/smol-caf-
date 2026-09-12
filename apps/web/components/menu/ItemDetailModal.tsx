@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import type { MenuItemWithDetails } from "@/lib/queries/menu";
 import { useCart } from "@/context/CartContext";
 import { getFoodImage } from "@/lib/food-images";
+import { Coffee } from "lucide-react";
 
 interface ItemDetailModalProps {
   item: MenuItemWithDetails | null;
@@ -43,15 +44,15 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({ item, onClose 
           <div className="flex flex-wrap items-center gap-1.5">
             {isVegan ? (
               <span className="rounded-md bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800 border border-emerald-200">
-                🌱 Vegan
+                Vegan
               </span>
             ) : isVeg ? (
               <span className="rounded-md bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800 border border-emerald-200">
-                🟢 Vegetarian
+                Vegetarian
               </span>
             ) : isEgg ? (
               <span className="rounded-md bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-900 border border-amber-200">
-                🍳 Contains Egg
+                Contains Egg
               </span>
             ) : null}
 
@@ -81,8 +82,8 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({ item, onClose 
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-4xl">
-              ☕
+            <div className="flex h-full w-full items-center justify-center text-[#786F66]">
+              <Coffee className="h-10 w-10" />
             </div>
           )}
         </div>
@@ -142,7 +143,7 @@ export const ItemDetailModal: React.FC<ItemDetailModalProps> = ({ item, onClose 
         {/* Best Pairing Recommendation */}
         {item.metadata?.best_pairing && (
           <div className="mt-3 flex items-start gap-2.5 rounded-2xl border border-[#F4E6C3] bg-[#FDF4DC] p-3.5 shadow-xs">
-            <span className="text-base shrink-0 mt-0.5">☕</span>
+            <Coffee className="h-4 w-4 shrink-0 mt-0.5 text-[#7C5316]" />
             <div>
               <h4 className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#7C5316]">
                 BEST PAIRED WITH
